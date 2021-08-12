@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd /opt/mbee
-yarn install --offline
+cd /opt/app-root
+yarn install
 
 exec "$@"

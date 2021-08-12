@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:4.4
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - mbee
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - mbee
+
+  dis:
+    build: ../dis
+    container_name: dis
+    hostname: dis
+    configs:
+      - source: dis_env_config
+        target: /opt/app-root/.env
+      - source: dis_services_config
+        target: /opt/app-root/services-config.js
+    networks:
+      - mbee
+    depends_on:
+      - redis
+
+  mcf:
+    build: .
+    container_name: mcf
+    hostname: mcf
+    configs:
+      - source: local_config
+        target: /opt/app-root/config/local.cfg
+    environment:
+      MBEE_ENV: local
+    ports:
+      - 9080:9080
+    networks:
+      - mbee
+    depends_on:
+      - mongo
+      - redis
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  mbee:
+    driver: bridge
+    attachable: true
+
+configs:
+  local_config:
+    file: config/local.cfg
+  dis_env_config:
+    file: ../dis/example.env
+  dis_services_config:
+    file: ../dis/services-config.js

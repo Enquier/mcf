@@ -50,7 +50,11 @@ const permissions = M.require('lib.permissions');
 const publicData = M.require('lib.get-public-data');
 const sani = M.require('lib.sanitization');
 const utils = M.require('lib.utils');
+const sync = M.require('lib.sync');
 const mmsConfig = M.config.server.plugins.plugins['mms-adapter'].mms || null;
+
+// MMS modules
+const MMSOrgController = M.require('api.mms-strategy.controllers.organization-controller');
 
 // Publisher
 const publisher = require('../lib/pubsub/publisher');
@@ -212,7 +216,6 @@ async function login(req, res, next) {
       publisher.publish('AUTH_INTEGRATION', JSON.stringify(data));
     });
   }
-
   const json = formatJSON({ token: req.session.token });
   res.locals = {
     message: json,
@@ -499,7 +502,35 @@ async function getOrgs(req, res, next) {
   try {
     // Get all organizations the requesting user has access to
     // NOTE: find() sanitizes arrOrgID.
-    const orgs = await OrgController.find(req.user, ids, options);
+    const orgs = [];
+    const mcfOrgs = await OrgController.find(req.user, ids, options);
+
+    // Support for MMS API Strategy (TODO: needs to be generalized)
+    if (M.config.api.strategy) {
+      const connect = {
+        token: req.session.token,
+        protocol: req.protocol,
+        mms_token: req.session.token
+      };
+      // if (!M.config.auth.strategy.includes('mms')) {
+      //   connect.token = req.session.mms_token;
+      // }
+      try {
+        const mmsOrgs = MMSOrgController.find(req.user, ids, options, connect);
+        if (mmsOrgs.status !== 200) {
+          throw new M.ServerError('Issue creating MMS org');
+        }
+        orgs.push(
+          sync.syncOrgs(req.user, mmsOrgs.data.orgs, mcfOrgs, M.config.api.authority, connect)
+        );
+      }
+      catch (error) {
+        return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
+      }
+    }
+    else {
+      orgs.push(mcfOrgs);
+    }
     // Verify orgs array is not empty
     if (orgs.length === 0) {
       throw new M.NotFoundError('No orgs found.', 'warn');
@@ -604,29 +635,22 @@ async function postOrgs(req, res, next) {
     // Create organizations from org data
     // NOTE: create() sanitizes orgData
     const orgs = await OrgController.create(req.user, orgData, options);
-
-    if (mmsConfig) {
-      orgs.forEach(org => {
-        const port = M.config.server[req.protocol].port;
-        const requestOptions = {
-          url: `${req.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-org`,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${req.session.token}`,
-            'MMS-TOKEN': req.session.mms_token
-          },
-          method: 'post',
-          data: org
-        };
-
-        axios(requestOptions).then(function(response) {
-          if (response.status !== 200) {
-            throw new M.ServerError('Issue creating MMS org');
-          }
-        })
-        .catch(function(error) {
-          return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
-        });
+    if (M.config.api.strategy.includes('mms')) {
+      const mmsConnect = {
+        token: req.session.token,
+        protocol: req.protocol,
+        mms_token: req.session.token
+      };
+      if (!M.config.auth.strategy.includes('mms')) {
+        mmsConnect.token = req.session.mms_token;
+      }
+      MMSOrgController.create(req.user, orgs, options, mmsConnect).then(function(response) {
+        if (response.status !== 200) {
+          throw new M.ServerError('Issue creating MMS org');
+        }
+      })
+      .catch(function(error) {
+        return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
       });
     }
 
@@ -2577,7 +2601,7 @@ async function postElements(req, res, next) {
           M.log.info(`Success: created element ${element.name} in MMS`);
         })
         .catch(function(error) {
-                    M.log.error(error);
+          M.log.error(error);
           return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
         });
       });

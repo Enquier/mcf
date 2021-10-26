@@ -56,6 +56,7 @@ function loadPlugins() {
       downloadPluginFromWebsite(plugins[k]);
     }
     else {
+      M.log.warn(plugins[k].source);
       M.log.warn('Plugin type unknown');
     }
   });

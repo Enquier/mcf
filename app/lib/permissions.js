@@ -117,7 +117,7 @@ function deleteUser(user) {
  * @throws {PermissionError}
  */
 function createOrg(user) {
-  if (!user.admin || M.config.server.allowSandboxes === false) {
+  if (!user.admin || M.config.server.enableSandboxes === false) {
     throw new M.PermissionError('User does not have permission to create orgs.', 'warn');
   }
 }

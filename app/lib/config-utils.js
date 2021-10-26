@@ -77,7 +77,7 @@ module.exports.validate = function(config) {
   // ----------------------------- Verify auth ----------------------------- //
   test(config, 'auth', 'object');
   test(config, 'auth.strategy', 'string');
-  const authStrategies = ['local-strategy', 'ldap-strategy', 'local-ldap-strategy'];
+  const authStrategies = ['local-strategy', 'ldap-strategy', 'local-ldap-strategy', 'mms-strategy', 'local-mms-strategy'];
   if (!authStrategies.includes(config.auth.strategy)) {
     throw new Error(`Configuration file: ${config.auth.strategy} in "auth.strategy" is not a valid`
     + 'authentication strategy.');
@@ -120,6 +120,14 @@ module.exports.validate = function(config) {
     test(config, 'auth.ldap.attributes.preferredName', 'string');
     test(config, 'auth.ldap.attributes.lastName', 'string');
     test(config, 'auth.ldap.attributes.email', 'string');
+  }
+  if (config.auth.strategy.includes('mms')) {
+    test(config, 'auth.mms', 'object');
+    test(config, 'auth.mms.url', 'string');
+    if (config.auth.mms.port !== undefined && config.auth.mms.port !== '') test(config, 'auth.mms.port', 'number');
+
+    test(config, 'auth.mms.attributes', 'object');
+    test(config, 'auth.mms.attributes.username', 'string');
   }
   test(config, 'auth.token', 'object');
   test(config, 'auth.token.expires', 'number');
@@ -246,6 +254,7 @@ module.exports.validate = function(config) {
   test(config, 'server.defaultAdminPassword', 'string');
   test(config, 'server.defaultOrganizationId', 'string');
   test(config, 'server.defaultOrganizationName', 'string');
+  test(config, 'server.enableSandboxes', 'boolean');
   test(config, 'server.http', 'object');
   test(config, 'server.http.enabled', 'boolean');
   if (config.server.http.enabled) test(config, 'server.http.port', 'number');
@@ -418,6 +427,34 @@ module.exports.validate = function(config) {
       test(config, 'artifact.s3.proxy', 'string');
     }
   }
+
+  // ----------------------------- Verify api strategies ----------------------------- //
+  test(config, 'api', 'object');
+  test(config, 'api.strategy', 'string');
+  const apiStrategies = ['mms-strategy'];
+  if (!apiStrategies.includes(config.api.strategy)) {
+    throw new Error(`Configuration file: ${config.api.strategy} in "api.strategy" is not a valid`
+      + 'api strategy.');
+  }
+  const apiStratFiles = fs.readdirSync(path.join(M.root, 'app', 'api'))
+  .filter((file) => file.includes(config.api.strategy));
+  if (apiStratFiles.length === 0) {
+    throw new Error(
+      `Configuration file: API strategy directory ${config.api.strategy} not found in app/api directory.`
+    );
+  }
+
+  // Test to ensure api strategy contains the expected controllers.
+  test(config, 'api.controllers', 'Array');
+  const apiControllers = config.api.controllers;
+  apiControllers.forEach(controller => {
+    const contFiles = fs.readdirSync(path.join(M.root, 'app', 'api', config.api.strategy, 'controllers')).filter(file => file.includes(controller));
+    if (contFiles.length === 0) {
+      throw new Error(
+        `Configuration file: API strategy controller ${controller} not found in app/api/${config.api.strategy}/controllers.`
+      );
+    }
+  });
 };
 
 /**

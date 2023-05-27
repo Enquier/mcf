@@ -22,7 +22,7 @@ module.exports = {
   find,
   create,
   update,
-  createOrUpdate
+  createOrUpdate,
   // remove
 };
 
@@ -32,7 +32,6 @@ const axios = require('axios');
 // MCF modules
 
 // MMS modules
-
 
 const config = M.config.api.mms;
 const mmsUrl = () => {
@@ -106,25 +105,23 @@ async function find(requestingUser, orgIds, options, connect) {
     const url = `${mmsUrl}/orgs`;
     const orgs = await axios({
       method: 'get',
-      url: url,
+      url,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${connect.token}`
-      }
+        Authorization: `Bearer ${connect.token}`,
+      },
     });
     if (orgIds !== null) {
-      return orgIds.forEach(orgId => {
-        const foundOrg = orgs.data.orgs.find(org => org.id === orgId);
+      return orgIds.forEach((orgId) => {
+        const foundOrg = orgs.data.orgs.find((org) => org.id === orgId);
         if ([foundOrg].length < 1) {
           M.log.warn(`Unable to find org: ${orgId} in MMS, skipping.`);
         }
       });
     }
-    else {
-      return orgs.data.orgs;
-    }
-  }
-  catch (error) {
+
+    return orgs.data.orgs;
+  } catch (error) {
     M.log.error(error);
     throw new M.ServerError('Error getting organization from MMS');
   }
@@ -216,7 +213,6 @@ async function update(requestingUser, orgs, options, connect) {
   return createOrUpdate(requestingUser, orgs, options, connect);
 }
 
-
 /**
  * @description This functions creates or updates one or many orgs from the provided data.
  *
@@ -256,20 +252,20 @@ async function update(requestingUser, orgs, options, connect) {
  * });
  */
 async function createOrUpdate(requestingUser, orgs, options, connect) {
-  orgs.forEach(org => {
-    const port = M.config.server[connect.protocol].port;
+  orgs.forEach((org) => {
+    const { port } = M.config.server[connect.protocol];
     const requestOptions = {
       url: `${connect.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-org`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${connect.token}`,
-        'MMS-TOKEN': connect.mms_token
+        'MMS-TOKEN': connect.mms_token,
       },
       method: 'post',
-      data: org
+      data: org,
     };
 
-    axios(requestOptions).then(function(response) {
+    axios(requestOptions).then((response) => {
       if (response.status !== 200) {
         throw new M.ServerError('Issue creating MMS org');
       }
@@ -277,4 +273,3 @@ async function createOrUpdate(requestingUser, orgs, options, connect) {
     });
   });
 }
-

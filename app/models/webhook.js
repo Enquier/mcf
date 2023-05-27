@@ -95,10 +95,10 @@ const extensions = M.require('models.plugin.extensions');
 const WebhookSchema = new db.Schema({
   _id: {
     type: 'String',
-    required: true
+    required: true,
   },
   name: {
-    type: 'String'
+    type: 'String',
   },
   type: {
     type: 'String',
@@ -107,65 +107,63 @@ const WebhookSchema = new db.Schema({
     immutable: true,
     validate: [{
       validator: validators.webhook.type.outgoing,
-      message: props => 'An outgoing webhook must have a url field and '
-        + 'cannot have a tokenLocation.'
+      message: (props) => 'An outgoing webhook must have a url field and '
+        + 'cannot have a tokenLocation.',
     },
     {
       validator: validators.webhook.type.incoming,
-      message: props => 'An incoming webhook must have a token and a '
-        + 'tokenLocation and cannot have a url field.'
-    }]
+      message: (props) => 'An incoming webhook must have a token and a '
+        + 'tokenLocation and cannot have a url field.',
+    }],
   },
   description: {
-    type: 'String'
+    type: 'String',
   },
   triggers: {
     type: 'Object',
     required: true,
     validate: [{
       validator: validators.webhook.triggers,
-      message: props => 'The triggers field must be an array of strings.'
-    }]
+      message: (props) => 'The triggers field must be an array of strings.',
+    }],
   },
   url: {
     type: 'String',
     validate: [{
       validator: validators.webhook.url,
-      message: props => 'The url field must be a string.'
-    }]
+      message: (props) => 'The url field must be a string.',
+    }],
   },
   token: {
     type: 'String',
     validate: [{
       validator: validators.webhook.token,
-      message: props => 'A token must be a string.'
-    }]
+      message: (props) => 'A token must be a string.',
+    }],
   },
   tokenLocation: {
     type: 'String',
     validate: [{
       validator: validators.webhook.tokenLocation,
-      message: props => 'A tokenLocation must be a string.'
-    }]
+      message: (props) => 'A tokenLocation must be a string.',
+    }],
   },
   reference: {
     type: 'String',
     immutabe: true,
     validate: [{
       validator: validators.webhook.reference,
-      message: props => `Invalid reference id ${props.value}: reference must `
-        + 'either be an empty string or match an org, project, or branch id.'
+      message: (props) => `Invalid reference id ${props.value}: reference must `
+        + 'either be an empty string or match an org, project, or branch id.',
     }],
-    default: ''
-  }
+    default: '',
+  },
 });
-
 
 /* ----------------------------( Model Plugin )------------------------------ */
 
 // Use extensions model plugin;
 WebhookSchema.plugin(extensions);
-
 
 /* ----------------------------( Webhook Methods )-----------------------------*/
 
@@ -173,20 +171,19 @@ WebhookSchema.plugin(extensions);
  * @description Send the requests stored in the webhook.
  * @memberOf WebhookSchema
  */
-WebhookSchema.static('sendRequest', async function(webhook, data) {
+WebhookSchema.static('sendRequest', async (webhook, data) => {
   const options = {
     url: webhook.url,
     headers: { 'Content-Type': 'application/json' },
     method: webhook.method || 'post',
-    data: data || undefined
+    data: data || undefined,
   };
 
   if (options.data) options.json = true;
   if (webhook.token) options.token = webhook.token;
   try {
     await axios(options);
-  }
-  catch (err) {
+  } catch (err) {
     M.log.warn(`Webhook ${webhook._id} request error: ${err.message}`);
   }
 });
@@ -195,7 +192,7 @@ WebhookSchema.static('sendRequest', async function(webhook, data) {
  * @description Validates the token sent for an incoming webhook.
  * @memberOf WebhookSchema
  */
-WebhookSchema.static('verifyAuthority', function(webhook, value) {
+WebhookSchema.static('verifyAuthority', (webhook, value) => {
   if (!(webhook.type === 'Incoming' && webhook.token === value)) {
     throw new M.AuthorizationError('Token received from request does not match stored token.', 'warn');
   }
@@ -205,19 +202,14 @@ WebhookSchema.static('verifyAuthority', function(webhook, value) {
  * @description Returns webhook fields that can be changed
  * @memberOf WebhookSchema
  */
-WebhookSchema.static('getValidUpdateFields', function() {
-  return ['name', 'description', 'triggers', 'url', 'token', 'tokenLocation',
-    'archived', 'custom'];
-});
+WebhookSchema.static('getValidUpdateFields', () => ['name', 'description', 'triggers', 'url', 'token', 'tokenLocation',
+  'archived', 'custom']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf WebhookSchema
  */
-WebhookSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy'];
-});
-
+WebhookSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy']);
 
 /* ------------------------( Webhook Schema Export )------------------------- */
 

@@ -23,7 +23,8 @@ import React from 'react';
 
 // Dynamically load banner message
 import uiConfig from '../../../../build/json/uiConfig.json';
-const banner = uiConfig.banner;
+
+const { banner } = uiConfig;
 
 export default function Banner(props) {
   let content = props.children;
@@ -39,7 +40,7 @@ export default function Banner(props) {
       background: banner.background || '#fff',
       fontWeight: banner.bold ? 'bold' : 'normal',
       borderBottom: banner.border || 'none',
-      zIndex: '1000'
+      zIndex: '1000',
     };
 
     const footerStyle = {
@@ -52,7 +53,7 @@ export default function Banner(props) {
       background: banner.background || '#fff',
       fontWeight: banner.bold ? 'bold' : 'normal',
       borderTop: banner.border || 'none',
-      zIndex: '1000'
+      zIndex: '1000',
     };
 
     content = (

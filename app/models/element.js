@@ -68,7 +68,6 @@ const validators = M.require('lib.validators');
 const extensions = M.require('models.plugin.extensions');
 const utils = M.require('lib.utils');
 
-
 /* ----------------------------( Element Schema )---------------------------- */
 /**
  * @namespace
@@ -94,27 +93,27 @@ const ElementSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.element._id.reserved,
-      message: props => 'Element ID cannot include the following words: '
-        + `[${validators.reserved}].`
+      message: (props) => 'Element ID cannot include the following words: '
+        + `[${validators.reserved}].`,
     }, {
       validator: validators.element._id.match,
-      message: props => `Invalid element ID [${utils.parseID(props.value).pop()}].`
+      message: (props) => `Invalid element ID [${utils.parseID(props.value).pop()}].`,
     }, {
       validator: validators.element._id.maxLength,
       // Return a message, with calculated length of element ID (element.max - branch.max - :)
-      message: props => `Element ID length [${props.value.length - validators.branch.idLength - 1}]`
+      message: (props) => `Element ID length [${props.value.length - validators.branch.idLength - 1}]`
         + ` must not be more than ${validators.element.idLength - validators.branch.idLength - 1}`
-        + ' characters.'
+        + ' characters.',
     }, {
       validator: validators.element._id.minLength,
       // Return a message, with calculated length of element ID (element.min - branch.min - :)
-      message: props => `Element ID length [${props.value.length - 9}] must not`
-        + ' be less than 2 characters.'
-    }]
+      message: (props) => `Element ID length [${props.value.length - 9}] must not`
+        + ' be less than 2 characters.',
+    }],
   },
   name: {
     type: 'String',
-    default: ''
+    default: '',
   },
   project: {
     type: 'String',
@@ -122,9 +121,9 @@ const ElementSchema = new db.Schema({
     ref: 'Project',
     validate: [{
       validator: validators.element.project,
-      message: props => `${props.value} is not a valid project ID.`
+      message: (props) => `${props.value} is not a valid project ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   branch: {
     type: 'String',
@@ -133,9 +132,9 @@ const ElementSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.element.branch,
-      message: props => `${props.value} is not a valid branch ID.`
+      message: (props) => `${props.value} is not a valid branch ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   parent: {
     type: 'String',
@@ -144,8 +143,8 @@ const ElementSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.element.parent,
-      message: props => `${props.value} is not a valid parent ID.`
-    }]
+      message: (props) => `${props.value} is not a valid parent ID.`,
+    }],
   },
   source: {
     type: 'String',
@@ -154,11 +153,11 @@ const ElementSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.element.source.id,
-      message: props => `${props.value} is not a valid source ID.`
+      message: (props) => `${props.value} is not a valid source ID.`,
     }, {
       validator: validators.element.source.target,
-      message: props => 'Target is required if source is provided.'
-    }]
+      message: (props) => 'Target is required if source is provided.',
+    }],
   },
   target: {
     type: 'String',
@@ -167,20 +166,20 @@ const ElementSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.element.target.id,
-      message: props => `${props.value} is not a valid target ID.`
+      message: (props) => `${props.value} is not a valid target ID.`,
     }, {
       validator: validators.element.target.source,
-      message: props => 'Source is required if target is provided.'
-    }]
+      message: (props) => 'Source is required if target is provided.',
+    }],
   },
   documentation: {
     type: 'String',
-    default: ''
+    default: '',
   },
   type: {
     type: 'String',
     index: true,
-    default: ''
+    default: '',
   },
   artifact: {
     type: 'String',
@@ -189,16 +188,16 @@ const ElementSchema = new db.Schema({
     default: null,
     validate: [{
       validator: validators.element.artifact,
-      message: props => `${props.value} is not a valid artifact ID.`
-    }]
-  }
+      message: (props) => `${props.value} is not a valid artifact ID.`,
+    }],
+  },
 }); // end of ElementSchema
 
 ElementSchema.virtual('contains', {
   ref: 'Element',
   localField: '_id',
   foreignField: 'parent',
-  justOne: false
+  justOne: false,
 });
 
 // Virtual which stores elements that the retrieved element is a source of
@@ -206,7 +205,7 @@ ElementSchema.virtual('sourceOf', {
   ref: 'Element',
   localField: '_id',
   foreignField: 'source',
-  justOne: false
+  justOne: false,
 });
 
 // Virtual which stores elements that the retrieved element is a target of
@@ -214,13 +213,12 @@ ElementSchema.virtual('targetOf', {
   ref: 'Element',
   localField: '_id',
   foreignField: 'target',
-  justOne: false
+  justOne: false,
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
 // Use extensions model plugin;
 ElementSchema.plugin(extensions);
-
 
 /* ---------------------------( Element Methods )---------------------------- */
 
@@ -228,37 +226,29 @@ ElementSchema.plugin(extensions);
  * @description Returns element fields that can be changed
  * @memberOf ElementSchema
  */
-ElementSchema.static('getValidUpdateFields', function() {
-  return ['name', 'documentation', 'custom', 'archived', 'parent', 'type',
-    'source', 'target', 'artifact'];
-});
+ElementSchema.static('getValidUpdateFields', () => ['name', 'documentation', 'custom', 'archived', 'parent', 'type',
+  'source', 'target', 'artifact']);
 
 /**
  * @description Returns element fields that can be changed in bulk
  * @memberOf ElementSchema
  */
-ElementSchema.static('getValidBulkUpdateFields', function() {
-  return ['name', 'documentation', 'custom', 'archived', 'type', 'source',
-    'target', 'artifact'];
-});
+ElementSchema.static('getValidBulkUpdateFields', () => ['name', 'documentation', 'custom', 'archived', 'type', 'source',
+  'target', 'artifact']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf ElementSchema
  */
-ElementSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy', 'parent', 'source',
-    'target', 'project', 'branch', 'sourceOf', 'targetOf', 'contains',
-    'artifact'];
-});
+ElementSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy', 'parent', 'source',
+  'target', 'project', 'branch', 'sourceOf', 'targetOf', 'contains',
+  'artifact']);
 
 /**
  * @description Returns a list of valid root elements
  * @memberOf ElementSchema
  */
-ElementSchema.static('getValidRootElements', function() {
-  return ['model', '__mbee__', 'holding_bin', 'undefined'];
-});
+ElementSchema.static('getValidRootElements', () => ['model', '__mbee__', 'holding_bin', 'undefined']);
 
 /* ---------------------------( Element Indexes )---------------------------- */
 
@@ -269,9 +259,8 @@ ElementSchema.static('getValidRootElements', function() {
  */
 ElementSchema.index({
   name: 'text',
-  documentation: 'text'
+  documentation: 'text',
 });
-
 
 /* ------------------------( Element Schema Export )------------------------- */
 module.exports = new db.Model('Element', ElementSchema, 'elements');

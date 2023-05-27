@@ -27,7 +27,7 @@ module.exports = {
   getBlob,
   postBlob,
   deleteBlob,
-  listBlobs
+  listBlobs,
 };
 
 // Node modules
@@ -170,16 +170,25 @@ async function find(requestingUser, organizationID, projectID, branchID, artifac
   }
 
   // Find the organization
-  const organization = await helper.findAndValidate(Org, orgID,
-    ((options && options.archived) || validatedOptions.includeArchived));
+  const organization = await helper.findAndValidate(
+    Org,
+    orgID,
+    ((options && options.archived) || validatedOptions.includeArchived),
+  );
 
   // Find the project
-  const project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-    ((options && options.archived) || validatedOptions.includeArchived));
+  const project = await helper.findAndValidate(
+    Project,
+    utils.createID(orgID, projID),
+    ((options && options.archived) || validatedOptions.includeArchived),
+  );
 
   // Find the branch, validate it was found and not archived
-  const branch = await helper.findAndValidate(Branch, utils.createID(orgID, projID, branID),
-    ((options && options.archived) || validatedOptions.includeArchived));
+  const branch = await helper.findAndValidate(
+    Branch,
+    utils.createID(orgID, projID, branID),
+    ((options && options.archived) || validatedOptions.includeArchived),
+  );
 
   // Permissions check
   permissions.readArtifact(reqUser, organization, project, branch);
@@ -192,13 +201,11 @@ async function find(requestingUser, organizationID, projectID, branchID, artifac
   // Check the type of the artifact parameter
   if (Array.isArray(saniArtifacts)) {
     // An array of artifact ids, find all
-    searchQuery._id = { $in: saniArtifacts.map(a => utils.createID(orgID, projID, branchID, a)) };
-  }
-  else if (typeof saniArtifacts === 'string') {
+    searchQuery._id = { $in: saniArtifacts.map((a) => utils.createID(orgID, projID, branchID, a)) };
+  } else if (typeof saniArtifacts === 'string') {
     // A single artifact id
     searchQuery._id = utils.createID(orgID, projID, branchID, saniArtifacts);
-  }
-  else if (!((typeof saniArtifacts === 'object' && saniArtifacts !== null)
+  } else if (!((typeof saniArtifacts === 'object' && saniArtifacts !== null)
     || saniArtifacts === undefined)) {
     // Invalid parameter, throw an error
     throw new M.DataFormatError('Invalid input for finding artifacts.', 'warn');
@@ -206,14 +213,17 @@ async function find(requestingUser, organizationID, projectID, branchID, artifac
 
   try {
     // Find the artifacts
-    return await Artifact.find(searchQuery, validatedOptions.fieldsString,
-      { limit: validatedOptions.limit,
+    return await Artifact.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        limit: validatedOptions.limit,
         skip: validatedOptions.skip,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -252,8 +262,14 @@ async function find(requestingUser, organizationID, projectID, branchID, artifac
  *   M.log.error(error);
  * });
  */
-async function create(requestingUser, organizationID, projectID, branchID,
-  artifacts, options) {
+async function create(
+  requestingUser,
+  organizationID,
+  projectID,
+  branchID,
+  artifacts,
+  options,
+) {
   try {
     M.log.debug('ArtifactController.create(): Start of function');
 
@@ -281,12 +297,10 @@ async function create(requestingUser, organizationID, projectID, branchID,
     if (Array.isArray(saniArtifacts)) {
       // artifacts is an array, create many artifacts
       artsToCreate = saniArtifacts;
-    }
-    else if (typeof saniArtifacts === 'object') {
+    } else if (typeof saniArtifacts === 'object') {
       // artifacts is an object, create a single artifact
       artsToCreate = [saniArtifacts];
-    }
-    else {
+    } else {
       // artifact is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating artifacts.', 'warn');
     }
@@ -333,8 +347,7 @@ async function create(requestingUser, organizationID, projectID, branchID,
         arrIDs.push(artifact.id);
         index++;
       });
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -347,7 +360,7 @@ async function create(requestingUser, organizationID, projectID, branchID,
     // Ensure no artifacts were found
     if (existingArtifact.length > 0) {
       // Get array of found artifact's IDs
-      const foundArtifactID = existingArtifact.map(a => utils.parseID(a._id).pop());
+      const foundArtifactID = existingArtifact.map((a) => utils.parseID(a._id).pop());
 
       throw new M.OperationError('Artifacts with the following IDs already '
         + `exist [${foundArtifactID.toString()}].`, 'warn');
@@ -372,10 +385,12 @@ async function create(requestingUser, organizationID, projectID, branchID,
     // Emit the event artifacts-created
     EventEmitter.emit('artifacts-created', createdArtifacts);
 
-    return await Artifact.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
-  }
-  catch (error) {
+    return await Artifact.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -415,8 +430,14 @@ async function create(requestingUser, organizationID, projectID, branchID,
  *   M.log.error(error);
  * });
  */
-async function update(requestingUser, organizationID, projectID, branchID,
-  artifacts, options) {
+async function update(
+  requestingUser,
+  organizationID,
+  projectID,
+  branchID,
+  artifacts,
+  options,
+) {
   try {
     M.log.debug('ArtifactController.update(): Start of function');
 
@@ -444,12 +465,10 @@ async function update(requestingUser, organizationID, projectID, branchID,
     if (Array.isArray(saniArtifacts)) {
       // artifacts is an array, update many artifacts
       artsToUpdate = saniArtifacts;
-    }
-    else if (typeof saniArtifacts === 'object') {
+    } else if (typeof saniArtifacts === 'object') {
       // artifacts is an object, update a single artifact
       artsToUpdate = [saniArtifacts];
-    }
-    else {
+    } else {
       // artifact is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for updating artifacts.', 'warn');
     }
@@ -495,8 +514,7 @@ async function update(requestingUser, organizationID, projectID, branchID,
         art._id = art.id;
         index++;
       });
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -507,12 +525,10 @@ async function update(requestingUser, organizationID, projectID, branchID,
     const foundArtifact = await Artifact.find(searchQuery, null);
     // Verify the same number of artifacts are found as desired
     if (foundArtifact.length !== arrIDs.length) {
-      const foundIDs = foundArtifact.map(a => a._id);
-      const notFound = arrIDs.filter(a => !foundIDs.includes(a))
-      .map(a => utils.parseID(a).pop());
-      throw new M.NotFoundError(
-        `The following artifacts were not found: [${notFound.toString()}].`, 'warn'
-      );
+      const foundIDs = foundArtifact.map((a) => a._id);
+      const notFound = arrIDs.filter((a) => !foundIDs.includes(a))
+        .map((a) => utils.parseID(a).pop());
+      throw new M.NotFoundError(`The following artifacts were not found: [${notFound.toString()}].`, 'warn');
     }
 
     // Convert artsToUpdate to JMI type 2
@@ -549,17 +565,13 @@ async function update(requestingUser, organizationID, projectID, branchID,
           if (typeof validators.artifact[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.artifact[key]).test(updateArtifact[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateArtifact[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateArtifact[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.artifact[key] === 'function') {
             if (!validators.artifact[key](updateArtifact[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateArtifact[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateArtifact[key]}]`, 'warn');
             }
           }
           // Improperly formatted validator
@@ -592,20 +604,22 @@ async function update(requestingUser, organizationID, projectID, branchID,
       bulkArray.push({
         updateOne: {
           filter: { _id: art._id },
-          update: updateArtifact
-        }
+          update: updateArtifact,
+        },
       });
     });
     await Artifact.bulkWrite(bulkArray);
 
-    const foundArtifacts = await Artifact.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+    const foundArtifacts = await Artifact.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event artifacts-updated
     EventEmitter.emit('artifacts-updated', foundArtifacts);
     return foundArtifacts;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -635,8 +649,14 @@ async function update(requestingUser, organizationID, projectID, branchID,
  *   M.log.error(error);
  * });
  */
-async function remove(requestingUser, organizationID, projectID, branchID,
-  artifacts, options) {
+async function remove(
+  requestingUser,
+  organizationID,
+  projectID,
+  branchID,
+  artifacts,
+  options,
+) {
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options, organizationID, projectID, branchID);
@@ -658,14 +678,12 @@ async function remove(requestingUser, organizationID, projectID, branchID,
     if (Array.isArray(saniArtifacts) && saniArtifacts.length !== 0) {
       // An array of artifact ids, remove all
       artifactsToFind = saniArtifacts.map(
-        e => utils.createID(orgID, projID, branID, e)
+        (e) => utils.createID(orgID, projID, branID, e),
       );
-    }
-    else if (typeof saniArtifacts === 'string') {
+    } else if (typeof saniArtifacts === 'string') {
       // A single artifact id, remove one
       artifactsToFind = [utils.createID(orgID, projID, branID, saniArtifacts)];
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing artifacts.', 'warn');
     }
@@ -696,17 +714,17 @@ async function remove(requestingUser, organizationID, projectID, branchID,
     // Find the artifacts to delete
     const foundArtifacts = await Artifact.find(searchQuery, null);
     const foundArtifactIDs = [];
-    foundArtifacts.forEach(a => {
+    foundArtifacts.forEach((a) => {
       foundArtifactIDs.push(a._id);
       foundArtifactFullPath.push({ location: a.location, filename: a.filename });
     });
 
     // Check if all artifacts were found
-    const notFoundIDs = artifactsToFind.filter(a => !foundArtifactIDs.includes(a));
+    const notFoundIDs = artifactsToFind.filter((a) => !foundArtifactIDs.includes(a));
     // Some artifacts not found, throw an error
     if (notFoundIDs.length > 0) {
       throw new M.NotFoundError('The following artifacts were not found: '
-        + `[${notFoundIDs.map(a => utils.parseID(a).pop())}].`, 'warn');
+        + `[${notFoundIDs.map((a) => utils.parseID(a).pop())}].`, 'warn');
     }
     // Delete the artifacts
     await Artifact.deleteMany(searchQuery);
@@ -722,20 +740,20 @@ async function remove(requestingUser, organizationID, projectID, branchID,
         // Push promise to array
         promises.push(
           Artifact.find(query)
-          .then((foundArtifact) => {
+            .then((foundArtifact) => {
             // If no blob is found, delete that blob
-            if (foundArtifact.length === 0) {
-              const blobToDelete = {
-                project: projID,
-                org: orgID,
-                location: a.location,
-                filename: a.filename
-              };
+              if (foundArtifact.length === 0) {
+                const blobToDelete = {
+                  project: projID,
+                  org: orgID,
+                  location: a.location,
+                  filename: a.filename,
+                };
 
-              // Delete the artifact blob
-              return ArtifactStrategy.deleteBlob(blobToDelete);
-            }
-          })
+                // Delete the artifact blob
+                return ArtifactStrategy.deleteBlob(blobToDelete);
+              }
+            }),
         );
       });
     }
@@ -748,8 +766,7 @@ async function remove(requestingUser, organizationID, projectID, branchID,
 
     // Return unique IDs of artifacts deleted
     return foundArtifactIDs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -769,8 +786,13 @@ async function remove(requestingUser, organizationID, projectID, branchID,
  *
  * @returns {Promise<Buffer>} Artifact Blob object.
  */
-async function getBlob(requestingUser, organizationID,
-  projectID, artifact, options) {
+async function getBlob(
+  requestingUser,
+  organizationID,
+  projectID,
+  artifact,
+  options,
+) {
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options, organizationID, projectID);
@@ -797,8 +819,7 @@ async function getBlob(requestingUser, organizationID,
 
     // Include artifact blob in return obj
     return await ArtifactStrategy.getBlob(saniArt);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -822,8 +843,14 @@ async function getBlob(requestingUser, organizationID,
  * @returns {Promise<object>} Object that contains artifact location, filename,
  * and project.
  */
-async function postBlob(requestingUser, organizationID,
-  projectID, artifact, artifactBlob, options) {
+async function postBlob(
+  requestingUser,
+  organizationID,
+  projectID,
+  artifact,
+  artifactBlob,
+  options,
+) {
   try {
     // Ensure artifact blob is buffer type
     if (Buffer.isBuffer(artifactBlob) === false) {
@@ -858,8 +885,7 @@ async function postBlob(requestingUser, organizationID,
 
     // Return artifact object
     return saniArt;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -880,8 +906,13 @@ async function postBlob(requestingUser, organizationID,
  * @returns {Promise<object>} Object that contains artifact location, filename,
  * and project.
  */
-async function deleteBlob(requestingUser, organizationID, projectID,
-  artifact, options) {
+async function deleteBlob(
+  requestingUser,
+  organizationID,
+  projectID,
+  artifact,
+  options,
+) {
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options, organizationID, projectID);
@@ -911,8 +942,7 @@ async function deleteBlob(requestingUser, organizationID, projectID,
 
     // Return Artifact obj
     return saniArt;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -950,13 +980,12 @@ async function listBlobs(requestingUser, organizationID, projectID, options) {
 
     const artData = {
       project: projID,
-      org: orgID
+      org: orgID,
     };
 
     // Return the list of blob data
     return ArtifactStrategy.listBlobs(artData);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

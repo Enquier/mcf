@@ -15,7 +15,7 @@
  */
 
 // Node modules
-const crypto = require('crypto');  // NOTE: Refers to standard node crypto library
+const crypto = require('crypto'); // NOTE: Refers to standard node crypto library
 
 // Create an Initialization Vector (IV) of 16 random bytes for the createCipheriv
 // and createDecipheriv functions
@@ -25,7 +25,6 @@ const keyLength = 32;
 // Generate a cryptographic key in buffer form from the secret in the config.
 // Limit size of the buffer to the specified key length.
 const key = Buffer.concat([Buffer.from(M.config.server.secret)], keyLength);
-
 
 /**
  * @description Encrypts data with AES-256 using the app secret and returns the
@@ -76,8 +75,7 @@ module.exports.decrypt = function decrypt(data) {
 
     // Return decrypted string
     return decrypted;
-  }
-  catch (error) {
+  } catch (error) {
     // Decryption failed, throw an error
     // NOTE: Changed from returning '{}' to throwing an error
     throw new M.ServerError('Decryption failed.', 'warn');

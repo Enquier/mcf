@@ -24,13 +24,15 @@ import {
   FormGroup,
   Label,
   Input,
-  Col
+  Col,
 } from 'reactstrap';
 
 /* eslint-enable no-unused-vars */
 
 function ElementTextbox(props) {
-  const { name, label, value, id, disabled, children, placeholder, onChange } = props;
+  const {
+    name, label, value, id, disabled, children, placeholder, onChange,
+  } = props;
   return (
     <React.Fragment>
       <Col sm={2} style={{ paddingRight: 1 }}>

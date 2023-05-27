@@ -50,31 +50,31 @@ const ArtifactSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.artifact._id.reserved,
-      message: props => 'Artifact ID cannot include the following words: '
-        + `[${validators.reserved}].`
+      message: (props) => 'Artifact ID cannot include the following words: '
+        + `[${validators.reserved}].`,
     }, {
       validator: validators.artifact._id.match,
-      message: props => `Invalid artifact ID [${utils.parseID(props.value).pop()}].`
+      message: (props) => `Invalid artifact ID [${utils.parseID(props.value).pop()}].`,
     }, {
       validator: validators.artifact._id.maxLength,
       // Return a message, with calculated length of artifact ID (artifact.max - branch.max - :)
-      message: props => `Artifact ID length [${props.value.length - validators.branch.idLength - 1}]`
+      message: (props) => `Artifact ID length [${props.value.length - validators.branch.idLength - 1}]`
         + ` must not be more than ${validators.artifact.idLength - validators.branch.idLength - 1}`
-        + ' characters.'
+        + ' characters.',
     }, {
       validator: validators.artifact._id.minLength,
       // Return a message, with calculated length of artifact ID (artifact.min - branch.min - :)
-      message: props => `Artifact ID length [${props.value.length - 9}] must not`
-        + ' be less than 2 characters.'
-    }]
+      message: (props) => `Artifact ID length [${props.value.length - 9}] must not`
+        + ' be less than 2 characters.',
+    }],
   },
   description: {
     type: 'String',
-    default: ''
+    default: '',
   },
   size: {
     type: 'Number',
-    default: 0
+    default: 0,
   },
   project: {
     type: 'String',
@@ -82,9 +82,9 @@ const ArtifactSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.artifact.project,
-      message: props => `${props.value} is not a valid project ID.`
+      message: (props) => `${props.value} is not a valid project ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   branch: {
     type: 'String',
@@ -93,31 +93,31 @@ const ArtifactSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.artifact.branch,
-      message: props => `${props.value} is not a valid branch ID.`
+      message: (props) => `${props.value} is not a valid branch ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   filename: {
     type: 'String',
     required: true,
     validate: [{
       validator: validators.artifact.filename,
-      message: props => `Artifact filename [${props.value}] is improperly formatted.`
-    }]
+      message: (props) => `Artifact filename [${props.value}] is improperly formatted.`,
+    }],
   },
   location: {
     type: 'String',
     required: true,
     validate: [{
       validator: validators.artifact.location,
-      message: props => `Artifact location [${props.value}] is improperly formatted.`
-    }]
+      message: (props) => `Artifact location [${props.value}] is improperly formatted.`,
+    }],
   },
   strategy: {
     type: 'String',
     required: true,
-    immutable: true
-  }
+    immutable: true,
+  },
 });
 
 // Virtual which stores elements that reference this artifact
@@ -125,7 +125,7 @@ ArtifactSchema.virtual('referencedBy', {
   ref: 'Element',
   localField: '_id',
   foreignField: 'artifact',
-  justOne: false
+  justOne: false,
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
@@ -137,18 +137,14 @@ ArtifactSchema.plugin(extensions);
  * @description Returns artifact fields that can be changed
  * @memberOf ArtifactSchema
  */
-ArtifactSchema.static('getValidUpdateFields', function() {
-  return ['filename', 'description', 'custom', 'archived', 'location', 'size'];
-});
+ArtifactSchema.static('getValidUpdateFields', () => ['filename', 'description', 'custom', 'archived', 'location', 'size']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf ArtifactSchema
  */
-ArtifactSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy', 'project', 'branch',
-    'referencedBy'];
-});
+ArtifactSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy', 'project', 'branch',
+  'referencedBy']);
 
 /* ----------------------( Artifact Schema Export )---------------------- */
 

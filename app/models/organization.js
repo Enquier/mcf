@@ -69,42 +69,42 @@ const OrganizationSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.org._id.reserved,
-      message: props => 'Organization ID cannot include the following words: '
-        + `[${validators.reserved}].`
+      message: (props) => 'Organization ID cannot include the following words: '
+        + `[${validators.reserved}].`,
     }, {
       validator: validators.org._id.match,
-      message: props => `Invalid org ID [${props.value}].`
+      message: (props) => `Invalid org ID [${props.value}].`,
     }, {
       validator: validators.org._id.maxLength,
-      message: props => `Org ID length [${props.value.length}] must not be more`
-        + ` than ${validators.org.idLength} characters.`
+      message: (props) => `Org ID length [${props.value.length}] must not be more`
+        + ` than ${validators.org.idLength} characters.`,
     }, {
       validator: validators.org._id.minLength,
-      message: props => `Org ID length [${props.value.length}] must not be less`
-        + ' than 2 characters.'
-    }]
+      message: (props) => `Org ID length [${props.value.length}] must not be less`
+        + ' than 2 characters.',
+    }],
   },
   name: {
     type: 'String',
     index: true,
-    required: true
+    required: true,
   },
   permissions: {
     type: 'Object',
     default: {},
     validate: [{
       validator: validators.org.permissions,
-      message: props => 'The organization permissions object is not properly '
-        + 'formatted.'
-    }]
-  }
+      message: (props) => 'The organization permissions object is not properly '
+        + 'formatted.',
+    }],
+  },
 });
 
 OrganizationSchema.virtual('projects', {
   ref: 'Project',
   localField: '_id',
   foreignField: 'org',
-  justOne: false
+  justOne: false,
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
@@ -116,26 +116,19 @@ OrganizationSchema.plugin(extensions);
  * @description Returns supported permission levels
  * @memberOf OrganizationSchema
  */
-OrganizationSchema.static('getPermissionLevels', function() {
-  return ['remove_all', 'read', 'write', 'admin'];
-});
+OrganizationSchema.static('getPermissionLevels', () => ['remove_all', 'read', 'write', 'admin']);
 
 /**
  * @description Returns organization fields that can be changed
  * @memberOf OrganizationSchema
  */
-OrganizationSchema.static('getValidUpdateFields', function() {
-  return ['name', 'custom', 'archived', 'permissions'];
-});
+OrganizationSchema.static('getValidUpdateFields', () => ['name', 'custom', 'archived', 'permissions']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf OrganizationSchema
  */
-OrganizationSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy', 'projects'];
-});
-
+OrganizationSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy', 'projects']);
 
 /* ----------------------( Organization Schema Export )---------------------- */
 

@@ -28,7 +28,7 @@ const utils = M.require('lib.utils');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser;
 let org;
 let project;
@@ -56,8 +56,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       project = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(project._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -73,8 +72,7 @@ describe(M.getModuleName(module.filename), () => {
       await Webhook.deleteMany({ _id: { $in: webhookIDs } });
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -120,7 +118,7 @@ describe(M.getModuleName(module.filename), () => {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function post(reference) {
-  return function(done) {
+  return function (done) {
     const webhookData = testData.webhooks[0];
 
     let levelData;
@@ -129,7 +127,7 @@ function post(reference) {
       case 'org':
         levelData = orgWebhooks;
         ref = {
-          org: org._id
+          org: org._id,
         };
         webhookData.reference = ref;
         break;
@@ -137,7 +135,7 @@ function post(reference) {
         levelData = projWebhooks;
         ref = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         webhookData.reference = ref;
         break;
@@ -146,7 +144,7 @@ function post(reference) {
         ref = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         webhookData.reference = ref;
         break;
@@ -176,8 +174,7 @@ function post(reference) {
       chai.expect(createdWebhook.triggers).to.deep.equal(webhookData.triggers);
       if (createdWebhook.type === 'Outgoing') {
         chai.expect(createdWebhook.url).to.equal(webhookData.url);
-      }
-      else {
+      } else {
         chai.expect(createdWebhook.token).to.equal(token);
         chai.expect(createdWebhook.tokenLocation).to.equal(webhookData.tokenLocation);
       }
@@ -192,8 +189,12 @@ function post(reference) {
       chai.expect(createdWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
 
       // Expect the statusCode to be 200
       chai.expect(res.statusCode).to.equal(200);
@@ -220,7 +221,7 @@ function post(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function postMany(reference) {
-  return function(done) {
+  return function (done) {
     const webhookData = testData.webhooks.slice(1, 3);
 
     let levelData;
@@ -229,7 +230,7 @@ function postMany(reference) {
       case 'org':
         levelData = orgWebhooks;
         ref = {
-          org: org._id
+          org: org._id,
         };
         webhookData.forEach((webhook) => {
           webhook.reference = ref;
@@ -239,7 +240,7 @@ function postMany(reference) {
         levelData = projWebhooks;
         ref = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         webhookData.forEach((webhook) => {
           webhook.reference = ref;
@@ -250,7 +251,7 @@ function postMany(reference) {
         ref = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         webhookData.forEach((webhook) => {
           webhook.reference = ref;
@@ -289,8 +290,7 @@ function postMany(reference) {
         chai.expect(createdWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
         if (createdWebhook.type === 'Outgoing') {
           chai.expect(createdWebhook.url).to.equal(webhookDataObj.url);
-        }
-        else {
+        } else {
           chai.expect(createdWebhook.token).to.equal(token);
           chai.expect(createdWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
         }
@@ -305,8 +305,12 @@ function postMany(reference) {
         chai.expect(createdWebhook.archived).to.equal(false);
 
         // Verify specific fields not returned
-        chai.expect(createdWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-          '__v', '_id');
+        chai.expect(createdWebhook).to.not.have.any.keys(
+          'archivedOn',
+          'archivedBy',
+          '__v',
+          '_id',
+        );
 
         // Save the webhook for later use
         createdWebhook._id = createdWebhook.id;
@@ -334,7 +338,7 @@ function postMany(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function getAll(reference) {
-  return function(done) {
+  return function (done) {
     let webhookData;
 
     let ref;
@@ -342,14 +346,14 @@ function getAll(reference) {
       case 'org':
         webhookData = orgWebhooks;
         ref = {
-          org: org._id
+          org: org._id,
         };
         break;
       case 'project':
         webhookData = projWebhooks;
         ref = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         break;
       case 'branch':
@@ -357,7 +361,7 @@ function getAll(reference) {
         ref = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         break;
       case 'all':
@@ -398,8 +402,7 @@ function getAll(reference) {
         chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
         if (foundWebhook.type === 'Outgoing') {
           chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-        }
-        else {
+        } else {
           chai.expect(foundWebhook.token).to.equal(webhookDataObj.token);
           chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
         }
@@ -413,8 +416,12 @@ function getAll(reference) {
         chai.expect(foundWebhook.updatedOn).to.not.equal(null);
 
         // Verify specific fields not returned
-        chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-          '__v', '_id');
+        chai.expect(foundWebhook).to.not.have.any.keys(
+          'archivedOn',
+          'archivedBy',
+          '__v',
+          '_id',
+        );
       });
 
       // Expect the statusCode to be 200
@@ -437,21 +444,21 @@ function getAll(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function patch(reference) {
-  return function(done) {
+  return function (done) {
     let webhookData;
     let ref;
     switch (reference) {
       case 'org':
         webhookData = orgWebhooks[0];
         ref = {
-          org: org._id
+          org: org._id,
         };
         break;
       case 'project':
         webhookData = projWebhooks[0];
         ref = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         break;
       case 'branch':
@@ -459,7 +466,7 @@ function patch(reference) {
         ref = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         break;
       default:
@@ -469,7 +476,7 @@ function patch(reference) {
     // Create request object
     const body = {
       id: webhookData._id,
-      name: 'Patch test'
+      name: 'Patch test',
     };
     const params = { webhookid: webhookData._id };
     const method = 'PATCH';
@@ -499,8 +506,12 @@ function patch(reference) {
       chai.expect(updatedWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(updatedWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
 
       // Expect the statusCode to be 200
       chai.expect(res.statusCode).to.equal(200);
@@ -522,21 +533,21 @@ function patch(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function patchMany(reference) {
-  return function(done) {
+  return function (done) {
     let webhookData;
     let ref;
     switch (reference) {
       case 'org':
         webhookData = orgWebhooks.slice(1, 3);
         ref = {
-          org: org._id
+          org: org._id,
         };
         break;
       case 'project':
         webhookData = projWebhooks.slice(1, 3);
         ref = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         break;
       case 'branch':
@@ -544,7 +555,7 @@ function patchMany(reference) {
         ref = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         break;
       default:
@@ -554,10 +565,10 @@ function patchMany(reference) {
     // Create request object
     const body = [{
       id: webhookData[0]._id,
-      name: 'Patch test'
+      name: 'Patch test',
     }, {
       id: webhookData[1]._id,
-      name: 'Patch test'
+      name: 'Patch test',
     }];
     const params = {};
     const method = 'PATCH';
@@ -586,8 +597,7 @@ function patchMany(reference) {
         if (updatedWebhook.response) {
           chai.expect(updatedWebhook.response.url).to.equal(webhookDataObj.response.url);
           chai.expect(updatedWebhook.response.method).to.equal(webhookDataObj.response.method || 'POST');
-        }
-        else {
+        } else {
           chai.expect(updatedWebhook.token).to.equal(webhookDataObj.token);
           chai.expect(updatedWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
         }
@@ -602,8 +612,12 @@ function patchMany(reference) {
         chai.expect(updatedWebhook.archived).to.equal(false);
 
         // Verify specific fields not returned
-        chai.expect(updatedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-          '__v', '_id');
+        chai.expect(updatedWebhook).to.not.have.any.keys(
+          'archivedOn',
+          'archivedBy',
+          '__v',
+          '_id',
+        );
       });
 
       // Expect the statusCode to be 200
@@ -626,7 +640,7 @@ function patchMany(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function remove(reference) {
-  return function(done) {
+  return function (done) {
     let webhookID;
     if (reference === 'org') {
       webhookID = orgWebhooks[0]._id;
@@ -677,7 +691,7 @@ function remove(reference) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function removeMany(reference) {
-  return function(done) {
+  return function (done) {
     let deleteIDs;
     if (reference === 'org') {
       deleteIDs = orgWebhooks.slice(1, 3).map((w) => w._id);

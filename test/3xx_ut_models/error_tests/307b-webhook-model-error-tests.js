@@ -60,13 +60,12 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function noID() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
 
     // Save webhook; expect specific error message
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation failed: _id: '
       + 'Path `_id` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -81,7 +80,7 @@ async function noID() {
  */
 async function noType() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     delete webhookData.type;
@@ -89,8 +88,7 @@ async function noType() {
     // Save webhook; expect specific error message
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation failed: type: '
       + 'Path `type` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -105,7 +103,7 @@ async function noType() {
  */
 async function invalidType() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     delete webhookData.type;
@@ -113,8 +111,7 @@ async function invalidType() {
     // Save webhook; expect specific error message
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation failed: type: '
       + 'Path `type` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -129,27 +126,25 @@ async function invalidType() {
  */
 async function typeImmutable() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     // Create the webhook
     await Webhook.insertMany(webhookData);
 
     const update = {
-      type: 'Incoming'
+      type: 'Incoming',
     };
 
     // Update webhook; expect specific error message
     await Webhook.updateOne({ _id: webhookID }, update)
-    .should.eventually.be.rejectedWith('Webhook validation failed: type: Path'
+      .should.eventually.be.rejectedWith('Webhook validation failed: type: Path'
       + ' `type` is immutable and cannot be modified.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
-  }
-  finally {
+  } finally {
     // Remove the webhook
     await Webhook.deleteMany({ _id: webhookID });
   }
@@ -160,7 +155,7 @@ async function typeImmutable() {
  */
 async function noTriggers() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     delete webhookData.triggers;
@@ -168,8 +163,7 @@ async function noTriggers() {
     // Save webhook; expect specific error message
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: triggers: Path `triggers` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -184,7 +178,7 @@ async function noTriggers() {
  */
 async function invalidTriggers() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     webhookData.triggers = {};
@@ -192,8 +186,7 @@ async function invalidTriggers() {
     // Save webhook; expect specific error message
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: triggers: The triggers field must be an array of strings.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -208,7 +201,7 @@ async function invalidTriggers() {
  */
 async function noUrlOutgoing() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     delete webhookData.url;
@@ -217,8 +210,7 @@ async function noUrlOutgoing() {
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: type: An outgoing webhook must have a url field and cannot have a'
       + ' tokenLocation.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -233,7 +225,7 @@ async function noUrlOutgoing() {
  */
 async function urlIncoming() {
   try {
-    const webhookData = Object.assign({}, testData.webhooks[1]);
+    const webhookData = { ...testData.webhooks[1] };
     webhookData._id = webhookID;
 
     webhookData.url = 'test';
@@ -242,8 +234,7 @@ async function urlIncoming() {
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: type: An incoming webhook must have a token and a tokenLocation and cannot have'
       + ' a url field.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -259,7 +250,7 @@ async function urlIncoming() {
 async function noTokenIncoming() {
   try {
     // Get test data for an incoming webhook
-    const webhookData = Object.assign({}, testData.webhooks[1]);
+    const webhookData = { ...testData.webhooks[1] };
     webhookData._id = webhookID;
 
     delete webhookData.token;
@@ -268,8 +259,7 @@ async function noTokenIncoming() {
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: type: An incoming webhook must have a token and a tokenLocation and cannot have'
       + ' a url field.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -285,7 +275,7 @@ async function noTokenIncoming() {
 async function noTokenLocationIncoming() {
   try {
     // Get test data for an incoming webhook
-    const webhookData = Object.assign({}, testData.webhooks[1]);
+    const webhookData = { ...testData.webhooks[1] };
     webhookData._id = webhookID;
 
     delete webhookData.tokenLocation;
@@ -294,8 +284,7 @@ async function noTokenLocationIncoming() {
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: type: An incoming webhook must have a token and a tokenLocation and cannot have'
       + ' a url field.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -311,7 +300,7 @@ async function noTokenLocationIncoming() {
 async function tokenLocationOutgoing() {
   try {
     // Get test data for an outgoing webhook
-    const webhookData = Object.assign({}, testData.webhooks[0]);
+    const webhookData = { ...testData.webhooks[0] };
     webhookData._id = webhookID;
 
     webhookData.tokenLocation = 'test';
@@ -320,8 +309,7 @@ async function tokenLocationOutgoing() {
     await Webhook.insertMany(webhookData).should.eventually.be.rejectedWith('Webhook validation '
       + 'failed: type: An outgoing webhook must have a url field and cannot have a'
       + ' tokenLocation.');
-  }
-  catch (error) {
+  } catch (error) {
     // Remove the webhook in case the test failed
     await Webhook.deleteMany({ _id: webhookID });
 
@@ -349,14 +337,12 @@ async function verifyToken() {
 
     // Run the webhook test for tokens; it will throw an error if they don't match
     chai.expect(Webhook.verifyAuthority.bind(Webhook, webhooks[0], token))
-    .to.throw(M.AuthorizationError);
-  }
-  catch (error) {
+      .to.throw(M.AuthorizationError);
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
-  }
-  finally {
+  } finally {
     // Remove the webhook
     await Webhook.deleteMany({ _id: webhookID });
   }

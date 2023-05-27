@@ -49,7 +49,7 @@ let testData = JSON.parse(fs.readFileSync(path.join(M.root, 'test', 'test_data.j
  *
  * @returns {Promise<User>} Returns the newly created user upon completion.
  */
-module.exports.createNonAdminUser = async function() {
+module.exports.createNonAdminUser = async function () {
   try {
     // Attempt to find the non-admin user
     const foundUser = await User.findOne({ _id: testData.users[1].username });
@@ -59,42 +59,42 @@ module.exports.createNonAdminUser = async function() {
       return foundUser;
     }
     // User not found, create them
-    else {
-      // Create user
-      const user = {
-        _id: testData.users[1].username,
-        password: testData.users[1].password,
-        fname: testData.users[1].fname,
-        lname: testData.users[1].lname,
-        admin: false
-      };
 
-      // Hash the user password
-      User.hashPassword(user);
+    // Create user
+    const user = {
+      _id: testData.users[1].username,
+      password: testData.users[1].password,
+      fname: testData.users[1].fname,
+      lname: testData.users[1].lname,
+      admin: false,
+    };
 
-      // Save user object to the database
-      const newUser = (await User.insertMany(user))[0];
+    // Hash the user password
+    User.hashPassword(user);
 
-      // Find the default organization
-      const defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
+    // Save user object to the database
+    const newUser = (await User.insertMany(user))[0];
 
-      // If the default org is not found, throw an error... this is a big problem if this occurs
-      if (defaultOrg === null) {
-        throw new M.ServerError('Default org not found during unit tests.', 'error');
-      }
+    // Find the default organization
+    const defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
 
-      // Add user to default org read/write permissions
-      defaultOrg.permissions[newUser._id] = ['read', 'write'];
-
-      // Save the updated org
-      await Organization.updateOne({ _id: defaultOrg._id },
-        { permissions: defaultOrg.permissions });
-
-      // Return the newly created user
-      return newUser;
+    // If the default org is not found, throw an error... this is a big problem if this occurs
+    if (defaultOrg === null) {
+      throw new M.ServerError('Default org not found during unit tests.', 'error');
     }
-  }
-  catch (error) {
+
+    // Add user to default org read/write permissions
+    defaultOrg.permissions[newUser._id] = ['read', 'write'];
+
+    // Save the updated org
+    await Organization.updateOne(
+      { _id: defaultOrg._id },
+      { permissions: defaultOrg.permissions },
+    );
+
+    // Return the newly created user
+    return newUser;
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -104,7 +104,7 @@ module.exports.createNonAdminUser = async function() {
  *
  * @returns {Promise<User>} Returns the newly created admin user upon completion.
  */
-module.exports.createTestAdmin = async function() {
+module.exports.createTestAdmin = async function () {
   try {
     // Attempt to find the admin user
     const foundUser = await User.findOne({ _id: testData.adminUser.username });
@@ -114,36 +114,36 @@ module.exports.createTestAdmin = async function() {
       return foundUser;
     }
     // Admin user not found, create them
-    else {
-      // Create user
-      const user = {
-        _id: testData.adminUser.username,
-        password: testData.adminUser.password,
-        provider: 'local',
-        admin: true,
-        changePassword: false
-      };
 
-      User.hashPassword(user);
+    // Create user
+    const user = {
+      _id: testData.adminUser.username,
+      password: testData.adminUser.password,
+      provider: 'local',
+      admin: true,
+      changePassword: false,
+    };
 
-      // Save user object to the database
-      const newAdminUser = (await User.insertMany(user))[0];
+    User.hashPassword(user);
 
-      // Find the default organization
-      const defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
+    // Save user object to the database
+    const newAdminUser = (await User.insertMany(user))[0];
 
-      // Add user to default org read/write permissions
-      defaultOrg.permissions[newAdminUser._id] = ['read', 'write'];
+    // Find the default organization
+    const defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
 
-      // Save the updated default org
-      await Organization.updateOne({ _id: defaultOrg._id },
-        { permissions: defaultOrg.permissions });
+    // Add user to default org read/write permissions
+    defaultOrg.permissions[newAdminUser._id] = ['read', 'write'];
 
-      // Return the newly created user
-      return newAdminUser;
-    }
-  }
-  catch (error) {
+    // Save the updated default org
+    await Organization.updateOne(
+      { _id: defaultOrg._id },
+      { permissions: defaultOrg.permissions },
+    );
+
+    // Return the newly created user
+    return newAdminUser;
+  } catch (error) {
     return errors.captureError(error);
   }
 };
@@ -153,7 +153,7 @@ module.exports.createTestAdmin = async function() {
  *
  * @returns {Promise<string>} Returns the id of the deleted user.
  */
-module.exports.removeNonAdminUser = async function() {
+module.exports.removeNonAdminUser = async function () {
   try {
     // Find non-admin user
     const foundUser = await User.findOne({ _id: testData.users[1].username });
@@ -169,8 +169,7 @@ module.exports.removeNonAdminUser = async function() {
 
     // Return the _id of the deleted non-admin user
     return foundUser._id;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -180,7 +179,7 @@ module.exports.removeNonAdminUser = async function() {
  *
  * @returns {Promise<string>} Returns the id of the deleted admin user.
  */
-module.exports.removeTestAdmin = async function() {
+module.exports.removeTestAdmin = async function () {
   try {
     // Find the admin user
     const foundUser = await User.findOne({ _id: testData.adminUser.username });
@@ -196,8 +195,7 @@ module.exports.removeTestAdmin = async function() {
 
     // Return the _id of the deleted admin user
     return foundUser._id;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -210,20 +208,19 @@ module.exports.removeTestAdmin = async function() {
  * @returns {Promise<Organization>} Returns the newly created org upon
  * completion.
  */
-module.exports.createTestOrg = async function(adminUser) {
+module.exports.createTestOrg = async function (adminUser) {
   try {
     // Create the new organization
     const newOrg = {
       _id: testData.orgs[0].id,
       name: testData.orgs[0].name,
       custom: null,
-      permissions: {}
+      permissions: {},
     };
     newOrg.permissions[adminUser._id] = ['read', 'write', 'admin'];
 
     return (await Organization.insertMany(newOrg))[0];
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -239,7 +236,7 @@ module.exports.createTestOrg = async function(adminUser) {
  * @returns {Promise<Artifact>} Returns the newly created artifact upon
  * completion.
  */
-module.exports.createTestArt = async function(adminUser, orgID, projID, branchID) {
+module.exports.createTestArt = async function (adminUser, orgID, projID, branchID) {
   try {
     // Create the new artifact
     const newArt = {
@@ -255,12 +252,11 @@ module.exports.createTestArt = async function(adminUser, orgID, projID, branchID
       createdBy: adminUser._id,
       createdOn: Date.now(),
       lasModifiedBy: adminUser._id,
-      updatedOn: Date.now()
+      updatedOn: Date.now(),
     };
 
     return (await Artifact.insertMany(newArt))[0];
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -270,10 +266,10 @@ module.exports.createTestArt = async function(adminUser, orgID, projID, branchID
  *
  * @returns {Promise<string>} Returns the id of the deleted org.
  */
-module.exports.removeTestOrg = async function() {
+module.exports.removeTestOrg = async function () {
   // Find all projects to delete
   const projectsToDelete = await Project.find({ org: testData.orgs[0].id }, null);
-  const projectIDs = projectsToDelete.map(p => p._id);
+  const projectIDs = projectsToDelete.map((p) => p._id);
 
   // Delete any artifacts in the org
   await Artifact.deleteMany({ project: { $in: projectIDs } });
@@ -300,7 +296,7 @@ module.exports.removeTestOrg = async function() {
  * @returns {Promise<Project>} Returns the newly created project upon
  * completion.
  */
-module.exports.createTestProject = async function(adminUser, orgID) {
+module.exports.createTestProject = async function (adminUser, orgID) {
   try {
     // Create the new project object
     const newProject = {
@@ -309,7 +305,7 @@ module.exports.createTestProject = async function(adminUser, orgID) {
       name: testData.projects[0].name,
       createdBy: adminUser._id,
       custom: null,
-      permissions: {}
+      permissions: {},
     };
     newProject.permissions[adminUser._id] = ['read', 'write', 'admin'];
     // Save the project
@@ -324,7 +320,7 @@ module.exports.createTestProject = async function(adminUser, orgID) {
       lasModifiedBy: adminUser._id,
       updatedOn: Date.now(),
       name: testData.branches[0].name,
-      source: null
+      source: null,
     };
     // Save the branch
     const createdBranch = (await Branch.insertMany(newBranch))[0];
@@ -337,7 +333,7 @@ module.exports.createTestProject = async function(adminUser, orgID) {
       createdBy: adminUser._id,
       createdOn: Date.now(),
       lasModifiedBy: adminUser._id,
-      updatedOn: Date.now()
+      updatedOn: Date.now(),
     };
 
     // For each of the valid root elements
@@ -351,12 +347,10 @@ module.exports.createTestProject = async function(adminUser, orgID) {
         // Root model element, no parent
         obj.parent = null;
         obj.name = 'Model';
-      }
-      else if (e === '__mbee__') {
+      } else if (e === '__mbee__') {
         obj.parent = utils.createID(createdBranch._id, 'model');
         obj.name = '__mbee__';
-      }
-      else {
+      } else {
         obj.parent = utils.createID(createdBranch._id, '__mbee__');
         obj.name = (e === 'undefined') ? 'undefined element' : 'holding bin';
       }
@@ -369,8 +363,7 @@ module.exports.createTestProject = async function(adminUser, orgID) {
 
     // Return the created project
     return createdProject;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -385,7 +378,7 @@ module.exports.createTestProject = async function(adminUser, orgID) {
  *
  * @returns {Promise<Branch>} Returns a tagged branch.
  */
-module.exports.createTag = async function(adminUser, orgID, projID) {
+module.exports.createTag = async function (adminUser, orgID, projID) {
   try {
     // Create a new branch object, with tag: true
     const newTag = {
@@ -394,7 +387,7 @@ module.exports.createTag = async function(adminUser, orgID, projID) {
       createdBy: adminUser._id,
       name: 'Tagged Branch',
       tag: true,
-      source: utils.createID(orgID, projID, 'master')
+      source: utils.createID(orgID, projID, 'master'),
     };
 
     // Save the tag
@@ -408,7 +401,7 @@ module.exports.createTag = async function(adminUser, orgID, projID) {
       createdBy: adminUser._id,
       createdOn: Date.now(),
       lasModifiedBy: adminUser._id,
-      updatedOn: Date.now()
+      updatedOn: Date.now(),
     };
 
     // For each of the valid root elements
@@ -422,12 +415,10 @@ module.exports.createTag = async function(adminUser, orgID, projID) {
         // Root model element, no parent
         obj.parent = null;
         obj.name = 'Model';
-      }
-      else if (e === '__mbee__') {
+      } else if (e === '__mbee__') {
         obj.parent = utils.createID(createdTag._id, 'model');
         obj.name = '__mbee__';
-      }
-      else {
+      } else {
         obj.parent = utils.createID(createdTag._id, '__mbee__');
         obj.name = (e === 'undefined') ? 'undefined element' : 'holding bin';
       }
@@ -441,15 +432,14 @@ module.exports.createTag = async function(adminUser, orgID, projID) {
       project: utils.createID(orgID, projID),
       branch: createdTag._id,
       createdBy: adminUser._id,
-      name: testData.elements[1].name
+      name: testData.elements[1].name,
     });
 
     // Create the root model elements and single extra element
     await Element.insertMany(elementsToCreate);
 
     return createdTag;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 };
@@ -461,12 +451,11 @@ module.exports.createTag = async function(adminUser, orgID, projID) {
  *
  * @returns {object} Returns the imported test data.
  */
-module.exports.importTestData = function(filename) {
+module.exports.importTestData = function (filename) {
   let testDataFresh;
   if (M.config.validators) {
     testDataFresh = generateCustomTestData();
-  }
-  else {
+  } else {
     // Import a copy of the data.json
     testDataFresh = JSON.parse(fs.readFileSync(path.join(M.root, 'test', filename)).toString());
   }
@@ -474,7 +463,7 @@ module.exports.importTestData = function(filename) {
   if (Array.isArray(testDataFresh)) {
     return Object.assign([], testDataFresh);
   }
-  return Object.assign({}, testDataFresh);
+  return { ...testDataFresh };
 };
 
 /**
@@ -488,7 +477,7 @@ module.exports.importTestData = function(filename) {
  *
  * @returns {object} Request object.
  */
-module.exports.createRequest = function(user, params, body, method, query = {}) {
+module.exports.createRequest = function (user, params, body, method, query = {}) {
   // Error-Check
   if (typeof params !== 'object') {
     throw new M.DataFormatError('params is not of type object.', 'warn');
@@ -500,14 +489,14 @@ module.exports.createRequest = function(user, params, body, method, query = {}) 
   return {
     url: 'test',
     headers: this.getHeaders(),
-    method: method,
+    method,
     originalUrl: 'ThisIsATest',
-    params: params,
-    body: body,
+    params,
+    body,
     ip: '::1',
-    query: query,
-    user: user,
-    session: {}
+    query,
+    user,
+    session: {},
   };
 };
 
@@ -525,8 +514,15 @@ module.exports.createRequest = function(user, params, body, method, query = {}) 
  *
  * @returns {object} Request object.
  */
-module.exports.createReadStreamRequest = function(user, params, body, method, query = {},
-  filepath, headers) {
+module.exports.createReadStreamRequest = function (
+  user,
+  params,
+  body,
+  method,
+  query = {},
+  filepath,
+  headers,
+) {
   // Error-Check
   if (typeof params !== 'object') {
     throw M.DataFormatError('params is not of type object.', 'warn');
@@ -555,7 +551,7 @@ module.exports.createReadStreamRequest = function(user, params, body, method, qu
  *
  * @param {object} res - Response Object.
  */
-module.exports.createResponse = function(res) {
+module.exports.createResponse = function (res) {
   // By default, status code starts out as 200
   res.statusCode = 200;
   // Verifies the response code: 200 OK
@@ -578,12 +574,12 @@ module.exports.createResponse = function(res) {
  *
  * @returns {object} Returns an object containing header key-value pairs.
  */
-module.exports.getHeaders = function(contentType = 'application/json', user = testData.adminUser) {
+module.exports.getHeaders = function (contentType = 'application/json', user = testData.adminUser) {
   const formattedCreds = `${user.username || user._id}:${user.password}`;
   const basicAuthHeader = `Basic ${Buffer.from(`${formattedCreds}`).toString('base64')}`;
   return {
     'content-type': contentType,
-    authorization: basicAuthHeader
+    authorization: basicAuthHeader,
   };
 };
 
@@ -592,7 +588,7 @@ module.exports.getHeaders = function(contentType = 'application/json', user = te
  *
  * @returns {object} Returns the result of reading the certificate authority file.
  */
-module.exports.readCaFile = function() {
+module.exports.readCaFile = function () {
   if (M.config.test.hasOwnProperty('ca')) {
     return fs.readFileSync(`${M.root}/${M.config.test.ca}`);
   }
@@ -604,7 +600,7 @@ module.exports.readCaFile = function() {
  * @param {string} endpoint - The api endpoint string.
  * @returns {string} Returns a REST method string such as GET or POST.
  */
-module.exports.parseMethod = function(endpoint) {
+module.exports.parseMethod = function (endpoint) {
   const regex = /[A-Z]/g;
   // Find the uppercase letter
   const uppercase = endpoint.match(regex);
@@ -614,10 +610,9 @@ module.exports.parseMethod = function(endpoint) {
     // Return the first word of the input in all caps
     return segments[0].toUpperCase();
   }
-  else {
-    // The endpoint is for whoami or searchUsers; they use GET requests
-    return 'GET';
-  }
+
+  // The endpoint is for whoami or searchUsers; they use GET requests
+  return 'GET';
 };
 
 /**
@@ -636,8 +631,10 @@ function generateCustomTestData() {
     // Set new custom element ids
     customTestData.elements.forEach((elem) => {
       // Generate new custom id
-      const customID = generateID(v.element_id || validators.id,
-        v.element_id_length || validators.idLength);
+      const customID = generateID(
+        v.element_id || validators.id,
+        v.element_id_length || validators.idLength,
+      );
       // Get all the elements that reference it
       customTestData.elements.forEach((e) => {
         if (e.parent && e.parent === elem.id) e.parent = customID;
@@ -654,8 +651,10 @@ function generateCustomTestData() {
       // Don't modify the master id
       if (branch.id === 'master') return;
       // Generate new custom id
-      const customID = generateID(v.branch_id || validators.id,
-        v.branch_id_length || validators.idLength);
+      const customID = generateID(
+        v.branch_id || validators.id,
+        v.branch_id_length || validators.idLength,
+      );
       // Get all the branches that reference it
       customTestData.branches.forEach((b) => {
         if (b.source === branch.id) b.source = customID;
@@ -669,8 +668,10 @@ function generateCustomTestData() {
     // Set new custom project ids
     customTestData.projects.forEach((project) => {
       // Generate new custom id
-      project.id = generateID(v.project_id || validators.id,
-        v.project_id_length || validators.idLength);
+      project.id = generateID(
+        v.project_id || validators.id,
+        v.project_id_length || validators.idLength,
+      );
     });
   }
   if (v.hasOwnProperty('org_id') || v.hasOwnProperty('org_id_length')
@@ -678,8 +679,10 @@ function generateCustomTestData() {
     // Set new custom org ids
     customTestData.orgs.forEach((org) => {
       // Generate new custom id
-      org.id = generateID(v.org_id || validators.id,
-        v.org_id_length || validators.org.idLength);
+      org.id = generateID(
+        v.org_id || validators.id,
+        v.org_id_length || validators.org.idLength,
+      );
     });
   }
   if (v.hasOwnProperty('user_username') || v.hasOwnProperty('user_username_length')
@@ -749,7 +752,7 @@ function generateCustomTestData() {
  * @returns {Function} The Middleware respond function.
  */
 module.exports.next = function next(req, res) {
-  return function() {
+  return function () {
     Middleware.respond(req, res);
   };
 };

@@ -28,7 +28,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const test = M.config.test;
+const { test } = M.config;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -45,8 +45,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -60,8 +59,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       // Delete test admin
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -96,7 +94,7 @@ async function whoami() {
     const options = {
       method: 'get',
       url: `${test.url}/api/users/whoami`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API GET request
@@ -109,8 +107,7 @@ async function whoami() {
     // NOTE: Test admin does not have a name, custom data or email
     chai.expect(res.data.username).to.equal(userData.username);
     chai.expect(res.data).to.not.have.any.keys('password', '_id', '__v');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -127,7 +124,7 @@ async function postUser() {
       method: 'post',
       url: `${test.url}/api/users/${userData.username}`,
       headers: testUtils.getHeaders(),
-      data: JSON.stringify(userData)
+      data: JSON.stringify(userData),
     };
 
     // Make an API request
@@ -155,8 +152,7 @@ async function postUser() {
     chai.expect(createdUser.lastModifiedBy).to.equal(adminUser._id);
     chai.expect(createdUser.archived).to.equal(false);
     chai.expect(createdUser).to.not.have.any.keys('archivedOn', 'archivedBy');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -170,14 +166,14 @@ async function postUsers() {
   try {
     const userData = [
       testData.users[1],
-      testData.users[2]
+      testData.users[2],
     ];
 
     const options = {
       method: 'post',
       url: `${test.url}/api/users/`,
       headers: testUtils.getHeaders(),
-      data: userData
+      data: userData,
     };
 
     // Make an API request
@@ -214,8 +210,7 @@ async function postUsers() {
       chai.expect(createdUser.archived).to.equal(false);
       chai.expect(createdUser).to.not.have.any.keys('archivedOn', 'archivedBy');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -232,7 +227,7 @@ async function putUser() {
       method: 'put',
       url: `${test.url}/api/users/${userData.username}`,
       headers: testUtils.getHeaders(),
-      data: userData
+      data: userData,
     };
 
     // Make an API request
@@ -260,8 +255,7 @@ async function putUser() {
     chai.expect(replacedUser.lastModifiedBy).to.equal(adminUser._id);
     chai.expect(replacedUser.archived).to.equal(false);
     chai.expect(replacedUser).to.not.have.any.keys('archivedOn', 'archivedBy');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -276,14 +270,14 @@ async function putUsers() {
     const userData = [
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
 
     const options = {
       method: 'put',
       url: `${test.url}/api/users/`,
       headers: testUtils.getHeaders(),
-      data: userData
+      data: userData,
     };
 
     // Make an API request
@@ -321,8 +315,7 @@ async function putUsers() {
       chai.expect(replacedUser.archived).to.equal(false);
       chai.expect(replacedUser).to.not.have.any.keys('archivedOn', 'archivedBy');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -338,7 +331,7 @@ async function getUser() {
     const options = {
       method: 'get',
       url: `${test.url}/api/users/${userData.username}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -366,8 +359,7 @@ async function getUser() {
     chai.expect(foundUser.lastModifiedBy).to.equal(adminUser._id);
     chai.expect(foundUser.archived).to.equal(false);
     chai.expect(foundUser).to.not.have.any.keys('archivedOn', 'archivedBy');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -382,7 +374,7 @@ async function getUsers() {
     const userData = [
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
 
     const options = {
@@ -390,8 +382,8 @@ async function getUsers() {
       url: `${test.url}/api/users`,
       headers: testUtils.getHeaders(),
       params: {
-        usernames: userData.map(u => u.username).toString()
-      }
+        usernames: userData.map((u) => u.username).toString(),
+      },
     };
 
     // Make an API request
@@ -429,8 +421,7 @@ async function getUsers() {
       chai.expect(foundUser.archived).to.equal(false);
       chai.expect(foundUser).to.not.have.any.keys('archivedOn', 'archivedBy');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -448,13 +439,13 @@ async function getAllUsers() {
       testData.users[0],
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
 
     const options = {
       method: 'get',
       url: `${test.url}/api/users`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -500,8 +491,7 @@ async function getAllUsers() {
         chai.expect(foundUser).to.not.have.any.keys('password', '_id', '__v');
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -518,13 +508,13 @@ async function searchUsers() {
       testData.users[0],
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
 
     const options = {
       method: 'get',
       url: `${test.url}/api/users/search?q=${userData[0].fname}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -563,8 +553,7 @@ async function searchUsers() {
       chai.expect(foundUser.archived).to.equal(false);
       chai.expect(foundUser).to.not.have.any.keys('archivedOn', 'archivedBy');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -579,14 +568,14 @@ async function patchUser() {
     const userData = testData.users[0];
     const updateObj = {
       username: userData.username,
-      fname: 'Updated First Name'
+      fname: 'Updated First Name',
     };
 
     const options = {
       method: 'patch',
       url: `${test.url}/api/users/${userData.username}`,
       headers: testUtils.getHeaders(),
-      data: updateObj
+      data: updateObj,
     };
 
     // Make an API request
@@ -614,8 +603,7 @@ async function patchUser() {
     chai.expect(updatedUser.lastModifiedBy).to.equal(adminUser._id);
     chai.expect(updatedUser.archived).to.equal(false);
     chai.expect(updatedUser).to.not.have.any.keys('archivedOn', 'archivedBy');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -630,18 +618,18 @@ async function patchUsers() {
     const userData = [
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
-    const updateObj = userData.map(u => ({
+    const updateObj = userData.map((u) => ({
       username: u.username,
-      fname: 'Updated First Name'
+      fname: 'Updated First Name',
     }));
 
     const options = {
       method: 'patch',
       url: `${test.url}/api/users`,
       headers: testUtils.getHeaders(),
-      data: updateObj
+      data: updateObj,
     };
 
     // Make an API request
@@ -678,8 +666,7 @@ async function patchUsers() {
       chai.expect(updatedUser.archived).to.equal(false);
       chai.expect(updatedUser).to.not.have.any.keys('archivedOn', 'archivedBy');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -697,14 +684,14 @@ async function patchUserPassword() {
     const updateObj = {
       password: 'NewPass1234?',
       confirmPassword: 'NewPass1234?',
-      oldPassword: userData.password
+      oldPassword: userData.password,
     };
 
     const options = {
       method: 'patch',
       url: `${test.url}/api/users/${userData.username}/password`,
       headers: testUtils.getHeaders('application/json', userData),
-      data: JSON.stringify(updateObj)
+      data: JSON.stringify(updateObj),
     };
 
     // Make an API request
@@ -732,8 +719,7 @@ async function patchUserPassword() {
     chai.expect(updatedUser.lastModifiedBy).to.equal(adminUser._id);
     chai.expect(updatedUser.archived).to.equal(false);
     chai.expect(updatedUser).to.not.have.any.keys('archivedOn', 'archivedBy');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -751,7 +737,7 @@ async function deleteUser() {
       method: 'delete',
       url: `${test.url}/api/users/${userData.username}`,
       headers: testUtils.getHeaders(),
-      data: userData
+      data: userData,
     };
 
     // Make an API request
@@ -764,8 +750,7 @@ async function deleteUser() {
 
     // Verify expected response
     chai.expect(deletedUsername).to.equal(userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -780,16 +765,16 @@ async function deleteUsers() {
     const userData = [
       testData.users[1],
       testData.users[2],
-      testData.users[3]
+      testData.users[3],
     ];
 
-    const userIDs = userData.map(u => u.username);
+    const userIDs = userData.map((u) => u.username);
     const ids = userIDs.join(',');
 
     const options = {
       method: 'delete',
       url: `${test.url}/api/users?ids=${ids}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -802,9 +787,8 @@ async function deleteUsers() {
     chai.expect(deletedUsernames.length).to.equal(userData.length);
 
     // Verify expected response
-    chai.expect(deletedUsernames).to.have.members(userData.map(u => u.username));
-  }
-  catch (error) {
+    chai.expect(deletedUsernames).to.have.members(userData.map((u) => u.username));
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

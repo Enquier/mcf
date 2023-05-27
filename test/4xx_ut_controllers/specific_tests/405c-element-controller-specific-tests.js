@@ -91,10 +91,9 @@ describe(M.getModuleName(module.filename), () => {
       // Sort the elements; they will be returned out of order if custom id validators are used
       elements = elements.sort((a, b) => {
         if (Number(a.name.slice(-2)) > Number(b.name.slice(-2))) return 1;
-        else return -1;
+        return -1;
       });
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -110,8 +109,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects and elements under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -156,8 +154,10 @@ describe(M.getModuleName(module.filename), () => {
   it('should delete an element which is part of a relationship', deleteRelElement);
   // ------------- Search -------------
   it('should populate allowed fields when searching an element', optionPopulateSearch);
-  it('should search an archived element when the option archived is provided',
-    optionArchivedSearch);
+  it(
+    'should search an archived element when the option archived is provided',
+    optionArchivedSearch,
+  );
   it('should return a limited number of elements from search()', optionLimitSearch);
   it('should return a second batch of elements with the limit and skip option '
     + 'from search()', optionSkipSearch);
@@ -181,8 +181,14 @@ async function optionPopulateFind() {
 
   try {
     // Find a relationship element so source and target can be populated
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, elemID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      options,
+    );
 
     // Verify the array length is exactly 1
     chai.expect(foundElements.length).to.equal(1);
@@ -198,16 +204,14 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (elem[field] !== null) {
+      } else if (elem[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof elem[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in elem[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -226,14 +230,25 @@ async function optionArchivedFind() {
     const options = { archived: true };
 
     // Attempt to find the element without providing options
-    const notFoundElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      elemID);
+    const notFoundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+    );
     // Expect the array to be empty since the option archived: true was not provided
     chai.expect(notFoundElements.length).to.equal(0);
 
     // Attempt the find the element WITH providing the archived option
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      elemID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      options,
+    );
 
     // Expect the array to be of length 1
     chai.expect(foundElements.length).to.equal(1);
@@ -243,8 +258,7 @@ async function optionArchivedFind() {
     chai.expect(element.archived).to.equal(true);
     chai.expect(element.archivedOn).to.not.equal(null);
     chai.expect(element.archivedBy).to.equal(adminUser._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -265,8 +279,14 @@ async function optionSubtreeFind() {
     const options = { subtree: true, includeArchived: true };
 
     // Find the element and its subtree
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      elemID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      options,
+    );
 
     // Expect there to be 6 elements found, the searched element and 5 in subtree
     chai.expect(foundElements.length).to.equal(6);
@@ -278,8 +298,7 @@ async function optionSubtreeFind() {
     // searched element
     chai.expect(Object.keys(jmi3Elements).length).to.equal(1);
     chai.expect(Object.keys(jmi3Elements)[0]).to.equal(elements[2]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -300,8 +319,14 @@ async function optionDepthFind() {
     const options = { depth: 1, includeArchived: true };
 
     // Find the element and its subtree
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      elemID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      options,
+    );
 
     // Expect there to be 6 elements found, the searched element and 5 in subtree
     chai.expect(foundElements.length).to.equal(6);
@@ -313,8 +338,7 @@ async function optionDepthFind() {
     // searched element
     chai.expect(Object.keys(jmi3Elements).length).to.equal(1);
     chai.expect(Object.keys(jmi3Elements)[0]).to.equal(elements[2]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -337,8 +361,14 @@ async function optionFieldsFind() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Find the element only with specific fields.
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, elemID, findOptions);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      findOptions,
+    );
     // Expect there to be exactly 1 element found
     chai.expect(foundElements.length).to.equal(1);
     const elem = foundElements[0];
@@ -353,8 +383,14 @@ async function optionFieldsFind() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Find the element without the notFind fields
-    const notFindElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, elemID, notFindOptions);
+    const notFindElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 element found
     chai.expect(notFindElements.length).to.equal(1);
     const elem2 = foundElements[0];
@@ -364,8 +400,7 @@ async function optionFieldsFind() {
 
     // Check that the keys in the notFindOptions are not in elem
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -382,12 +417,16 @@ async function optionLimitFind() {
     const options = { limit: 2 };
 
     // Find all elements on a given project
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      options,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(foundElements).to.have.lengthOf.at.most(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -406,23 +445,32 @@ async function optionSkipFind() {
     const secondOptions = { limit: 2, skip: 2 };
 
     // Find all elements on a given project
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, firstOptions);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      firstOptions,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(foundElements).to.have.lengthOf.at.most(2);
     // Add element ids to the firstBatchIDs array
-    const firstBatchIDs = foundElements.map(e => e._id);
+    const firstBatchIDs = foundElements.map((e) => e._id);
 
     // Find the next batch of elements
-    const secondElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      secondOptions);
+    const secondElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      secondOptions,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(secondElements).to.have.lengthOf.at.most(2);
     // Verify the second batch of elements are not the same as the first
-    const secondBatchIDs = secondElements.map(e => e._id);
+    const secondBatchIDs = secondElements.map((e) => e._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -437,35 +485,50 @@ async function optionSortFind() {
     // Create element objects
     const testElems = [{
       id: utils.parseID(elements[10]._id).pop(),
-      name: 'b'
+      name: 'b',
     },
     {
       id: utils.parseID(elements[11]._id).pop(),
-      name: 'c'
+      name: 'c',
     },
     {
       id: utils.parseID(elements[12]._id).pop(),
-      name: 'a'
+      name: 'a',
     }];
 
     // Remove the pre-existing elements
-    await ElementController.remove(adminUser, org._id, projIDs[0], branchID,
-      testElems.map((e) => e.id));
+    await ElementController.remove(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      testElems.map((e) => e.id),
+    );
 
     // Create sort options
     const sortOption = { sort: 'name' };
     const sortOptionReverse = { sort: '-name' };
 
     // Create the test elements
-    const createdElems = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, testElems);
+    const createdElems = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      testElems,
+    );
     // Validate that 3 elements were created
     chai.expect(createdElems.length).to.equal(3);
 
     // Find the elements and return them sorted
-    const foundElems = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
+    const foundElems = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
       testElems.map((e) => e.id),
-      sortOption);
+      sortOption,
+    );
 
     // Expect to find all three elements
     chai.expect(foundElems.length).to.equal(3);
@@ -479,9 +542,14 @@ async function optionSortFind() {
     chai.expect(foundElems[2]._id).to.equal(elements[11]._id);
 
     // Find the elements and return them sorted in reverse
-    const reverseElems = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
+    const reverseElems = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
       testElems.map((e) => e.id),
-      sortOptionReverse);
+      sortOptionReverse,
+    );
     // Expect to find all three elements
     chai.expect(reverseElems.length).to.equal(3);
 
@@ -493,10 +561,14 @@ async function optionSortFind() {
     chai.expect(reverseElems[2].name).to.equal('a');
     chai.expect(reverseElems[2]._id).to.equal(elements[12]._id);
 
-    await ElementController.remove(adminUser, org._id, projIDs[0], branchID,
-      testElems.map((e) => e.id));
-  }
-  catch (error) {
+    await ElementController.remove(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      testElems.map((e) => e.id),
+    );
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -513,21 +585,26 @@ async function optionRootpathFind() {
     const option = { rootpath: true };
 
     // Return a search on the furthest nested element with the rootpath option
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0], branchID,
-      elemID, option);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      option,
+    );
 
     // Expect to find 3 elements
     chai.expect(foundElements.length).to.equal(4);
 
-    const foundIDs = foundElements.map(e => e._id);
+    const foundIDs = foundElements.map((e) => e._id);
 
     // Expect to find the model element and two test elements
     chai.expect(foundIDs).to.include(utils.createID(org._id, projIDs[0], branchID, 'model'));
     chai.expect(foundIDs).to.include(elements[1]._id);
     chai.expect(foundIDs).to.include(elements[2]._id);
     chai.expect(foundIDs).to.include(elements[4]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -544,19 +621,24 @@ async function findArtifactRef() {
     const options = { artifact: artifactID };
 
     // Find element with artifact reference
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, elemID, options);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemID,
+      options,
+    );
 
     // Verify output
     chai.expect(foundElements.length).to.equal(1);
     chai.expect(foundElements[0]._id).to.equal(
-      utils.createID(org._id, projIDs[0], branchID, elemID)
+      utils.createID(org._id, projIDs[0], branchID, elemID),
     );
     chai.expect(foundElements[0].artifact).to.equal(
-      utils.createID(org._id, projIDs[0], branchID, artifactID)
+      utils.createID(org._id, projIDs[0], branchID, artifactID),
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -572,15 +654,20 @@ async function createArchivedElement() {
     const elemObj = {
       id: utils.parseID(elements[9]._id).pop(),
       name: 'Archived Element',
-      archived: true
+      archived: true,
     };
 
     // Delete the element that was already created with that id
     await ElementController.remove(adminUser, org._id, projIDs[0], branchID, elemObj.id);
 
     // Create the element
-    const createdElements = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, elemObj);
+    const createdElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObj,
+    );
     // Verify that only one element was created
     chai.expect(createdElements.length).to.equal(1);
     const elem = createdElements[0];
@@ -589,8 +676,7 @@ async function createArchivedElement() {
     chai.expect(elem.archived).to.equal(true);
     chai.expect(elem.archivedBy).to.equal(adminUser._id);
     chai.expect(elem.archivedOn).to.not.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -610,21 +696,25 @@ async function createExternalSource() {
       sourceNamespace: {
         org: org._id,
         project: projIDs[1],
-        branch: branchID
+        branch: branchID,
       },
-      target: 'model'
+      target: 'model',
     };
 
     // Create the element using the element controller
-    const createdElements = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, newElement);
+    const createdElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      newElement,
+    );
     const elem = createdElements[0];
     // Create the concatenated ID of the referenced element
     const referencedID = utils.createID(org._id, projIDs[1], branchID, 'model');
     // Verify the source is equal to the referencedID
     chai.expect(elem.source).to.equal(referencedID);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -645,20 +735,24 @@ async function createExternalTarget() {
       targetNamespace: {
         org: org._id,
         project: projIDs[1],
-        branch: branchID
-      }
+        branch: branchID,
+      },
     };
 
     // Create the element using the element controller
-    const createdElements = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, newElement);
+    const createdElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      newElement,
+    );
     const elem = createdElements[0];
     // Create the concatenated ID of the referenced element
     const referencedID = utils.createID(org._id, projIDs[1], branchID, 'model');
     // Verify the target is equal to the referencedID
     chai.expect(elem.target).to.equal(referencedID);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -680,15 +774,21 @@ async function optionPopulateCreate() {
     const elemObj = {
       id: utils.parseID(elements[10]._id).pop(),
       source: utils.parseID(elements[0]._id).pop(),
-      target: utils.parseID(elements[1]._id).pop()
+      target: utils.parseID(elements[1]._id).pop(),
     };
 
     // Delete the element that already exists with that id
     await ElementController.remove(adminUser, org._id, projIDs[0], branchID, elemObj.id);
 
     // Create the element
-    const createdElements = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, elemObj, options);
+    const createdElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObj,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(createdElements.length).to.equal(1);
     const elem = createdElements[0];
@@ -703,16 +803,14 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (elem[field] !== null) {
+      } else if (elem[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof elem[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in elem[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -728,11 +826,11 @@ async function optionFieldsCreate() {
     // Create the element objects
     const elemObjFind = {
       id: utils.parseID(elements[11]._id).pop(),
-      name: 'Fields Element'
+      name: 'Fields Element',
     };
     const elemObjNotFind = {
       id: utils.parseID(elements[12]._id).pop(),
-      name: 'Not Fields Element'
+      name: 'Not Fields Element',
     };
     // Create the options object with the list of fields specifically find
     const findOptions = { fields: ['name', 'createdBy'] };
@@ -742,12 +840,23 @@ async function optionFieldsCreate() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Remove the element that already exists
-    await ElementController.remove(adminUser, org._id, projIDs[0],
-      branchID, elemObjFind.id);
+    await ElementController.remove(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObjFind.id,
+    );
 
     // Create the element only with specific fields returned
-    const createdElements = await ElementController.create(adminUser, org._id, projIDs[0],
-      branchID, elemObjFind, findOptions);
+    const createdElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObjFind,
+      findOptions,
+    );
     // Expect there to be exactly 1 element created
     chai.expect(createdElements.length).to.equal(1);
     const elem = createdElements[0];
@@ -762,8 +871,14 @@ async function optionFieldsCreate() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Create the element without the notFind fields
-    const notFindElements = await ElementController.create(adminUser, org._id, projIDs[0], branchID,
-      elemObjNotFind, notFindOptions);
+    const notFindElements = await ElementController.create(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObjNotFind,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 element created
     chai.expect(notFindElements.length).to.equal(1);
     const elem2 = notFindElements[0];
@@ -773,8 +888,7 @@ async function optionFieldsCreate() {
 
     // Check that the keys in the notFindOptions are not in elem
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -791,12 +905,17 @@ async function archiveElement() {
     // Create the update object
     const updateObj = {
       id: elemID,
-      archived: true
+      archived: true,
     };
 
     // Update the element with archived: true
-    const updatedElements = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, updateObj);
+    const updatedElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObj,
+    );
 
     // Verify the array length is exactly 1
     chai.expect(updatedElements.length).to.equal(1);
@@ -806,8 +925,7 @@ async function archiveElement() {
     chai.expect(elem.archived).to.equal(true);
     chai.expect(elem.archivedBy).to.equal(adminUser._id);
     chai.expect(elem.archivedOn).to.not.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -827,20 +945,24 @@ async function updateExternalSource() {
       sourceNamespace: {
         org: org._id,
         project: projIDs[1],
-        branch: branchID
-      }
+        branch: branchID,
+      },
     };
 
     // Update the element using the element controller
-    const updatedElements = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, updateObj);
+    const updatedElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObj,
+    );
     const elem = updatedElements[0];
     // Create the concatenated ID of the referenced element
     const referencedID = utils.createID(org._id, projIDs[1], branchID, 'undefined');
     // Verify the source is equal to the referencedID
     chai.expect(elem.source).to.equal(referencedID);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -860,20 +982,24 @@ async function updateExternalTarget() {
       targetNamespace: {
         org: org._id,
         project: projIDs[1],
-        branch: branchID
-      }
+        branch: branchID,
+      },
     };
 
     // Update the element using the element controller
-    const updatedElements = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, updateObj);
+    const updatedElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObj,
+    );
     const elem = updatedElements[0];
     // Create the concatenated ID of the referenced element
     const referencedID = utils.createID(org._id, projIDs[1], branchID, 'undefined');
     // Verify the target is equal to the referencedID
     chai.expect(elem.target).to.equal(referencedID);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -894,12 +1020,18 @@ async function optionPopulateUpdate() {
     // Create the update object
     const updateObj = {
       id: utils.parseID(elements[11]._id).pop(),
-      name: 'Update Element'
+      name: 'Update Element',
     };
 
     // Update the element
-    const updatedElements = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, updateObj, options);
+    const updatedElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObj,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(updatedElements.length).to.equal(1);
     const elem = updatedElements[0];
@@ -914,16 +1046,14 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (elem[field] !== null) {
+      } else if (elem[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof elem[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in elem[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -939,11 +1069,11 @@ async function optionFieldsUpdate() {
     // Create the update objects
     const updateObjFind = {
       id: utils.parseID(elements[11]._id).pop(),
-      name: 'Fields Element Updated'
+      name: 'Fields Element Updated',
     };
     const updateObjNotFind = {
       id: utils.parseID(elements[12]._id).pop(),
-      name: 'Not Fields Element Updated'
+      name: 'Not Fields Element Updated',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['name', 'createdBy'] };
@@ -953,8 +1083,14 @@ async function optionFieldsUpdate() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Update the element only with specific fields returned
-    const updatedElements = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, updateObjFind, findOptions);
+    const updatedElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObjFind,
+      findOptions,
+    );
     // Expect there to be exactly 1 element updated
     chai.expect(updatedElements.length).to.equal(1);
     const elem = updatedElements[0];
@@ -969,8 +1105,14 @@ async function optionFieldsUpdate() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Update the element without the notFind fields
-    const notFindElements = await ElementController.update(adminUser, org._id, projIDs[0], branchID,
-      updateObjNotFind, notFindOptions);
+    const notFindElements = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      updateObjNotFind,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 element updated
     chai.expect(notFindElements.length).to.equal(1);
     const elem2 = notFindElements[0];
@@ -980,8 +1122,7 @@ async function optionFieldsUpdate() {
 
     // Check that the keys in the notFindOptions are not in elem
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1003,12 +1144,18 @@ async function optionPopulateReplace() {
     const elemObj = {
       id: utils.parseID(elements[12]._id).pop(),
       source: utils.parseID(elements[0]._id).pop(),
-      target: utils.parseID(elements[1]._id).pop()
+      target: utils.parseID(elements[1]._id).pop(),
     };
 
     // Replace the element
-    const replacedElems = await ElementController.createOrReplace(adminUser, org._id, projIDs[0],
-      branchID, elemObj, options);
+    const replacedElems = await ElementController.createOrReplace(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObj,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(replacedElems.length).to.equal(1);
     const elem = replacedElems[0];
@@ -1023,16 +1170,14 @@ async function optionPopulateReplace() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (elem[field] !== null) {
+      } else if (elem[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof elem[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in elem[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1048,11 +1193,11 @@ async function optionFieldsReplace() {
     // Create the element objects
     const elemObjFind = {
       id: utils.parseID(elements[10]._id).pop(),
-      name: 'Fields Element'
+      name: 'Fields Element',
     };
     const elemObjNotFind = {
       id: utils.parseID(elements[11]._id).pop(),
-      name: 'Not Fields Element'
+      name: 'Not Fields Element',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['name', 'createdBy'] };
@@ -1062,8 +1207,14 @@ async function optionFieldsReplace() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Replace the element only with specific fields returned
-    const fieldsElems = await ElementController.createOrReplace(adminUser, org._id, projIDs[0],
-      branchID, elemObjFind, findOptions);
+    const fieldsElems = await ElementController.createOrReplace(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObjFind,
+      findOptions,
+    );
     // Expect there to be exactly 1 element replaced
     chai.expect(fieldsElems.length).to.equal(1);
     const elem = fieldsElems[0];
@@ -1078,8 +1229,14 @@ async function optionFieldsReplace() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Replace the element without the notFind fields
-    const notFieldsElems = await ElementController.createOrReplace(adminUser, org._id, projIDs[0],
-      branchID, elemObjNotFind, notFindOptions);
+    const notFieldsElems = await ElementController.createOrReplace(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      elemObjNotFind,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 element replaced
     chai.expect(notFieldsElems.length).to.equal(1);
     const elem2 = notFieldsElems[0];
@@ -1089,8 +1246,7 @@ async function optionFieldsReplace() {
 
     // Check that the keys in the notFindOptions are not in elem
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1111,14 +1267,18 @@ async function deleteRelElement() {
 
     // Remove element
     await ElementController.remove(adminUser, org._id, projIDs[0], branchID, delElem);
-    const foundElements = await ElementController.find(adminUser, org._id, projIDs[0],
-      branchID, rel);
+    const foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      rel,
+    );
     // Verify relationship updated
     const relationship = foundElements[0];
     chai.expect(relationship.source).to.equal(utils.createID(relationship.branch, 'undefined'));
     chai.expect(relationship.target).to.equal(utils.createID(relationship.branch, 'undefined'));
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1140,8 +1300,14 @@ async function optionPopulateSearch() {
     const query = '"Element #1"';
 
     // Search for elements
-    const foundElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query, options);
+    const foundElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(foundElements.length).to.equal(1);
     const elem = foundElements[0];
@@ -1156,16 +1322,14 @@ async function optionPopulateSearch() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (elem[field] !== null) {
+      } else if (elem[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof elem[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in elem[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1184,14 +1348,25 @@ async function optionArchivedSearch() {
     const query = `"${elements[6].name}"`;
 
     // Search for the element, expecting no results back
-    const notFoundElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query);
+    const notFoundElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+    );
     // Expect the array to be empty since the option archived: true was not provided
     chai.expect(notFoundElements.length).to.equal(0);
 
     // Attempt the find the element WITH providing the archived option
-    const foundElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query, options);
+    const foundElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      options,
+    );
     // Expect the array to be of length 1
     chai.expect(foundElements.length).to.equal(1);
     const elem = foundElements[0];
@@ -1200,8 +1375,7 @@ async function optionArchivedSearch() {
     chai.expect(elem.archived).to.equal(true);
     chai.expect(elem.archivedOn).to.not.equal(null);
     chai.expect(elem.archivedBy).to.equal(adminUser._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1220,12 +1394,17 @@ async function optionLimitSearch() {
     const query = 'batch';
 
     // Search for elements
-    const foundElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query, options);
+    const foundElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      options,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(foundElements).to.have.lengthOf.at.most(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1246,23 +1425,34 @@ async function optionSkipSearch() {
     const query = 'batch';
 
     // Search for elements
-    const firstElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query, firstOptions);
+    const firstElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      firstOptions,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(firstElements).to.have.lengthOf.at.most(2);
     // Add element ids to the firstBatchIDs array
-    const firstBatchIDs = firstElements.map(e => e._id);
+    const firstBatchIDs = firstElements.map((e) => e._id);
 
     // Search for next batch of elements
-    const secondElements = await ElementController.search(adminUser, org._id, projIDs[0], branchID,
-      query, secondOptions);
+    const secondElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      secondOptions,
+    );
     // Verify that no more than 2 elements were found
     chai.expect(secondElements).to.have.lengthOf.at.most(2);
     // Verify the second batch of elements are not the same as the first
-    const secondBatchIDs = secondElements.map(e => e._id);
+    const secondBatchIDs = secondElements.map((e) => e._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1279,22 +1469,22 @@ async function optionSortSearch() {
       id: utils.parseID(elements[9]._id).pop(),
       name: 'b',
       documentation: 'searchme',
-      archived: false
+      archived: false,
     },
     {
       id: utils.parseID(elements[10]._id).pop(),
       name: 'c',
-      documentation: 'searchme'
+      documentation: 'searchme',
     },
     {
       id: utils.parseID(elements[11]._id).pop(),
       name: 'a',
-      documentation: 'searchme'
+      documentation: 'searchme',
     },
     {
       id: utils.parseID(elements[12]._id).pop(),
       name: 'd',
-      documentation: 'no'
+      documentation: 'no',
     }];
 
     // Create sort options
@@ -1304,14 +1494,25 @@ async function optionSortSearch() {
     const searchQuery = 'searchme';
 
     // Update the test elements
-    const updatedElems = await ElementController.update(adminUser, org._id, projIDs[0],
-      branchID, testElems);
+    const updatedElems = await ElementController.update(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      testElems,
+    );
     // Validate that 4 elements were created
     chai.expect(updatedElems.length).to.equal(4);
 
     // Search the elements and return them sorted
-    const sortedElems = await ElementController.search(adminUser, org._id, projIDs[0], branchID,
-      searchQuery, sortOption);
+    const sortedElems = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      searchQuery,
+      sortOption,
+    );
     // Expect to only find three elements
     chai.expect(sortedElems.length).to.equal(3);
 
@@ -1324,8 +1525,14 @@ async function optionSortSearch() {
     chai.expect(sortedElems[2]._id).to.equal(elements[10]._id);
 
     // Search the elements and return them sorted in reverse
-    const reverseElems = await ElementController.search(adminUser, org._id, projIDs[0], branchID,
-      searchQuery, sortOptionReverse);
+    const reverseElems = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      searchQuery,
+      sortOptionReverse,
+    );
     // Expect to find three elements
     chai.expect(reverseElems.length).to.equal(3);
 
@@ -1336,8 +1543,7 @@ async function optionSortSearch() {
     chai.expect(reverseElems[1]._id).to.equal(elements[9]._id);
     chai.expect(reverseElems[2].name).to.equal('a');
     chai.expect(reverseElems[2]._id).to.equal(elements[11]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1356,17 +1562,22 @@ async function artRefSearch() {
     const query = 'batch';
 
     // Search for elements
-    const foundElements = await ElementController.search(adminUser, org._id, projIDs[0],
-      branchID, query, options);
+    const foundElements = await ElementController.search(
+      adminUser,
+      org._id,
+      projIDs[0],
+      branchID,
+      query,
+      options,
+    );
 
     // Verify output
     chai.expect(foundElements.length).to.equal(1);
 
     chai.expect(foundElements[0].artifact).to.equal(
-      utils.createID(org._id, projIDs[0], branchID, artifactID)
+      utils.createID(org._id, projIDs[0], branchID, artifactID),
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

@@ -28,7 +28,7 @@ import {
   ModalBody,
   ModalFooter,
   InputGroup,
-  Input
+  Input,
 } from 'reactstrap';
 
 // MBEE modules
@@ -114,8 +114,7 @@ function ElementSelector(props) {
           props.selectedHandler(selectedElementPreview, p);
         }
       });
-    }
-    else {
+    } else {
       props.selectedHandler(selectedElementPreview);
     }
   };
@@ -146,25 +145,25 @@ function ElementSelector(props) {
     // Get projects from current org and default org
     const options = {
       ids: `${props.project.org},default`,
-      populate: 'projects',
-      fields: 'projects'
+      params: {
+        populate: 'projects',
+        fields: 'projects',
+      },
     };
 
     orgService.get(options)
-    .then(([err, orgs]) => {
-      if (err) {
-        setError(err);
-      }
-      else if (orgs) {
-        let projectList = [];
-        orgs.forEach((org) => {
-          projectList = projectList.concat(org.projects);
-        });
-        setProjects(projectList);
-      }
-    });
+      .then(([err, orgs]) => {
+        if (err) {
+          setError(err);
+        } else if (orgs) {
+          let projectList = [];
+          orgs.forEach((org) => {
+            projectList = projectList.concat(org.projects);
+          });
+          setProjects(projectList);
+        }
+      });
   }, []);
-
 
   // Initialize Variables
   let errorMsg = '';
@@ -196,8 +195,7 @@ function ElementSelector(props) {
         if (p.org === 'default') {
           // Push to default org array
           defaultOrgOpts.push(projOpt);
-        }
-        else {
+        } else {
           // Else, push to current org array
           currentOrgOpts.push(projOpt);
         }

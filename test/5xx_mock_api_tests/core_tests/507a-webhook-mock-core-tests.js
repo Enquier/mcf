@@ -29,7 +29,7 @@ const events = M.require('lib.events');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 const webhookIDs = [];
 
@@ -47,8 +47,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -63,8 +62,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await Webhook.deleteMany({ _id: { $in: webhookIDs } });
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -128,8 +126,12 @@ function postWebhook(done) {
     chai.expect(postedWebhook.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(postedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(postedWebhook).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -183,8 +185,7 @@ function postWebhooks(done) {
       chai.expect(createdWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (createdWebhook.type === 'Outgoing') {
         chai.expect(createdWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(createdWebhook.token).to.equal(token);
         chai.expect(createdWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -199,8 +200,12 @@ function postWebhooks(done) {
       chai.expect(createdWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
 
       // Expect the statusCode to be 200
       chai.expect(res.statusCode).to.equal(200);
@@ -254,8 +259,12 @@ function getWebhook(done) {
     chai.expect(foundWebhook.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundWebhook).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -306,8 +315,7 @@ function getWebhooks(done) {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -322,8 +330,12 @@ function getWebhooks(done) {
       chai.expect(foundWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -375,8 +387,7 @@ function getAllWebhooks(done) {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -391,8 +402,12 @@ function getAllWebhooks(done) {
       chai.expect(foundWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -415,7 +430,7 @@ function patchWebhook(done) {
   // Create request object
   const body = {
     id: webhookIDs[0],
-    name: 'Patch test'
+    name: 'Patch test',
   };
   const params = { webhookid: webhookData.id };
   const method = 'PATCH';
@@ -445,8 +460,12 @@ function patchWebhook(done) {
     chai.expect(patchedWebhook.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(patchedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(patchedWebhook).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -468,10 +487,10 @@ function patchWebhooks(done) {
   // Create request object
   const body = [{
     id: webhookIDs[1],
-    name: 'Patch test'
+    name: 'Patch test',
   }, {
     id: webhookIDs[2],
-    name: 'Patch test'
+    name: 'Patch test',
   }];
   const method = 'PATCH';
   const req = testUtils.createRequest(adminUser, {}, body, method);
@@ -502,8 +521,7 @@ function patchWebhooks(done) {
       chai.expect(updatedWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (updatedWebhook.type === 'Outgoing') {
         chai.expect(updatedWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(updatedWebhook.token).to.equal(token);
         chai.expect(updatedWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -518,8 +536,12 @@ function patchWebhooks(done) {
       chai.expect(updatedWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(updatedWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -580,7 +602,7 @@ function deleteWebhooks(done) {
   const ids = deleteIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
 
   const params = {};
   const method = 'DELETE';
@@ -613,7 +635,7 @@ function deleteWebhooks(done) {
  * @description A function that registers a listener for an incoming webhook and then proceeds
  * to make a mock API request to trigger that webhook. Verifies that the webhook emits the event
  * when its endpoint is called.
- **/
+ * */
 async function triggerWebhook() {
   // Get data for an incoming webhook
   const webhookData = testData.webhooks[1];
@@ -632,7 +654,7 @@ async function triggerWebhook() {
   // Create request object
   const body = {
     test: { token: Buffer.from(incomingWebhooks[0].token).toString('base64') },
-    data: 'test data'
+    data: 'test data',
   };
   const params = { encodedid: encodedID };
   const method = 'POST';
@@ -646,7 +668,7 @@ async function triggerWebhook() {
 
   promises.push(new Promise((resolve, reject) => {
     // Register a listener for the incoming webhook event
-    events.on(webhookData.triggers[0], function(data) {
+    events.on(webhookData.triggers[0], (data) => {
       if (data[1] === body.data) resolve();
       else reject(new Error('Data not found in emitted webhook event'));
     });

@@ -34,7 +34,7 @@ const Org = M.require('models.organization');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const adminUser = testData.adminUser;
+const { adminUser } = testData;
 
 /* --------------------( Main )-------------------- */
 /**
@@ -60,7 +60,7 @@ async function createOrg() {
   const org = {
     _id: testData.orgs[0].id,
     name: testData.orgs[0].name,
-    permissions: {}
+    permissions: {},
   };
 
   // Add the admin user to the permissions
@@ -69,8 +69,7 @@ async function createOrg() {
   try {
     // Save the Organization model object to the database
     await Org.insertMany(org);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -88,8 +87,7 @@ async function findOrg() {
     // Verify correct org is returned
     org._id.should.equal(testData.orgs[0].id);
     org.name.should.equal(testData.orgs[0].name);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -110,8 +108,7 @@ async function updateOrg() {
     // Verify org is updated correctly
     foundOrg._id.should.equal(testData.orgs[0].id);
     foundOrg.name.should.equal('Updated Name');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -131,8 +128,7 @@ async function deleteOrg() {
 
     // foundOrg should be null
     should.not.exist(foundOrg);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

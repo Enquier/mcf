@@ -30,14 +30,13 @@ import Stat from '../../general/stats/stat.jsx';
 
 // Define component
 class ProjectListItem extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      width: 0
+      width: 0,
     };
 
     // Create reference
@@ -68,7 +67,7 @@ class ProjectListItem extends Component {
 
   render() {
     // Initialize variables
-    const project = this.props.project;
+    const { project } = this.props;
     let colorClass;
 
     // Verify if archived
@@ -103,7 +102,6 @@ class ProjectListItem extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

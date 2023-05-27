@@ -95,7 +95,7 @@ function logSecurityResponse(req, res, next) {
  * @param {Function} next - Callback to express authentication flow.
  */
 function logIP(req, res, next) {
-  let ip = req.ip;
+  let { ip } = req;
   // If IP is ::1, set it equal to 127.0.0.1
   if (req.ip === '::1') {
     ip = '127.0.0.1';
@@ -165,15 +165,14 @@ function pluginPre(endpoint) {
     const { pluginFunctions } = require(path.join(M.root, 'plugins', 'routes.js'));
 
     if (pluginFunctions[endpoint]) {
-      return async function(req, res, next) {
+      return async function (req, res, next) {
         try {
           for (let i = 0; i < pluginFunctions[endpoint].pre.length; i++) {
             // eslint-disable-next-line no-await-in-loop
             await pluginFunctions[endpoint].pre[i](req, res);
           }
           next();
-        }
-        catch (error) {
+        } catch (error) {
           M.log.warn(error);
           const statusCode = errors.getStatusCode(error);
           utils.formatResponse(req, res, error.message, statusCode, next);
@@ -181,7 +180,7 @@ function pluginPre(endpoint) {
       };
     }
   }
-  return function(req, res, next) {
+  return function (req, res, next) {
     next();
   };
 }
@@ -200,7 +199,7 @@ function pluginPost(endpoint) {
     // eslint-disable-next-line global-require
     const { pluginFunctions } = require(path.join(M.root, 'plugins', 'routes.js'));
 
-    return async function(req, res, next) {
+    return async function (req, res, next) {
       // If the response has already been sent, return
       if (res.statusCode) {
         next();
@@ -214,11 +213,10 @@ function pluginPost(endpoint) {
       next();
     };
   }
-  else {
-    return function(req, res, next) {
-      next();
-    };
-  }
+
+  return function (req, res, next) {
+    next();
+  };
 }
 
 /**
@@ -232,7 +230,7 @@ function pluginPost(endpoint) {
  * @returns {object} Returns the response.
  */
 function respond(req, res) {
-  const message = res.locals.message;
+  const { message } = res.locals;
 
   // If the response hasn't been formatted already, format it
   if (!(res.locals && res.locals.responseFormatted)) {
@@ -288,5 +286,5 @@ module.exports = {
   pluginPre,
   pluginPost,
   respond,
-  expiredPassword
+  expiredPassword,
 };

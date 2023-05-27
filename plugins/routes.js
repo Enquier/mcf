@@ -22,6 +22,7 @@ const { execSync } = require('child_process');
 
 // NPM modules
 const express = require('express');
+
 const pluginRouter = express.Router();
 
 const protectedFileNames = ['routes.js'];
@@ -36,7 +37,7 @@ loadPlugins();
  */
 function loadPlugins() {
   const loadedPlugins = [];
-  const plugins = M.config.server.plugins.plugins;
+  const { plugins } = M.config.server.plugins;
 
   // Clone or copy plugins from their source into the plugins directory
   Object.keys(plugins).forEach((k) => {
@@ -54,8 +55,7 @@ function loadPlugins() {
     // Website downloads
     else if (plugins[k].source.endsWith('.zip') || plugins[k].source.endsWith('.gz')) {
       downloadPluginFromWebsite(plugins[k]);
-    }
-    else {
+    } else {
       M.log.warn(plugins[k].source);
       M.log.warn('Plugin type unknown');
     }
@@ -160,17 +160,14 @@ function loadPlugins() {
           if (Object.keys(pluginFunctions).includes(m)) {
             if (middleware[m].pre) pluginFunctions[m].pre.push(middleware[m].pre);
             if (middleware[m].post) pluginFunctions[m].post.push(middleware[m].post);
-          }
-          else {
+          } else {
             M.log.warn(`Plugin middleware for api function [${m}] not supported`);
           }
-        }
-        else {
+        } else {
           M.log.warn(`Skipping plugin middleware for api function [${m}] due to invalid format`);
         }
       });
     }
-
 
     // Run the plugin tests if specified
     if (plugins[f].testOnStartup) {
@@ -187,7 +184,7 @@ function loadPlugins() {
     // Add plugin name/title to array of loaded plugins
     loadedPlugins.push({
       name: namespace,
-      title: plugins[f].title
+      title: plugins[f].title,
     });
   });
 
@@ -231,8 +228,7 @@ function clonePluginFromGitRepo(data) {
     const stdout2 = execSync(cmd);
     M.log.verbose(stdout2.toString());
     M.log.info('Clone complete.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.warn(`Failed to clone plugin [${data.name}].`);
   }
 
@@ -240,8 +236,7 @@ function clonePluginFromGitRepo(data) {
     if (data.persistToPath !== 'false') {
       try {
         fsExtra.copySync(path.join(M.root, 'plugins', data.name), path.join(M.root, data.persistToPath, data.name));
-      }
-      catch (error) {
+      } catch (error) {
         M.log.warn(error.stack);
       }
     }

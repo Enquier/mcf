@@ -20,7 +20,6 @@
 const fs = require('fs');
 const path = require('path');
 
-
 /**
  * @description A helper function to simplify testing the existence and types of
  * config keys.
@@ -49,13 +48,11 @@ function test(config, key, type) {
     if (typeof field !== 'object' || field === null) {
       throw new Error(`Configuration file: "${key}" is not an object.`);
     }
-  }
-  else if (type === 'Array') {
+  } else if (type === 'Array') {
     if (!Array.isArray(field)) {
       throw new Error(`Configuration file: "${key}" is not an array.`);
     }
-  }
-  else if (type === 'number') {
+  } else if (type === 'number') {
     const num = parseInt(field, 10);
     // eslint-disable-next-line no-restricted-globals
     if (isNaN(num)) throw new Error(`Configuration file: "${key}" is not a number.`);
@@ -73,20 +70,20 @@ function test(config, key, type) {
  *
  * @param {object} config - The configuration settings object.
  */
-module.exports.validate = function(config) {
+module.exports.validate = function (config) {
   // ----------------------------- Verify auth ----------------------------- //
   test(config, 'auth', 'object');
   test(config, 'auth.strategy', 'string');
   const authStrategies = ['local-strategy', 'ldap-strategy', 'local-ldap-strategy', 'mms-strategy', 'local-mms-strategy'];
   if (!authStrategies.includes(config.auth.strategy)) {
     throw new Error(`Configuration file: ${config.auth.strategy} in "auth.strategy" is not a valid`
-    + 'authentication strategy.');
+      + 'authentication strategy.');
   }
   const stratFiles = fs.readdirSync(path.join(M.root, 'app', 'auth'))
-  .filter((file) => file.includes(config.auth.strategy));
+    .filter((file) => file.includes(config.auth.strategy));
   if (stratFiles.length === 0) {
     throw new Error(
-      `Configuration file: Auth strategy file ${config.auth.strategy} not found in app/auth directory.`
+      `Configuration file: Auth strategy file ${config.auth.strategy} not found in app/auth directory.`,
     );
   }
 
@@ -103,7 +100,7 @@ module.exports.validate = function(config) {
           throw new Error('Configuration file: One or more items in "auth.ldap.ca" is not a string.');
         }
         const caFile = fs.readdirSync(path.isAbsolute(ca) ? path.dirname(ca) : path.join(M.root, 'certs'))
-        .filter((file) => ca.includes(file));
+          .filter((file) => ca.includes(file));
         if (caFile.length === 0) {
           throw new Error(`Configuration file: CA file ${ca} not found in specified directory.`);
         }
@@ -137,21 +134,20 @@ module.exports.validate = function(config) {
   test(config, 'auth.session.units', 'string');
   if (config.auth.oldPasswords) test(config, 'auth.oldPasswords', 'number');
 
-
   // ----------------------------- Verify db ----------------------------- //
   test(config, 'db', 'object');
   test(config, 'db.strategy', 'string');
 
   // Ensure that the db strategy directory exists
   const dirs = fs.readdirSync(path.join(M.root, 'app', 'db'))
-  .filter((file) => file.includes(config.db.strategy));
+    .filter((file) => file.includes(config.db.strategy));
   if (dirs.length === 0) {
     throw new Error(`Configuration file: DB strategy directory ${config.db.strategy} not found in app/db directory.`);
   }
 
   // Ensure that the db strategy exists
   const dbFiles = fs.readdirSync(path.join(M.root, 'app', 'db', config.db.strategy))
-  .filter((file) => file.includes(config.db.strategy));
+    .filter((file) => file.includes(config.db.strategy));
   if (dbFiles.length === 0) {
     throw new Error(`Configuration file: DB strategy file ${config.db.strategy}`
       + ` not found in app/db/${config.db.strategy} directory.`);
@@ -161,8 +157,7 @@ module.exports.validate = function(config) {
   if (config.db.strategy === 'mongoose-mongodb-strategy') {
     if (typeof config.db.seedList !== 'undefined') {
       test(config, 'db.seedList', 'Array');
-    }
-    else {
+    } else {
       test(config, 'db.url', 'string');
       test(config, 'db.port', 'number');
     }
@@ -177,7 +172,7 @@ module.exports.validate = function(config) {
     if (config.db.ssl) {
       test(config, 'db.ca', 'string');
       const caFile = fs.readdirSync(path.isAbsolute(config.db.ca) ? path.dirname(config.db.ca) : path.join(M.root, 'certs'))
-      .filter((file) => config.db.ca.includes(file));
+        .filter((file) => config.db.ca.includes(file));
       if (caFile.length === 0) {
         throw new Error(`Configuration file: CA file ${config.db.ca} not found in certs directory.`);
       }
@@ -201,7 +196,6 @@ module.exports.validate = function(config) {
       test(config, 'db.proxy', 'string');
     }
   }
-
 
   // ----------------------------- Verify docker ----------------------------- //
   if (config.docker) {
@@ -228,7 +222,7 @@ module.exports.validate = function(config) {
     }
     const Dockerfile = dockerPaths[dockerPaths.length - 1];
     const findDockerfile = fs.readdirSync(dockerPath)
-    .filter((file) => file === Dockerfile);
+      .filter((file) => file === Dockerfile);
     if (findDockerfile.length === 0) {
       throw new Error(`Configuration file: Dockerfile ${Dockerfile} not found in specified directory.`);
     }
@@ -295,6 +289,9 @@ module.exports.validate = function(config) {
   test(config, 'server.ui.enabled', 'boolean');
   if (config.server.ui.enabled) {
     test(config, 'server.ui.mode', 'string');
+    if (config.server.ui.apiServer) {
+      test(config, 'server.ui.apiServer', 'object');
+    }
     test(config, 'server.ui.banner', 'object');
     test(config, 'server.ui.banner.on', 'boolean');
     if (config.server.ui.banner.on) {
@@ -337,8 +334,8 @@ module.exports.validate = function(config) {
       if (config.validators.id_length < minLength) {
         // Check that custom id validators don't exclude root ids
         throw new Error(`Configuration file: custom id length "${config.validators.id_length}" is `
-        + `too short.  The minimum length must be ${minLength} to account for root element ids, `
-        + 'the default org id, and/or the default admin username.');
+          + `too short.  The minimum length must be ${minLength} to account for root element ids, `
+          + 'the default org id, and/or the default admin username.');
       }
     }
     if (config.validators.element_id) {
@@ -367,7 +364,7 @@ module.exports.validate = function(config) {
       test(config, 'validators.org_id_length', 'number');
       if (config.validators.org_id_length < config.server.defaultOrganizationId.length) {
         throw new Error('Configuration file: custom org id length '
-        + `"${config.validators.org_id_length}" is shorter than the length of the default org id.`);
+          + `"${config.validators.org_id_length}" is shorter than the length of the default org id.`);
       }
     }
     if (config.validators.project_id) test(config, 'validators.project_id', 'string');
@@ -384,7 +381,7 @@ module.exports.validate = function(config) {
       test(config, 'validators.user_username_length', 'number');
       if (config.validators.user_username_length < config.server.defaultAdminUsername.length) {
         throw new Error('Configuration file: custom username length '
-        + `"${config.validators.user_username_length}" is shorter than the length of the default admin username.`);
+          + `"${config.validators.user_username_length}" is shorter than the length of the default admin username.`);
       }
     }
     if (config.validators.user_email) test(config, 'validators.user_email', 'string');
@@ -399,10 +396,10 @@ module.exports.validate = function(config) {
   test(config, 'artifact.strategy', 'string');
   // Check that the strategy file exists
   const artStratFiles = fs.readdirSync(path.join(M.root, 'app', 'artifact'))
-  .filter((file) => file === `${config.artifact.strategy}.js`);
+    .filter((file) => file === `${config.artifact.strategy}.js`);
   if (artStratFiles.length === 0) {
     throw new Error(
-      `Configuration file: Artifact strategy file ${config.artifact.strategy} not found in app/artifact directory.`
+      `Configuration file: Artifact strategy file ${config.artifact.strategy} not found in app/artifact directory.`,
     );
   }
 
@@ -417,7 +414,7 @@ module.exports.validate = function(config) {
       // Validate the ca file
       test(config, 'artifact.s3.ca', 'string');
       const caFile = fs.readdirSync(path.isAbsolute(config.artifact.s3.ca) ? path.dirname(config.artifact.s3.ca) : path.join(M.root, 'certs'))
-      .filter((file) => config.artifact.s3.ca.includes(file));
+        .filter((file) => config.artifact.s3.ca.includes(file));
       if (caFile.length === 0) {
         throw new Error(`Configuration file: CA file ${config.artifact.s3.ca} not found in certs directory.`);
       }
@@ -429,32 +426,36 @@ module.exports.validate = function(config) {
   }
 
   // ----------------------------- Verify api strategies ----------------------------- //
-  test(config, 'api', 'object');
-  test(config, 'api.strategy', 'string');
-  const apiStrategies = ['mms-strategy'];
-  if (!apiStrategies.includes(config.api.strategy)) {
-    throw new Error(`Configuration file: ${config.api.strategy} in "api.strategy" is not a valid`
-      + 'api strategy.');
-  }
-  const apiStratFiles = fs.readdirSync(path.join(M.root, 'app', 'api'))
-  .filter((file) => file.includes(config.api.strategy));
-  if (apiStratFiles.length === 0) {
-    throw new Error(
-      `Configuration file: API strategy directory ${config.api.strategy} not found in app/api directory.`
-    );
-  }
-
-  // Test to ensure api strategy contains the expected controllers.
-  test(config, 'api.controllers', 'Array');
-  const apiControllers = config.api.controllers;
-  apiControllers.forEach(controller => {
-    const contFiles = fs.readdirSync(path.join(M.root, 'app', 'api', config.api.strategy, 'controllers')).filter(file => file.includes(controller));
-    if (contFiles.length === 0) {
-      throw new Error(
-        `Configuration file: API strategy controller ${controller} not found in app/api/${config.api.strategy}/controllers.`
-      );
+  // test(config, 'api', 'object');
+  // test(config, 'api.strategy', 'string');
+  if (config.api) {
+    const apiStrategies = ['mcf-strategy', 'mms-strategy'];
+    if (!apiStrategies.includes(config.api.strategy)) {
+      throw new Error(`Configuration file: ${config.api.strategy} in "api.strategy" is not a valid`
+        + ' api strategy.');
     }
-  });
+    if (config.api.strategy !== 'mcf-strategy') {
+      const apiStratFiles = fs.readdirSync(path.join(M.root, 'app', 'api'))
+        .filter((file) => file.includes(config.api.strategy));
+      if (apiStratFiles.length === 0) {
+        throw new Error(
+          `Configuration file: API strategy directory ${config.api.strategy} not found in app/api directory.`,
+        );
+      }
+
+      // Test to ensure api strategy contains the expected controllers.
+      test(config, 'api.controllers', 'Array');
+      const apiControllers = config.api.controllers;
+      apiControllers.forEach((controller) => {
+        const contFiles = fs.readdirSync(path.join(M.root, 'app', 'api', config.api.strategy, 'controllers')).filter((file) => file.includes(controller));
+        if (contFiles.length === 0) {
+          throw new Error(
+            `Configuration file: API strategy controller ${controller} not found in app/api/${config.api.strategy}/controllers.`,
+          );
+        }
+      });
+    }
+  }
 };
 
 /**
@@ -465,7 +466,7 @@ module.exports.validate = function(config) {
  *
  * @returns {object} Valid JSON object.
  */
-module.exports.removeComments = function(inputString) {
+module.exports.removeComments = function (inputString) {
   // Ensure inputString is of type string
   if (typeof inputString !== 'string') {
     throw new M.DataFormatError('Value is not a string.', 'warn');
@@ -475,7 +476,7 @@ module.exports.removeComments = function(inputString) {
   const arrStringSep = inputString.split('\n');
 
   // Remove all array elements that start with '//', the JS comment identifier
-  const arrCommRem = arrStringSep.filter(line => !RegExp(/^ *\/\//).test(line));
+  const arrCommRem = arrStringSep.filter((line) => !RegExp(/^ *\/\//).test(line));
 
   // Join the array into a single string separated by new line characters
   // Return the now-valid JSON
@@ -488,7 +489,7 @@ module.exports.removeComments = function(inputString) {
  *
  * @param {object} configObj - The config object, before it gets frozen on the M object.
  */
-module.exports.parseRegEx = function(configObj) {
+module.exports.parseRegEx = function (configObj) {
   if (configObj.hasOwnProperty('validators')) {
     Object.keys(configObj.validators).forEach((key) => {
       // Only search custom id validators, not id length validators
@@ -498,9 +499,8 @@ module.exports.parseRegEx = function(configObj) {
           if (offset !== 0 && string[offset - 1] === '\\') {
             return match;
           }
-          else {
-            return '';
-          }
+
+          return '';
         });
       }
     });

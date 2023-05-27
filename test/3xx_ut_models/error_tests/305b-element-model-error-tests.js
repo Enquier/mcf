@@ -63,7 +63,7 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function idTooShort() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -76,8 +76,7 @@ async function idTooShort() {
     await Element.insertMany(elemData).should.eventually.be.rejectedWith('Element'
       + ` validation failed: _id: Element ID length [${utils.parseID(elemData._id).pop().length}]`
       + ' must not be less than 2 characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -96,7 +95,7 @@ async function idTooLong() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -114,8 +113,7 @@ async function idTooLong() {
       + `failed: _id: Element ID length [${elemData._id.length - validators.branch.idLength - 1}]`
       + ` must not be more than ${validators.element.idLength - validators.branch.idLength - 1}`
       + ' characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -127,7 +125,7 @@ async function idTooLong() {
  */
 async function idNotProvided() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -136,8 +134,7 @@ async function idNotProvided() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith('Element '
       + 'validation failed: _id: Path `_id` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -154,7 +151,7 @@ async function invalidID() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -166,8 +163,7 @@ async function invalidID() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith('Element '
       + `validation failed: _id: Invalid element ID [${elemData._id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -179,7 +175,7 @@ async function invalidID() {
  */
 async function projectNotProvided() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -188,8 +184,7 @@ async function projectNotProvided() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith('Element'
       + ' validation failed: project: Path `project` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -206,7 +201,7 @@ async function projectInvalid() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.branch = 'org:proj:branch';
     elemData.parent = 'org:proj:branch:model';
@@ -218,10 +213,9 @@ async function projectInvalid() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       `Element validation failed: project: ${elemData.project} is not a valid `
-      + 'project ID.'
+      + 'project ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -233,7 +227,7 @@ async function projectInvalid() {
  */
 async function branchNotProvided() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.parent = 'org:proj:branch:model';
@@ -242,8 +236,7 @@ async function branchNotProvided() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith('Element'
       + ' validation failed: branch: Path `branch` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -260,7 +253,7 @@ async function branchInvalid() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.parent = 'org:proj:branch:model';
@@ -272,10 +265,9 @@ async function branchInvalid() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       `Element validation failed: branch: ${elemData.branch} is not a valid `
-      + 'branch ID.'
+      + 'branch ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -292,7 +284,7 @@ async function parentInvalid() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
@@ -304,10 +296,9 @@ async function parentInvalid() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       `Element validation failed: parent: ${elemData.parent} is not a valid `
-      + 'parent ID.'
+      + 'parent ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -324,7 +315,7 @@ async function sourceInvalid() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
@@ -337,10 +328,9 @@ async function sourceInvalid() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       `Element validation failed: source: ${elemData.source} is not a valid `
-      + 'source ID.'
+      + 'source ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -352,7 +342,7 @@ async function sourceInvalid() {
  */
 async function sourceWithNoTarget() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
@@ -366,10 +356,9 @@ async function sourceWithNoTarget() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       'Element validation failed: source: Target is required if source is '
-      + 'provided.'
+      + 'provided.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -386,7 +375,7 @@ async function targetInvalid() {
     this.skip();
   }
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
@@ -399,10 +388,9 @@ async function targetInvalid() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       `Element validation failed: target: ${elemData.target} is not a valid `
-      + 'target ID.'
+      + 'target ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -414,7 +402,7 @@ async function targetInvalid() {
  */
 async function targetWithNoSource() {
   try {
-    const elemData = Object.assign({}, testData.elements[0]);
+    const elemData = { ...testData.elements[0] };
     elemData._id = `org:proj:branch:${elemData.id}`;
     elemData.project = 'org:proj';
     elemData.branch = 'org:proj:branch';
@@ -428,10 +416,9 @@ async function targetWithNoSource() {
     // Expect insertMany() to fail with specific error message
     await Element.insertMany(elemData).should.eventually.be.rejectedWith(
       'Element validation failed: target: Source is required if target is '
-      + 'provided.'
+      + 'provided.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

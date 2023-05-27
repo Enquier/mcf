@@ -45,7 +45,7 @@ async function connect() {
     secretAccessKey: M.config.db.secretAccessKey,
     region: M.config.db.region,
     sslEnabled: M.config.db.ssl,
-    httpOptions: (M.config.db.proxy) ? { proxy: M.config.db.proxy } : undefined
+    httpOptions: (M.config.db.proxy) ? { proxy: M.config.db.proxy } : undefined,
   });
 }
 
@@ -67,10 +67,9 @@ async function connectDocument() {
 
     // Return an instance of the DocumentClient, using the connection object as a base
     return new AWS.DynamoDB.DocumentClient({
-      service: conn
+      service: conn,
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.verbose('Failed to connect to the DocumentClient.');
     throw errors.captureError(error);
   }
@@ -109,8 +108,7 @@ async function clear() {
 
     // Wait for all promises to complete
     await Promise.all(promises);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -128,7 +126,6 @@ function sanitize(data) {
 }
 
 class Schema {
-
   /**
    * @description The Schema constructor. Accepts a definition object and
    * options and converts the definition into a DynamoDB friendly schema. Stores
@@ -145,13 +142,13 @@ class Schema {
     this.schema = {
       AttributeDefinitions: [{
         AttributeName: '_id',
-        AttributeType: 'S'
+        AttributeType: 'S',
       }],
       KeySchema: [{
         AttributeName: '_id',
-        KeyType: 'HASH'
+        KeyType: 'HASH',
       }],
-      GlobalSecondaryIndexes: []
+      GlobalSecondaryIndexes: [],
     };
 
     // Define the definition, populate object and immutables array
@@ -205,7 +202,7 @@ class Schema {
         // Create attribute object
         const attributeObj = {
           AttributeName: key,
-          AttributeType: obj[key].type
+          AttributeType: obj[key].type,
         };
         // Add the schema AttributeDefinitions
         this.schema.AttributeDefinitions.push(attributeObj);
@@ -216,13 +213,13 @@ class Schema {
           KeySchema: [
             {
               AttributeName: key,
-              KeyType: (obj[key].type === 'S') ? 'HASH' : 'RANGE'
-            }
+              KeyType: (obj[key].type === 'S') ? 'HASH' : 'RANGE',
+            },
           ],
           Projection: {
             NonKeyAttributes: ['_id'],
-            ProjectionType: 'INCLUDE'
-          }
+            ProjectionType: 'INCLUDE',
+          },
         };
         // Add to the schema GlobalSecondaryIndexes
         this.schema.GlobalSecondaryIndexes.push(indexObj);
@@ -236,7 +233,7 @@ class Schema {
           ref: obj[key].ref,
           localField: key,
           foreignField: '_id',
-          justOne: true
+          justOne: true,
         };
       }
 
@@ -274,7 +271,7 @@ class Schema {
    */
   index(fields, options) {
     // If every value is text, we have a text index
-    if (Object.values(fields).every(v => v === 'text')) {
+    if (Object.values(fields).every((v) => v === 'text')) {
       // Add keys to the text array, only 1 text index per schema so no worry of duplicate keys
       this.definition.text = Object.keys(fields);
     }
@@ -314,12 +311,10 @@ class Schema {
     // Add the static function onto the schema statics array
     this.definition.statics.push({ [name]: fn });
   }
-
 }
 
 /** Class for formatting DynamoDB queries. */
 class Query {
-
   /**
    * @description Creates a new instance of the Query class. The Query class has
    * multiple built-in functions for returning queries formatted for DynamoDB.
@@ -357,8 +352,7 @@ class Query {
         obj.ExpressionAttributeNames[`#${kName}`] = s;
       });
       keyName = split.join('.#');
-    }
-    else {
+    } else {
       // Add key to ExpressionAttributeNames
       obj.ExpressionAttributeNames[`#${keyName}`] = key;
     }
@@ -384,12 +378,11 @@ class Query {
         return 'null';
       }
       // If an array or object
-      else {
-        // Recursively call this function to fix null
-        Object.keys(obj).forEach((k) => {
-          obj[k] = this.formatJSON(obj[k]);
-        });
-      }
+
+      // Recursively call this function to fix null
+      Object.keys(obj).forEach((k) => {
+        obj[k] = this.formatJSON(obj[k]);
+      });
     }
     return obj;
   }
@@ -413,8 +406,8 @@ class Query {
     const queries = [];
     const baseFindQuery = {
       RequestItems: {
-        [this.model.TableName]: { Keys: [] }
-      }
+        [this.model.TableName]: { Keys: [] },
+      },
     };
 
     // For each key in the query
@@ -424,8 +417,7 @@ class Query {
         && Object.keys(filter[key])[0] === '$in') {
         // Convert to Set and back to array to remove any duplicates
         inVals[key] = Array.from(new Set(Object.values(filter[key])[0]));
-      }
-      else {
+      } else {
         base[key] = this.formatJSON(filter[key]);
       }
     });
@@ -433,8 +425,7 @@ class Query {
     // If no $in exists in the query, return the base query
     if (Object.keys(inVals).length === 0) {
       keys.push(base);
-    }
-    else {
+    } else {
       // For each in_val
       Object.keys(inVals).forEach((k) => {
         // For each item in the array to search through
@@ -451,7 +442,7 @@ class Query {
     for (let i = 0; i < keys.length / 25; i++) {
       // Grab in batches of 25, this is the max number for DynamoDB
       baseFindQuery.RequestItems[this.model.TableName].Keys = keys
-      .slice(i * 25, i * 25 + 25);
+        .slice(i * 25, i * 25 + 25);
 
       // Add query to array, copying the object to avoid modifying
       // the base query by reference
@@ -479,8 +470,8 @@ class Query {
     const queries = [];
     const baseObj = {
       RequestItems: {
-        [this.model.TableName]: []
-      }
+        [this.model.TableName]: [],
+      },
     };
 
     // Determine if array of PutRequests or DeleteRequests
@@ -497,8 +488,8 @@ class Query {
         if (op === 'PutRequest') {
           const putObj = {
             PutRequest: {
-              Item: {}
-            }
+              Item: {},
+            },
           };
           putObj.PutRequest.Item = this.formatJSON(doc);
           tmpQuery.RequestItems[this.model.TableName].push(putObj);
@@ -507,8 +498,8 @@ class Query {
         else {
           const deleteObj = {
             DeleteRequest: {
-              Key: { _id: doc._id }
-            }
+              Key: { _id: doc._id },
+            },
           };
           tmpQuery.RequestItems[this.model.TableName].push(deleteObj);
         }
@@ -536,8 +527,8 @@ class Query {
     return {
       TableName: this.model.TableName,
       Key: {
-        [Object.keys(filter)[0]]: String(Object.values(filter)[0])
-      }
+        [Object.keys(filter)[0]]: String(Object.values(filter)[0]),
+      },
     };
   }
 
@@ -555,7 +546,7 @@ class Query {
   put(doc) {
     return {
       TableName: this.model.TableName,
-      Item: this.formatJSON(doc)
+      Item: this.formatJSON(doc),
     };
   }
 
@@ -576,7 +567,7 @@ class Query {
       TableName: this.model.TableName,
       ExpressionAttributeNames: {},
       ExpressionAttributeValues: {},
-      FilterExpression: ''
+      FilterExpression: '',
     };
 
     // If the query is not empty
@@ -601,11 +592,9 @@ class Query {
               // If FilterExpression is empty, init it
               if (!findQuery.FilterExpression && !filterString) {
                 filterString = `( #${keyName} = :${valueKey}${i}`;
-              }
-              else if (!filterString) {
+              } else if (!filterString) {
                 filterString = ` AND ( #${keyName} = :${valueKey}${i}`;
-              }
-              else {
+              } else {
                 filterString += ` OR #${keyName} = :${valueKey}${i}`;
               }
             }
@@ -627,15 +616,13 @@ class Query {
             // If FilterExpression is empty, init it
             if (!findQuery.FilterExpression && !filterString) {
               filterString = `contains (#${keyName}, :${valueKey}${i})`;
-            }
-            else {
+            } else {
               filterString += ` AND contains (#${keyName}, :${valueKey}${i})`;
             }
           }
 
           findQuery.FilterExpression += filterString;
-        }
-        else {
+        } else {
           findQuery.ExpressionAttributeValues[`:${valueKey}`] = this.formatJSON(query[k]);
           filterString = `#${keyName} = :${valueKey}`;
           // Set the FilterExpression
@@ -699,8 +686,8 @@ class Query {
       TableName: this.model.TableName,
       ReturnValues: 'ALL_NEW', // Return the entire modified document
       Key: {
-        [Object.keys(filter)[0]]: String(Object.values(filter)[0]) // Set the key to filter on
-      }
+        [Object.keys(filter)[0]]: String(Object.values(filter)[0]), // Set the key to filter on
+      },
     };
 
     // If the update document is not empty
@@ -748,12 +735,9 @@ class Query {
 
     return updateQuery;
   }
-
 }
 
-
 class Model {
-
   /**
    * @description Class constructor. Sets class variables, defines indexes and
    * adds the class static methods defined in the Schema onto the Model class.
@@ -775,7 +759,7 @@ class Model {
 
     // Create a list of indexed fields on the schema, splitting off the _1
     this.indexes = (schema.schema.GlobalSecondaryIndexes) ? schema.schema.GlobalSecondaryIndexes
-    .map(i => i.IndexName.substr(0, i.IndexName.length - 2)) : [];
+      .map((i) => i.IndexName.substr(0, i.IndexName.length - 2)) : [];
     this.indexes.push('_id');
 
     // Add on statics
@@ -835,8 +819,7 @@ class Model {
       const conn = await connect();
       // Find all tables
       return conn.listTables().promise();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed to ${this.modelName}.findTables().`);
       throw errors.captureError(error);
     }
@@ -859,9 +842,9 @@ class Model {
     const promises = [];
     for (let i = 0; i < documents.length; i++) {
       promises.push(this.formatDocument(documents[i], projection, options)
-      .then((doc) => {
-        documents[i] = doc;
-      }));
+        .then((doc) => {
+          documents[i] = doc;
+        }));
     }
 
     // Wait for all promises to complete
@@ -910,9 +893,9 @@ class Model {
       // If an object, recursively call this function on the object
       else if (typeof document[field] === 'object') {
         promises.push(this.formatDocument(document[field], null, {}, true)
-        .then((retDoc) => {
-          document[field] = retDoc;
-        }));
+          .then((retDoc) => {
+            document[field] = retDoc;
+          }));
       }
     });
 
@@ -942,7 +925,7 @@ class Model {
       const fields = projection.split(' ');
 
       // Exclude certain fields from the document
-      if (fields.every(s => s.startsWith('-'))) {
+      if (fields.every((s) => s.startsWith('-'))) {
         fields.forEach((f) => {
           // Remove leading '-'
           const key = f.slice(1);
@@ -1013,14 +996,14 @@ class Model {
       // If it is an updateOne operation
       if (Object.keys(op)[0] === 'updateOne') {
         // Grab the filter and update object
-        const filter = Object.values(op)[0].filter;
-        const update = Object.values(op)[0].update;
+        const { filter } = Object.values(op)[0];
+        const { update } = Object.values(op)[0];
 
         // Perform the updateOne operation
         promises.push(this.updateOne(filter, update, options)
-        .then(() => {
-          modifiedCount += 1;
-        }));
+          .then(() => {
+            modifiedCount += 1;
+          }));
       }
       // If it is a replaceOne operation
       else if (Object.keys(op)[0] === 'replaceOne') {
@@ -1029,16 +1012,16 @@ class Model {
 
         // Perform the put operation
         promises.push(conn.put(putQuery).promise()
-        .then(() => {
-          modifiedCount += 1;
-        }));
+          .then(() => {
+            modifiedCount += 1;
+          }));
       }
     });
 
     // Wait for promises to complete
     await Promise.all(promises);
 
-    return { modifiedCount: modifiedCount, result: 1 };
+    return { modifiedCount, result: 1 };
   }
 
   /**
@@ -1066,8 +1049,7 @@ class Model {
       M.log.debug(`DB OPERATION: ${this.TableName} countDocuments`);
       const data = await conn.scan(scanObj).promise();
       return data.Count;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.countDocuments().`);
       throw errors.captureError(error);
     }
@@ -1089,7 +1071,7 @@ class Model {
 
       // Get an array of active index names
       const indexNames = (tableInfo.Table.GlobalSecondaryIndexes)
-        ? tableInfo.Table.GlobalSecondaryIndexes.map(i => i.IndexName)
+        ? tableInfo.Table.GlobalSecondaryIndexes.map((i) => i.IndexName)
         : [];
 
       // If the index exists
@@ -1099,9 +1081,9 @@ class Model {
           TableName: this.TableName,
           GlobalSecondaryIndexUpdates: [{
             Delete: {
-              IndexName: name
-            }
-          }]
+              IndexName: name,
+            },
+          }],
         };
 
         // Update the table and delete the index
@@ -1109,13 +1091,12 @@ class Model {
 
         // If the result does not show the index is deleting, throw an error
         const deletedIndex = result.TableDescription.GlobalSecondaryIndexes
-        .filter(f => f.IndexName === name)[0];
+          .filter((f) => f.IndexName === name)[0];
         if (deletedIndex.IndexStatus !== 'DELETING') {
           throw new M.DatabaseError(`Index ${name} was NOT successfully deleted.`);
         }
       }
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.deleteIndex().`);
       throw errors.captureError(error);
     }
@@ -1147,8 +1128,7 @@ class Model {
         // If there is no filter, block from finding all documents to delete
         if (!scanObj.hasOwnProperty('FilterExpression') && Object.keys(filter).length !== 0) {
           more = false;
-        }
-        else {
+        } else {
           M.log.debug(`DB OPERATION: ${this.TableName} scan`);
           // Find the documents
           const result = await conn.scan(scanObj).promise(); // eslint-disable-line no-await-in-loop
@@ -1157,8 +1137,7 @@ class Model {
           // If there are no more documents to find, exit loop
           if (!result.LastEvaluatedKey) {
             more = false;
-          }
-          else {
+          } else {
             // Set LastEvaluatedKey, used to paginate
             options.LastEvaluatedKey = result.LastEvaluatedKey;
           }
@@ -1184,8 +1163,7 @@ class Model {
 
       // Return an object specifying the success of the delete operation
       return { n: docs.length, ok: 1 };
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.deleteMany().`);
       throw errors.captureError(error);
     }
@@ -1240,8 +1218,7 @@ class Model {
         skip = options.skip;
         delete options.limit;
         delete options.skip;
-      }
-      else {
+      } else {
         options = {}; // eslint-disable-line no-param-reassign
       }
 
@@ -1262,17 +1239,16 @@ class Model {
           promises.push(
             // Make the batchGet request
             conn.batchGet(q).promise()
-            .then((found) => {
+              .then((found) => {
               // Append the found documents to the function-global array
-              docs = docs.concat(found.Responses[this.TableName]);
-            })
+                docs = docs.concat(found.Responses[this.TableName]);
+              }),
           );
         });
 
         // Wait for completion of all promises
         await Promise.all(promises);
-      }
-      else {
+      } else {
         let more = true;
 
         // Find all documents which match the query
@@ -1324,8 +1300,7 @@ class Model {
 
       // Format and return the documents
       return await this.formatDocuments(docs, projection, options);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.find().`);
       throw errors.captureError(error);
     }
@@ -1401,8 +1376,7 @@ class Model {
 
       // Return the formatted document or null
       return (doc) ? this.formatDocument(doc, projection, options) : null;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.findOne().`);
       throw errors.captureError(error);
     }
@@ -1426,8 +1400,7 @@ class Model {
       const table = await conn.describeTable({ TableName: this.TableName }).promise();
       // Return the index info
       return table.Table.KeySchema;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(`Failed in ${this.modelName}.getIndexes().`);
       throw errors.captureError(error);
     }
@@ -1457,19 +1430,18 @@ class Model {
         docs = [docs]; // eslint-disable-line no-param-reassign
       }
       // Format and validate documents
-      const formattedDocs = docs.map(d => this.validate(d));
+      const formattedDocs = docs.map((d) => this.validate(d));
 
       // Create a query, searching for existing documents by _id
-      const findQuery = { _id: { $in: docs.map(d => d._id) } };
+      const findQuery = { _id: { $in: docs.map((d) => d._id) } };
       // Attempt to find any existing documents
       const conflictingDocs = await this.find(findQuery, null, options);
 
       // If documents with matching _ids exist, throw an error
       if (conflictingDocs.length > 0) {
         throw new M.PermissionError('Documents with the following _ids already'
-          + ` exist: ${conflictingDocs.map(d => utils.parseID(d._id).pop())}.`, 'warn');
-      }
-      else {
+          + ` exist: ${conflictingDocs.map((d) => utils.parseID(d._id).pop())}.`, 'warn');
+      } else {
         const promises = [];
 
         // Connect to the DocumentClient
@@ -1490,8 +1462,7 @@ class Model {
 
       // Find and return the newly created documents
       return await this.find(findQuery, null, options);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.insertMany().`);
       throw errors.captureError(error);
     }
@@ -1530,12 +1501,12 @@ class Model {
           // If justOne is true, use findOne
           if (popObj.justOne) {
             promises.push(models[popObj.ref].findOne(query, null, {})
-            .then((objs) => { doc[f] = objs; }));
+              .then((objs) => { doc[f] = objs; }));
           }
           // findOne is false, find an array of matching documents
           else {
             promises.push(models[popObj.ref].find(query, null, {})
-            .then((objs) => { doc[f] = objs; }));
+              .then((objs) => { doc[f] = objs; }));
           }
         }
       });
@@ -1573,7 +1544,7 @@ class Model {
 
       // Set the skip and limit options
       const skip = options.skip || 0;
-      const limit = options.limit;
+      const { limit } = options;
       delete options.skip;
       delete options.limit;
 
@@ -1583,7 +1554,7 @@ class Model {
       // Get an array of the base words to search;
       const baseWords = (exactMatch)
         ? searchString.replace(/"/g, '') // if "" included, it's an exact match
-        : searchString.split(' ');  // Split string by space, these are all the words to search
+        : searchString.split(' '); // Split string by space, these are all the words to search
       const regexString = (exactMatch)
         ? RegExp(`(${baseWords})`)
         : RegExp(`(${baseWords.join('|')})`, 'i');
@@ -1654,8 +1625,7 @@ class Model {
 
       // Format and return the documents
       return await this.formatDocuments(matchingDocs, projection, options);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.textSearch().`);
       throw errors.captureError(error);
     }
@@ -1694,8 +1664,7 @@ class Model {
 
       // Return a query with update info
       return { n: docs.length, nModified: docs.length };
-    }
-    catch (error) {
+    } catch (error) {
       throw errors.captureError(error);
     }
   }
@@ -1733,8 +1702,7 @@ class Model {
       const updatedItem = await conn.update(updateObj).promise();
       // Return the properly formatted, newly updated document
       return await this.formatDocument(updatedItem.Attributes, null, options);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.verbose(`Failed in ${this.modelName}.updateOne().`);
       throw errors.captureError(error);
     }
@@ -1760,11 +1728,9 @@ class Model {
         // If the default is a function, call it
         if (typeof this.definition[param].default === 'function') {
           doc[param] = this.definition[param].default();
-        }
-        else if (this.definition[param].default === '') {
+        } else if (this.definition[param].default === '') {
           // Do nothing, empty strings cannot be saved in DynamoDB
-        }
-        else {
+        } else {
           // Set the value equal to the default
           doc[param] = this.definition[param].default;
         }
@@ -1844,11 +1810,9 @@ class Model {
 
     return doc;
   }
-
 }
 
 class Store extends DynamoDBStore {
-
   /**
    * @description Creates the DynamoDB store object and calls the parent
    * constructor with the store object.
@@ -1863,15 +1827,14 @@ class Store extends DynamoDBStore {
         secretAccessKey: M.config.db.secretAccessKey,
         region: M.config.db.region,
         sslEnabled: M.config.db.ssl,
-        httpOptions: (M.config.db.proxy) ? { proxy: M.config.db.proxy } : undefined
+        httpOptions: (M.config.db.proxy) ? { proxy: M.config.db.proxy } : undefined,
       },
-      ttl: utils.timeConversions[M.config.auth.session.units] * M.config.auth.session.expires
+      ttl: utils.timeConversions[M.config.auth.session.units] * M.config.auth.session.expires,
     };
 
     // Call parent constructor
     super(obj);
   }
-
 }
 
 // Export different classes and functions
@@ -1882,5 +1845,5 @@ module.exports = {
   sanitize,
   Schema,
   Model,
-  Store
+  Store,
 };

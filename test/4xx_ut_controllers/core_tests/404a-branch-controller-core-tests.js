@@ -52,8 +52,7 @@ describe(M.getModuleName(module.filename), () => {
       // Set global project
       proj = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -69,8 +68,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -105,33 +103,33 @@ function createBranch(done) {
 
   // Create branch via controller
   BranchController.create(adminUser, org._id, projID, branchData)
-  .then((_createdBranch) => {
+    .then((_createdBranch) => {
     // Expect createdBranch array to contain 1 branch
-    chai.expect(_createdBranch.length).to.equal(1);
-    const createdBranch = _createdBranch[0];
+      chai.expect(_createdBranch.length).to.equal(1);
+      const createdBranch = _createdBranch[0];
 
-    // Verify branch created properly
-    chai.expect(createdBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
-    chai.expect(createdBranch.name).to.equal(branchData.name);
-    chai.expect(createdBranch.custom || {}).to.deep.equal(branchData.custom);
-    chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
-    chai.expect(createdBranch.tag).to.equal(branchData.tag);
+      // Verify branch created properly
+      chai.expect(createdBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
+      chai.expect(createdBranch.name).to.equal(branchData.name);
+      chai.expect(createdBranch.custom || {}).to.deep.equal(branchData.custom);
+      chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
+      chai.expect(createdBranch.tag).to.equal(branchData.tag);
 
-    // Verify additional properties
-    chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
-    chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(createdBranch.archivedBy).to.equal(null);
-    chai.expect(createdBranch.createdOn).to.not.equal(null);
-    chai.expect(createdBranch.updatedOn).to.not.equal(null);
-    chai.expect(createdBranch.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      // Verify additional properties
+      chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
+      chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
+      chai.expect(createdBranch.archivedBy).to.equal(null);
+      chai.expect(createdBranch.createdOn).to.not.equal(null);
+      chai.expect(createdBranch.updatedOn).to.not.equal(null);
+      chai.expect(createdBranch.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -145,44 +143,44 @@ function createBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create branches via controller
   BranchController.create(adminUser, org._id, projID, branchDataObjects)
-  .then((createdBranches) => {
+    .then((createdBranches) => {
     // Expect createdBranches not to be empty
-    chai.expect(createdBranches.length).to.equal(branchDataObjects.length);
+      chai.expect(createdBranches.length).to.equal(branchDataObjects.length);
 
-    // Convert createdBranches to JMI type 2 for easier lookup
-    const jmi2Branches = jmi.convertJMI(1, 2, createdBranches);
-    // Loop through each branch data object
-    branchDataObjects.forEach((branchObj) => {
-      const branchID = utils.createID(org._id, projID, branchObj.id);
-      const createdBranch = jmi2Branches[branchID];
+      // Convert createdBranches to JMI type 2 for easier lookup
+      const jmi2Branches = jmi.convertJMI(1, 2, createdBranches);
+      // Loop through each branch data object
+      branchDataObjects.forEach((branchObj) => {
+        const branchID = utils.createID(org._id, projID, branchObj.id);
+        const createdBranch = jmi2Branches[branchID];
 
-      // Verify branches created properly
-      chai.expect(createdBranch._id).to.equal(branchID);
-      chai.expect(createdBranch.name).to.equal(branchObj.name);
-      chai.expect(createdBranch.custom || {}).to.deep.equal(branchObj.custom);
-      chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
+        // Verify branches created properly
+        chai.expect(createdBranch._id).to.equal(branchID);
+        chai.expect(createdBranch.name).to.equal(branchObj.name);
+        chai.expect(createdBranch.custom || {}).to.deep.equal(branchObj.custom);
+        chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
 
-      // Verify additional properties
-      chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
-      chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
-      chai.expect(createdBranch.archivedBy).to.equal(null);
-      chai.expect(createdBranch.createdOn).to.not.equal(null);
-      chai.expect(createdBranch.updatedOn).to.not.equal(null);
-      chai.expect(createdBranch.archivedOn).to.equal(null);
+        // Verify additional properties
+        chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
+        chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(createdBranch.archivedBy).to.equal(null);
+        chai.expect(createdBranch.createdOn).to.not.equal(null);
+        chai.expect(createdBranch.updatedOn).to.not.equal(null);
+        chai.expect(createdBranch.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
 }
 
 /**
@@ -195,33 +193,33 @@ function createTag(done) {
 
   // Create branch via controller
   BranchController.create(adminUser, org._id, projID, branchData)
-  .then((_createdBranch) => {
+    .then((_createdBranch) => {
     // Expect createdBranch array to contain 1 branch
-    chai.expect(_createdBranch.length).to.equal(1);
-    const createdBranch = _createdBranch[0];
+      chai.expect(_createdBranch.length).to.equal(1);
+      const createdBranch = _createdBranch[0];
 
-    // Verify branch created properly
-    chai.expect(createdBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
-    chai.expect(createdBranch.name).to.equal(branchData.name);
-    chai.expect(createdBranch.custom || {}).to.deep.equal(branchData.custom);
-    chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
-    chai.expect(createdBranch.tag).to.equal(branchData.tag);
+      // Verify branch created properly
+      chai.expect(createdBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
+      chai.expect(createdBranch.name).to.equal(branchData.name);
+      chai.expect(createdBranch.custom || {}).to.deep.equal(branchData.custom);
+      chai.expect(createdBranch.project).to.equal(utils.createID(org._id, projID));
+      chai.expect(createdBranch.tag).to.equal(branchData.tag);
 
-    // Verify additional properties
-    chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
-    chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(createdBranch.archivedBy).to.equal(null);
-    chai.expect(createdBranch.createdOn).to.not.equal(null);
-    chai.expect(createdBranch.updatedOn).to.not.equal(null);
-    chai.expect(createdBranch.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      // Verify additional properties
+      chai.expect(createdBranch.createdBy).to.equal(adminUser._id);
+      chai.expect(createdBranch.lastModifiedBy).to.equal(adminUser._id);
+      chai.expect(createdBranch.archivedBy).to.equal(null);
+      chai.expect(createdBranch.createdOn).to.not.equal(null);
+      chai.expect(createdBranch.updatedOn).to.not.equal(null);
+      chai.expect(createdBranch.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -234,31 +232,31 @@ function findBranch(done) {
 
   // Find branch via controller
   BranchController.find(adminUser, org._id, projID, branchData.id)
-  .then((_foundBranch) => {
+    .then((_foundBranch) => {
     // Expect foundBranch array to contains 1 branch
-    chai.expect(_foundBranch.length).to.equal(1);
-    const foundBranch = _foundBranch[0];
+      chai.expect(_foundBranch.length).to.equal(1);
+      const foundBranch = _foundBranch[0];
 
-    // Verify correct branch found
-    chai.expect(foundBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
-    chai.expect(foundBranch.name).to.equal(branchData.name);
-    chai.expect(foundBranch.custom || {}).to.deep.equal(branchData.custom);
-    chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
+      // Verify correct branch found
+      chai.expect(foundBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
+      chai.expect(foundBranch.name).to.equal(branchData.name);
+      chai.expect(foundBranch.custom || {}).to.deep.equal(branchData.custom);
+      chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
 
-    // Verify additional properties
-    chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(foundBranch.archivedBy).to.equal(null);
-    chai.expect(foundBranch.createdOn).to.not.equal(null);
-    chai.expect(foundBranch.updatedOn).to.not.equal(null);
-    chai.expect(foundBranch.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      // Verify additional properties
+      chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
+      chai.expect(foundBranch.archivedBy).to.equal(null);
+      chai.expect(foundBranch.createdOn).to.not.equal(null);
+      chai.expect(foundBranch.updatedOn).to.not.equal(null);
+      chai.expect(foundBranch.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -272,47 +270,47 @@ function findBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create list of branch ids to find
-  const branchIDs = branchDataObjects.map(b => b.id);
+  const branchIDs = branchDataObjects.map((b) => b.id);
 
   // Find branches via controller
   BranchController.find(adminUser, org._id, projID, branchIDs)
-  .then((foundBranches) => {
+    .then((foundBranches) => {
     // Expect foundBranches not to be empty
-    chai.expect(foundBranches.length).to.equal(branchDataObjects.length);
+      chai.expect(foundBranches.length).to.equal(branchDataObjects.length);
 
-    // Convert foundBranches to JMI type 2 for easier lookup
-    const jmi2Branches = jmi.convertJMI(1, 2, foundBranches);
-    // Loop through each branch data object
-    branchDataObjects.forEach((branchObj) => {
-      const branchID = utils.createID(org._id, projID, branchObj.id);
-      const foundBranch = jmi2Branches[branchID];
+      // Convert foundBranches to JMI type 2 for easier lookup
+      const jmi2Branches = jmi.convertJMI(1, 2, foundBranches);
+      // Loop through each branch data object
+      branchDataObjects.forEach((branchObj) => {
+        const branchID = utils.createID(org._id, projID, branchObj.id);
+        const foundBranch = jmi2Branches[branchID];
 
-      // Verify correct branches found
-      chai.expect(foundBranch._id).to.equal(branchID);
-      chai.expect(foundBranch.name).to.equal(branchObj.name);
-      chai.expect(foundBranch.custom || {}).to.deep.equal(branchObj.custom);
-      chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
+        // Verify correct branches found
+        chai.expect(foundBranch._id).to.equal(branchID);
+        chai.expect(foundBranch.name).to.equal(branchObj.name);
+        chai.expect(foundBranch.custom || {}).to.deep.equal(branchObj.custom);
+        chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
 
-      // Verify additional properties
-      chai.expect(foundBranch.createdBy).to.equal(adminUser._id);
-      chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
-      chai.expect(foundBranch.archivedBy).to.equal(null);
-      chai.expect(foundBranch.createdOn).to.not.equal(null);
-      chai.expect(foundBranch.updatedOn).to.not.equal(null);
-      chai.expect(foundBranch.archivedOn).to.equal(null);
+        // Verify additional properties
+        chai.expect(foundBranch.createdBy).to.equal(adminUser._id);
+        chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(foundBranch.archivedBy).to.equal(null);
+        chai.expect(foundBranch.createdOn).to.not.equal(null);
+        chai.expect(foundBranch.updatedOn).to.not.equal(null);
+        chai.expect(foundBranch.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
 }
 
 /**
@@ -328,46 +326,46 @@ function findAllBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Find branches via controller
   BranchController.find(adminUser, org._id, projID)
-  .then((foundBranches) => {
+    .then((foundBranches) => {
     // Expect foundBranches not to be empty. Cannot know exact number in db
-    chai.expect(foundBranches.length).to.not.equal(0);
+      chai.expect(foundBranches.length).to.not.equal(0);
 
-    // Convert foundBranches to JMI type 2 for easier lookup
-    const jmi2Branches = jmi.convertJMI(1, 2, foundBranches);
-    // Loop through each branch data object
-    branchDataObjects.forEach((branchDataObject) => {
-      const branchID = utils.createID(org._id, projID, branchDataObject.id);
-      const foundBranch = jmi2Branches[branchID];
+      // Convert foundBranches to JMI type 2 for easier lookup
+      const jmi2Branches = jmi.convertJMI(1, 2, foundBranches);
+      // Loop through each branch data object
+      branchDataObjects.forEach((branchDataObject) => {
+        const branchID = utils.createID(org._id, projID, branchDataObject.id);
+        const foundBranch = jmi2Branches[branchID];
 
-      // Verify correct branch found
-      chai.expect(foundBranch._id).to.equal(branchID);
-      chai.expect(foundBranch.name).to.equal(branchDataObject.name);
-      chai.expect(foundBranch.custom).to.deep.equal(branchDataObject.custom);
-      chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
+        // Verify correct branch found
+        chai.expect(foundBranch._id).to.equal(branchID);
+        chai.expect(foundBranch.name).to.equal(branchDataObject.name);
+        chai.expect(foundBranch.custom).to.deep.equal(branchDataObject.custom);
+        chai.expect(foundBranch.project).to.equal(utils.createID(org._id, projID));
 
-      // Verify additional properties
-      if (branchID !== utils.createID(org._id, projID, 'master')) {
-        chai.expect(foundBranch.createdBy).to.equal(adminUser._id);
-        chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
-      }
-      chai.expect(foundBranch.archivedBy).to.equal(null);
-      chai.expect(foundBranch.createdOn).to.not.equal(null);
-      chai.expect(foundBranch.updatedOn).to.not.equal(null);
-      chai.expect(foundBranch.archivedOn).to.equal(null);
+        // Verify additional properties
+        if (branchID !== utils.createID(org._id, projID, 'master')) {
+          chai.expect(foundBranch.createdBy).to.equal(adminUser._id);
+          chai.expect(foundBranch.lastModifiedBy).to.equal(adminUser._id);
+        }
+        chai.expect(foundBranch.archivedBy).to.equal(null);
+        chai.expect(foundBranch.createdOn).to.not.equal(null);
+        chai.expect(foundBranch.updatedOn).to.not.equal(null);
+        chai.expect(foundBranch.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
 }
 
 /**
@@ -381,37 +379,37 @@ function updateBranch(done) {
   // Create the object to update branch
   const updateObj = {
     name: `${branchData.name}_edit`,
-    id: branchData.id
+    id: branchData.id,
   };
 
   // Update branch via controller
   BranchController.update(adminUser, org._id, projID, updateObj)
-  .then((updatedBranches) => {
+    .then((updatedBranches) => {
     // Expect updatedBranches array to contain 1 branch
-    chai.expect(updatedBranches.length).to.equal(1);
-    const updatedBranch = updatedBranches[0];
+      chai.expect(updatedBranches.length).to.equal(1);
+      const updatedBranch = updatedBranches[0];
 
-    // Verify branch updated properly
-    chai.expect(updatedBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
-    chai.expect(updatedBranch.name).to.equal(updateObj.name);
-    chai.expect(updatedBranch.custom || {}).to.deep.equal(branchData.custom);
-    chai.expect(updatedBranch.project).to.equal(utils.createID(org._id, projID));
+      // Verify branch updated properly
+      chai.expect(updatedBranch._id).to.equal(utils.createID(org._id, projID, branchData.id));
+      chai.expect(updatedBranch.name).to.equal(updateObj.name);
+      chai.expect(updatedBranch.custom || {}).to.deep.equal(branchData.custom);
+      chai.expect(updatedBranch.project).to.equal(utils.createID(org._id, projID));
 
-    // Verify additional properties
-    chai.expect(updatedBranch.createdBy).to.equal(adminUser._id);
-    chai.expect(updatedBranch.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(updatedBranch.archivedBy).to.equal(null);
-    chai.expect(updatedBranch.createdOn).to.not.equal(null);
-    chai.expect(updatedBranch.updatedOn).to.not.equal(null);
-    chai.expect(updatedBranch.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      // Verify additional properties
+      chai.expect(updatedBranch.createdBy).to.equal(adminUser._id);
+      chai.expect(updatedBranch.lastModifiedBy).to.equal(adminUser._id);
+      chai.expect(updatedBranch.archivedBy).to.equal(null);
+      chai.expect(updatedBranch.createdOn).to.not.equal(null);
+      chai.expect(updatedBranch.updatedOn).to.not.equal(null);
+      chai.expect(updatedBranch.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -425,50 +423,50 @@ function updateBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create objects to update branches
-  const updateObjects = branchDataObjects.map(b => ({
+  const updateObjects = branchDataObjects.map((b) => ({
     name: `${b.name}_edit`,
-    id: b.id
+    id: b.id,
   }));
 
   // Update branches via controller
   BranchController.update(adminUser, org._id, projID, updateObjects)
-  .then((updatedBranches) => {
+    .then((updatedBranches) => {
     // Expect updatedBranches not to be empty
-    chai.expect(updatedBranches.length).to.equal(branchDataObjects.length);
+      chai.expect(updatedBranches.length).to.equal(branchDataObjects.length);
 
-    // Convert updatedBranches to JMI type 2 for easier lookup
-    const jmi2Elements = jmi.convertJMI(1, 2, updatedBranches);
-    // Loop through each branch data object
-    branchDataObjects.forEach((branchObj) => {
-      const branchID = utils.createID(org._id, projID, branchObj.id);
-      const updatedBranch = jmi2Elements[branchID];
+      // Convert updatedBranches to JMI type 2 for easier lookup
+      const jmi2Elements = jmi.convertJMI(1, 2, updatedBranches);
+      // Loop through each branch data object
+      branchDataObjects.forEach((branchObj) => {
+        const branchID = utils.createID(org._id, projID, branchObj.id);
+        const updatedBranch = jmi2Elements[branchID];
 
-      // Verify branch updated properly
-      chai.expect(updatedBranch._id).to.equal(branchID);
-      chai.expect(updatedBranch.name).to.equal(`${branchObj.name}_edit`);
-      chai.expect(updatedBranch.custom || {}).to.deep.equal(branchObj.custom);
-      chai.expect(updatedBranch.project).to.equal(utils.createID(org._id, projID));
+        // Verify branch updated properly
+        chai.expect(updatedBranch._id).to.equal(branchID);
+        chai.expect(updatedBranch.name).to.equal(`${branchObj.name}_edit`);
+        chai.expect(updatedBranch.custom || {}).to.deep.equal(branchObj.custom);
+        chai.expect(updatedBranch.project).to.equal(utils.createID(org._id, projID));
 
-      // Verify additional properties
-      chai.expect(updatedBranch.createdBy).to.equal(adminUser._id);
-      chai.expect(updatedBranch.lastModifiedBy).to.equal(adminUser._id);
-      chai.expect(updatedBranch.archivedBy).to.equal(null);
-      chai.expect(updatedBranch.createdOn).to.not.equal(null);
-      chai.expect(updatedBranch.updatedOn).to.not.equal(null);
-      chai.expect(updatedBranch.archivedOn).to.equal(null);
+        // Verify additional properties
+        chai.expect(updatedBranch.createdBy).to.equal(adminUser._id);
+        chai.expect(updatedBranch.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(updatedBranch.archivedBy).to.equal(null);
+        chai.expect(updatedBranch.createdOn).to.not.equal(null);
+        chai.expect(updatedBranch.updatedOn).to.not.equal(null);
+        chai.expect(updatedBranch.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
 }
 
 /**
@@ -481,28 +479,27 @@ function deleteBranch(done) {
 
   // Deletes branch via controller
   BranchController.remove(adminUser, org._id, projID, branchData.id)
-  .then((deletedBranch) => {
+    .then((deletedBranch) => {
     // Expect deletedBranch array to contain 1 branch
-    chai.expect(deletedBranch.length).to.equal(1);
-    // Verify correct branch deleted
-    chai.expect(deletedBranch).to.include(utils.createID(org._id, projID, branchData.id));
+      chai.expect(deletedBranch.length).to.equal(1);
+      // Verify correct branch deleted
+      chai.expect(deletedBranch).to.include(utils.createID(org._id, projID, branchData.id));
 
-    // Attempt to find the deleted branch
-    return BranchController.find(adminUser, org._id, projID, branchData.id, { archived: true });
-  })
-  .then((foundBranch) => {
+      // Attempt to find the deleted branch
+      return BranchController.find(adminUser, org._id, projID, branchData.id, { archived: true });
+    })
+    .then((foundBranch) => {
     // Expect foundBranch array to be empty
-    chai.expect(foundBranch.length).to.equal(0);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      chai.expect(foundBranch.length).to.equal(0);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
-
 
 /**
  * @description Validates that the Branch Controller can delete multiple branches.
@@ -515,37 +512,37 @@ function deleteBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create list of branch ids to delete
-  const branchIDs = branchDataObjects.map(b => b.id);
+  const branchIDs = branchDataObjects.map((b) => b.id);
 
   // Delete branches via controller
   BranchController.remove(adminUser, org._id, projID, branchIDs)
-  .then((deletedBranches) => {
+    .then((deletedBranches) => {
     // Expect deletedBranches not to be empty
-    chai.expect(deletedBranches.length).to.equal(branchDataObjects.length);
+      chai.expect(deletedBranches.length).to.equal(branchDataObjects.length);
 
-    // Loop through each branch data object
-    branchDataObjects.forEach((branchDataObject) => {
-      const branchID = utils.createID(org._id, projID, branchDataObject.id);
-      // Verify correct branch deleted
-      chai.expect(deletedBranches).to.include(branchID);
-    });
+      // Loop through each branch data object
+      branchDataObjects.forEach((branchDataObject) => {
+        const branchID = utils.createID(org._id, projID, branchDataObject.id);
+        // Verify correct branch deleted
+        chai.expect(deletedBranches).to.include(branchID);
+      });
 
-    // Attempt to find the deleted branches
-    return BranchController.find(adminUser, org._id, projID, branchIDs, { archived: true });
-  })
-  .then((foundBranches) => {
+      // Attempt to find the deleted branches
+      return BranchController.find(adminUser, org._id, projID, branchIDs, { archived: true });
+    })
+    .then((foundBranches) => {
     // Expect foundBranches array to be empty
-    chai.expect(foundBranches.length).to.equal(0);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      chai.expect(foundBranches.length).to.equal(0);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }

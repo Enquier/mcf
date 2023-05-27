@@ -18,7 +18,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsdoc/require-jsdoc */
 
-
 // React modules
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
@@ -31,7 +30,7 @@ import {
   Row,
   Col,
   Input,
-  Spinner
+  Spinner,
 } from 'reactstrap';
 
 // MBEE modules
@@ -47,7 +46,7 @@ function DeleteUser(props) {
 
   const onSubmit = async () => {
     const options = {
-      ids: username
+      ids: username,
     };
     // Make the request to delete user
     const [err, result] = await userService.delete(null, options);
@@ -55,8 +54,7 @@ function DeleteUser(props) {
     // Set the state
     if (err) {
       setError(err);
-    }
-    else if (result) {
+    } else if (result) {
       props.refreshUsers();
       props.toggle();
     }
@@ -75,15 +73,14 @@ function DeleteUser(props) {
     // Disable form submit
     if (typeof e !== 'string') {
       e.preventDefault();
-    }
-    else if (e) {
+    } else if (e) {
       query = e;
     }
 
     // Set options for request
     const options = {
       q: query,
-      limit: 5
+      limit: 5,
     };
 
     // Send search request
@@ -92,8 +89,7 @@ function DeleteUser(props) {
     // Set the state
     if (err) {
       setResults([]);
-    }
-    else if (data) {
+    } else if (data) {
       const userOpts = data.map((user) => (
         <div className='members-dropdown-item' key={`user-${user.username}`}
              onClick={() => selectUser(user.username)}>
@@ -109,8 +105,7 @@ function DeleteUser(props) {
     doSearch(e.target.value);
   };
 
-
-  const selectedUser = props.selectedUser;
+  const { selectedUser } = props;
   // Set search results or loading icons ...
   let searchResults = '';
 
@@ -123,8 +118,7 @@ function DeleteUser(props) {
         </span>
       </div>
     );
-  }
-  else if (Array.isArray(results)) {
+  } else if (Array.isArray(results)) {
     searchResults = results;
   }
 
@@ -188,7 +182,7 @@ function DeleteUser(props) {
 DeleteUser.propTypes = {
   selectedUser: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   toggle: PropTypes.func,
-  refreshUsers: PropTypes.func
+  refreshUsers: PropTypes.func,
 };
 
 export default DeleteUser;

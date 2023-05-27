@@ -26,7 +26,9 @@ import { Link } from 'react-router-dom';
 
 function SearchResult(props) {
   const cols = [];
-  const { org, project, branch, id } = props.data;
+  const {
+    org, project, branch, id,
+  } = props.data;
   const link = `/orgs/${org}/projects/${project}/branches/${branch}/elements#${id}`;
 
   props.keys.forEach((key, index) => {
@@ -46,7 +48,6 @@ function SearchResult(props) {
 
   return cols;
 }
-
 
 // Export component
 export default SearchResult;

@@ -15,7 +15,6 @@
  */
 
 class CustomError extends Error {
-
   /**
    * @description The CustomError constructor. It requires a description
    * and can optionally take a level.
@@ -52,7 +51,6 @@ class CustomError extends Error {
       default: break;
     }
   }
-
 }
 
 // 400
@@ -74,6 +72,24 @@ class DatabaseError extends CustomError {}
 
 // 501
 class NotImplementedError extends CustomError {}
+
+const errors = {
+  400: DataFormatError,
+  401: AuthorizationError,
+  403: PermissionError,
+  500: ServerError,
+  501: NotImplementedError,
+};
+
+class DynamicError {
+  constructor(message, level, code) {
+    if (code in errors) {
+      return new errors[code](message, level);
+    }
+
+    return new ServerError(message, level);
+  }
+}
 
 /**
  * @description Returns an HTTP status code depending on what error is passed in.
@@ -121,9 +137,8 @@ function captureError(error) {
     // Return the new custom error
     return newErr;
   }
-  else {
-    return error;
-  }
+
+  return error;
 }
 
 // Export error Classes and functions
@@ -138,5 +153,6 @@ module.exports = {
   NotFoundError,
   ServerError,
   DatabaseError,
-  NotImplementedError
+  NotImplementedError,
+  DynamicError,
 };

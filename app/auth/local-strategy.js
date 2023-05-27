@@ -24,7 +24,7 @@ module.exports = {
   handleBasicAuth,
   handleTokenAuth,
   doLogin,
-  validatePassword
+  validatePassword,
 };
 
 // MBEE modules
@@ -60,8 +60,7 @@ async function handleBasicAuth(req, res, username, password) {
   let user;
   try {
     user = await User.findOne({ _id: username, archived: false });
-  }
-  catch (findUserErr) {
+  } catch (findUserErr) {
     throw new M.DatabaseError(findUserErr.message, 'warn');
   }
   // Check for empty user
@@ -73,8 +72,7 @@ async function handleBasicAuth(req, res, username, password) {
   try {
     // Compute the password hash on given password
     result = await User.verifyPassword(user, password);
-  }
-  catch (verifyErr) {
+  } catch (verifyErr) {
     throw new M.ServerError(verifyErr.message, 'warn');
   }
 
@@ -84,15 +82,14 @@ async function handleBasicAuth(req, res, username, password) {
     if (!user.failedlogins) user.failedlogins = [];
     const loginInfo = {
       ipaddress: req.connection.remoteAddress,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     user.failedlogins.push(loginInfo);
 
     // Update the user
     try {
       await User.updateOne({ _id: username }, { failedlogins: user.failedlogins });
-    }
-    catch (e) {
+    } catch (e) {
       throw new M.DatabaseError('Failed to update failedLogins', 'critical');
     }
 
@@ -115,8 +112,10 @@ async function handleBasicAuth(req, res, username, password) {
       else {
         User.updateOne({ _id: username }, { archived: true }, (err) => {
           if (err) {
-            throw new M.DatabaseError('Could not lock user after failed login attempts exceeded',
-              'critical');
+            throw new M.DatabaseError(
+              'Could not lock user after failed login attempts exceeded',
+              'critical',
+            );
           }
         });
         EventEmitter.emit('user-account-locked', user._id);
@@ -173,10 +172,9 @@ async function handleTokenAuth(req, res, token) {
     try {
       user = await User.findOne({
         _id: sani.sanitize(decryptedToken.username),
-        archivedOn: null
+        archivedOn: null,
       });
-    }
-    catch (findUserTokenErr) {
+    } catch (findUserTokenErr) {
       throw new M.AuthorizationError(findUserTokenErr.message, 'warn');
     }
     // A valid session was found in the request but the user no longer exists
@@ -191,9 +189,8 @@ async function handleTokenAuth(req, res, token) {
     return user;
   }
   // If token is expired user is unauthorized
-  else {
-    throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
-  }
+
+  throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
 }
 
 /**
@@ -215,7 +212,7 @@ function doLogin(req, res, next) {
     type: 'user',
     username: (req.user.username || req.user._id),
     created: (new Date(Date.now())),
-    expires: (new Date(Date.now() + timeDelta))
+    expires: (new Date(Date.now() + timeDelta)),
   });
   M.log.info(`${req.originalUrl} Logged in ${(req.user.username || req.user._id)}`);
   // Callback
@@ -248,8 +245,7 @@ function validatePassword(password) {
       && lowercaseValidator
       && uppercaseValidator
       && specialCharValidator);
-  }
-  catch (error) {
+  } catch (error) {
     // Explicitly NOT logging error to avoid password logging
     return false;
   }

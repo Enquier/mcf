@@ -29,7 +29,6 @@ import CustomData from '../general/custom-data/custom-data.jsx';
 
 // Define function
 class Profile extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -41,7 +40,7 @@ class Profile extends Component {
       modal: false,
       editPasswordModal: changePassword,
       passwordExpired: changePassword,
-      staticBackdrop: (changePassword) ? 'static' : true
+      staticBackdrop: (changePassword) ? 'static' : true,
     };
 
     // Bind component functions
@@ -66,10 +65,9 @@ class Profile extends Component {
     this.setState({ editPasswordModal: !this.state.editPasswordModal });
   }
 
-
   render() {
     // Initialize variables
-    const user = this.props.user;
+    const { user } = this.props;
 
     // Render user data in table format
     return (
@@ -130,7 +128,6 @@ class Profile extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 // Export function

@@ -32,9 +32,8 @@ function SidebarHeader(props) {
   }
   // Return an empty div if not expanded
   // NOTE: this is necessary
-  else {
-    return (<div/>);
-  }
+
+  return (<div/>);
 }
 
 // Export component

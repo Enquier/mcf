@@ -50,8 +50,7 @@ describe(M.getModuleName(module.filename), () => {
       adminUser = await testUtils.createTestAdmin();
       // Create the users
       await UserController.create(adminUser, [testData.users[1], testData.users[2]]);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -63,11 +62,12 @@ describe(M.getModuleName(module.filename), () => {
    */
   after(async () => {
     try {
-      await UserController.remove(adminUser,
-        [testData.users[1].username, testData.users[2].username]);
+      await UserController.remove(
+        adminUser,
+        [testData.users[1].username, testData.users[2].username],
+      );
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -103,22 +103,23 @@ async function putInvalidUsername() {
     const invalidUserObj = {
       username: 'INVALID_NAME',
       fname: 'user name',
-      password: 'Password12345!'
+      password: 'Password12345!',
     };
 
     await UserController.createOrReplace(adminUser, [testUserObj0, testUserObj1, invalidUserObj])
-    .should.eventually.be.rejectedWith(
-      'User validation failed: _id: Invalid username [INVALID_NAME].'
-    );
+      .should.eventually.be.rejectedWith(
+        'User validation failed: _id: Invalid username [INVALID_NAME].',
+      );
 
     // Expected error, find valid users
-    const foundUsers = await UserController.find(adminUser,
-      [testUserObj0.username, testUserObj1.username]);
+    const foundUsers = await UserController.find(
+      adminUser,
+      [testUserObj0.username, testUserObj1.username],
+    );
 
     // Expect to find 2 users
     foundUsers.length.should.equal(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -137,16 +138,17 @@ async function putWithoutUsername() {
     const invalidUserObj = { fname: 'missing username' };
 
     await UserController.createOrReplace(adminUser, [testUserObj0, testUserObj1, invalidUserObj])
-    .should.eventually.be.rejectedWith('User #3 does not have a username.');
+      .should.eventually.be.rejectedWith('User #3 does not have a username.');
 
     // Expected error, find valid users
-    const foundUsers = await UserController.find(adminUser,
-      [testUserObj0.username, testUserObj1.username]);
+    const foundUsers = await UserController.find(
+      adminUser,
+      [testUserObj0.username, testUserObj1.username],
+    );
 
     // Expect to find 2 users
     foundUsers.length.should.equal(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

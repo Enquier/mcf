@@ -22,7 +22,9 @@
 // React modules
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Modal, ModalBody, Badge } from 'reactstrap';
+import {
+  Button, Modal, ModalBody, Badge,
+} from 'reactstrap';
 
 // MBEE modules
 import EditPage from './edit-page.jsx';
@@ -45,7 +47,7 @@ function InformationPage(props) {
   const refreshBranch = async () => {
     // Get branch data
     const options = {
-      ids: props.match.params.branchid
+      ids: props.match.params.branchid,
     };
     const [err, branches] = await branchService.get(props.orgID, props.projectID, options);
 
@@ -60,7 +62,6 @@ function InformationPage(props) {
       refreshBranch();
     }
   }, [props.branch, props.match.params.branchid]);
-
 
   // Initialize variables
   let name;
@@ -89,8 +90,7 @@ function InformationPage(props) {
     name = (props.org.archived)
       ? (<div> {props.org.name} {archived} </div>)
       : (<div> {props.org.name} </div>);
-  }
-  else if (props.project) {
+  } else if (props.project) {
     const archived = (<Badge color='secondary' style={{ marginLeft: '10px' }}>Archived</Badge>);
     // Verify if archived project, then place badge on information page next to name
     name = (props.project.archived)
@@ -100,8 +100,7 @@ function InformationPage(props) {
     orgid = props.project.org;
     visibility = props.project.visibility;
     custom = props.project.custom;
-  }
-  else if (data) {
+  } else if (data) {
     const branch = data;
     let tag;
     if (branch.tag) {

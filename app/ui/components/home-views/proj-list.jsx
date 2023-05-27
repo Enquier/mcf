@@ -29,7 +29,6 @@ import Delete from '../shared-views/delete.jsx';
 /* eslint-enable no-unused-vars */
 
 class ProjList extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -38,7 +37,7 @@ class ProjList extends Component {
     this.state = {
       width: null,
       modalProjDelete: false,
-      projects: []
+      projects: [],
     };
 
     // Create reference
@@ -56,7 +55,7 @@ class ProjList extends Component {
 
   render() {
     // Initialize variables
-    const project = this.props.project;
+    const { project } = this.props;
     const orgId = this.props.orgid;
     const className = `homeproj-list ${this.props.className}`;
     return (
@@ -89,7 +88,6 @@ class ProjList extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 // Export component

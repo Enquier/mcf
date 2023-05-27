@@ -27,7 +27,7 @@ const jmi = M.require('lib.jmi-conversions');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org = null;
 let proj = null;
@@ -51,8 +51,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       proj = await ProjectController.create(adminUser, org._id, testData.projects[0]);
       projID = utils.parseID(proj[0]._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -69,8 +68,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -106,7 +104,7 @@ function postElement(done) {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: elemData.id
+    elementid: elemData.id,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -153,8 +151,12 @@ function postElement(done) {
     chai.expect(createdElement.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(createdElement).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -178,7 +180,7 @@ function postElements(done) {
     testData.elements[2],
     testData.elements[3],
     testData.elements[4],
-    testData.elements[5]
+    testData.elements[5],
   ];
   const params = { orgid: org._id, projectid: projID, branchid: branchID };
   const method = 'POST';
@@ -234,8 +236,12 @@ function postElements(done) {
       chai.expect(createdElement.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdElement).to.not.have.any.keys('archivedOn',
-        'archivedBy', '__v', '_id');
+      chai.expect(createdElement).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -261,7 +267,7 @@ function putElement(done) {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: elemData.id
+    elementid: elemData.id,
   };
   const method = 'PUT';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -308,8 +314,12 @@ function putElement(done) {
     chai.expect(replacedElem.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(replacedElem).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(replacedElem).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -334,7 +344,7 @@ function putElements(done) {
     testData.elements[3],
     testData.elements[4],
     testData.elements[5],
-    testData.elements[6]
+    testData.elements[6],
   ];
   const params = { orgid: org._id, projectid: projID, branchid: branchID };
   const method = 'PUT';
@@ -390,8 +400,12 @@ function putElements(done) {
       chai.expect(replacedElem.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(replacedElem).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(replacedElem).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -417,7 +431,7 @@ function getElement(done) {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: elemData.id
+    elementid: elemData.id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -464,8 +478,12 @@ function getElement(done) {
     chai.expect(foundElement.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundElement).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -489,7 +507,7 @@ function getElements(done) {
     testData.elements[3],
     testData.elements[4],
     testData.elements[5],
-    testData.elements[6]
+    testData.elements[6],
   ];
 
   // Create request object
@@ -548,8 +566,12 @@ function getElements(done) {
       chai.expect(foundElement.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundElement).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -574,7 +596,7 @@ function getAllElements(done) {
     testData.elements[3],
     testData.elements[4],
     testData.elements[5],
-    testData.elements[6]
+    testData.elements[6],
   ];
 
   // Create request object
@@ -633,8 +655,12 @@ function getAllElements(done) {
       chai.expect(foundElement.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundElement).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -660,7 +686,7 @@ function searchElement(done) {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: elemData.id
+    elementid: elemData.id,
   };
   const query = { q: `"${elemData.name}"` };
   const method = 'GET';
@@ -712,8 +738,12 @@ function searchElement(done) {
     chai.expect(foundElement.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundElement).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -735,14 +765,14 @@ function patchElement(done) {
   // Create updated elem object
   const updateObj = {
     id: elemData.id,
-    name: `${elemData.name}_edit`
+    name: `${elemData.name}_edit`,
   };
 
   const params = {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: testData.elements[0].id
+    elementid: testData.elements[0].id,
   };
   const method = 'PATCH';
   const req = testUtils.createRequest(adminUser, params, updateObj, method);
@@ -789,8 +819,12 @@ function patchElement(done) {
     chai.expect(updatedElement.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedElement).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(updatedElement).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -815,13 +849,13 @@ function patchElements(done) {
     testData.elements[3],
     testData.elements[4],
     testData.elements[5],
-    testData.elements[6]
+    testData.elements[6],
   ];
 
   // Create objects to update elements
-  const arrUpdateObjects = elemData.map(e => ({
+  const arrUpdateObjects = elemData.map((e) => ({
     name: `${e.name}_edit`,
-    id: e.id
+    id: e.id,
   }));
 
   const params = { orgid: org._id, projectid: projID, branchid: branchID };
@@ -879,8 +913,12 @@ function patchElements(done) {
       chai.expect(updatedElement.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedElement).to.not.have.any.keys('archivedOn',
-        'archivedBy', '__v', '_id');
+      chai.expect(updatedElement).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -905,7 +943,7 @@ function deleteElement(done) {
     orgid: org._id,
     projectid: projID,
     branchid: branchID,
-    elementid: testData.elements[0].id
+    elementid: testData.elements[0].id,
   };
   const method = 'DELETE';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -944,13 +982,13 @@ function deleteElements(done) {
     testData.elements[3],
     testData.elements[4],
     testData.elements[5],
-    testData.elements[6]
+    testData.elements[6],
   ];
-  const elemIDs = elemData.map(e => e.id);
+  const elemIDs = elemData.map((e) => e.id);
   const ids = elemIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
 
   const params = { orgid: org._id, projectid: projID, branchid: branchID };
   const method = 'DELETE';

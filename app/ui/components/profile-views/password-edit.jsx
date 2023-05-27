@@ -27,7 +27,7 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
@@ -48,11 +48,9 @@ function PasswordEdit(props) {
   const handleChange = (e) => {
     if (e.target.name === 'oldPassword') {
       setOldPassword(e.target.value);
-    }
-    else if (e.target.name === 'confirmNewPassword') {
+    } else if (e.target.name === 'confirmNewPassword') {
       setConfirmNewPassword(e.target.value);
-    }
-    else if (e.target.name === 'newPassword') {
+    } else if (e.target.name === 'newPassword') {
       setNewPassword(e.target.value);
 
       // Verify that new password is valid
@@ -77,8 +75,7 @@ function PasswordEdit(props) {
           && lowercaseValidator
           && uppercaseValidator
           && specialCharValidator));
-      }
-      catch (err) {
+      } catch (err) {
         // Set password invalid
         setNewPasswordInvalid(true);
       }
@@ -88,9 +85,9 @@ function PasswordEdit(props) {
   const onSubmit = async () => {
     // Initialize variables
     const data = {
-      oldPassword: oldPassword,
+      oldPassword,
       password: newPassword,
-      confirmPassword: confirmNewPassword
+      confirmPassword: confirmNewPassword,
     };
 
     // Send a request to update the password
@@ -99,12 +96,10 @@ function PasswordEdit(props) {
     // Set the state
     if (err) {
       setError(err);
-    }
-    else if (result && sessionUser.username !== props.user.username) {
+    } else if (result && sessionUser.username !== props.user.username) {
       props.toggle();
     }
   };
-
 
   // Get the session user, used to see if an admin is changing another user's password
   const noOldPassword = sessionUser.admin && sessionUser.username !== props.user.username;

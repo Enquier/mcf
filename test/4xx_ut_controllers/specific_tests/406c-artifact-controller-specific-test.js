@@ -22,6 +22,7 @@ const chai = require('chai');
 // MBEE modules
 const fs = require('fs');
 const path = require('path');
+
 const ArtifactController = M.require('controllers.artifact-controller');
 const Artifact = M.require('models.artifact');
 const utils = M.require('lib.utils');
@@ -66,14 +67,11 @@ describe(M.getModuleName(module.filename), () => {
       await ArtifactController.create(adminUser, org._id, projID, branchID, arts);
 
       // Get png test file
-      const artifactPath = path.join(
-        M.root, testData.artifacts[0].location, testData.artifacts[0].filename
-      );
+      const artifactPath = path.join(M.root, testData.artifacts[0].location, testData.artifacts[0].filename);
 
       // Get the test file
       artifactBlob = await fs.readFileSync(artifactPath);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -89,8 +87,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects and artifacts under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -134,12 +131,17 @@ async function createArchivedArtifact() {
       description: 'Archived Artifact',
       archived: true,
       location: 'archived',
-      filename: 'archived.txt'
+      filename: 'archived.txt',
     };
 
     // Create the artifact
-    const createdArtifacts = await ArtifactController.create(adminUser, org._id, projID,
-      branchID, artObj);
+    const createdArtifacts = await ArtifactController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artObj,
+    );
     // Verify that only one artifact was created
     chai.expect(createdArtifacts.length).to.equal(1);
     const art = createdArtifacts[0];
@@ -148,8 +150,7 @@ async function createArchivedArtifact() {
     chai.expect(art.archived).to.equal(true);
     chai.expect(art.archivedBy).to.equal(adminUser._id);
     chai.expect(art.archivedOn).to.not.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -166,12 +167,17 @@ async function archiveArtifact() {
     // Create the update object
     const updateObj = {
       id: artID,
-      archived: true
+      archived: true,
     };
 
     // Update the artifact with archived: true
-    const updatedArtifacts = await ArtifactController.update(adminUser, org._id, projID,
-      branchID, updateObj);
+    const updatedArtifacts = await ArtifactController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      updateObj,
+    );
 
     // Verify the array length is exactly 1
     chai.expect(updatedArtifacts.length).to.equal(1);
@@ -181,8 +187,7 @@ async function archiveArtifact() {
     chai.expect(art.archived).to.equal(true);
     chai.expect(art.archivedBy).to.equal(adminUser._id);
     chai.expect(art.archivedOn).to.not.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -204,8 +209,14 @@ async function optionPopulateFind() {
 
   try {
     // Find an artifact using the populate option
-    const foundArtifacts = await ArtifactController.find(adminUser, org._id, projID,
-      branchID, artID, options);
+    const foundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+      options,
+    );
 
     // Verify the array length is exactly 1
     chai.expect(foundArtifacts.length).to.equal(1);
@@ -221,16 +232,14 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (art[field] !== null) {
+      } else if (art[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof art[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in art[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -249,15 +258,26 @@ async function optionArchivedFind() {
     const options = { archived: true };
 
     // Attempt to find the artifact without providing options
-    const notFoundArtifacts = await ArtifactController.find(adminUser, org._id, projID, branchID,
-      artID);
+    const notFoundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+    );
 
     // Expect the array to be empty since the option archived: true was not provided
     chai.expect(notFoundArtifacts.length).to.equal(0);
 
     // Attempt the find the artifact WITH providing the archived option
-    const foundArtifacts = await ArtifactController.find(adminUser, org._id, projID, branchID,
-      artID, options);
+    const foundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+      options,
+    );
 
     // Expect the array to be of length 1
     chai.expect(foundArtifacts.length).to.equal(1);
@@ -267,8 +287,7 @@ async function optionArchivedFind() {
     chai.expect(artifact.archived).to.equal(true);
     chai.expect(artifact.archivedOn).to.not.equal(null);
     chai.expect(artifact.archivedBy).to.equal(adminUser._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -291,8 +310,14 @@ async function optionFieldsFind() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Find the artifact only with specific fields.
-    const foundArtifacts = await ArtifactController.find(adminUser, org._id, projID,
-      branchID, artID, findOptions);
+    const foundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+      findOptions,
+    );
 
     // Expect there to be exactly 1 artifact found
     chai.expect(foundArtifacts.length).to.equal(1);
@@ -308,8 +333,14 @@ async function optionFieldsFind() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Find the artifact without the notFind fields
-    const notFindArtifacts = await ArtifactController.find(adminUser, org._id, projID,
-      branchID, artID, notFindOptions);
+    const notFindArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 artifact found
     chai.expect(notFindArtifacts.length).to.equal(1);
     const art2 = foundArtifacts[0];
@@ -319,8 +350,7 @@ async function optionFieldsFind() {
 
     // Check that the keys in the notFindOptions are not in art
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -337,12 +367,16 @@ async function optionLimitFind() {
     const options = { limit: 2 };
 
     // Find all artifacts on a given project
-    const foundArtifacts = await ArtifactController.find(adminUser, org._id, projID,
-      branchID, options);
+    const foundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      options,
+    );
     // Verify that no more than 2 artifacts were found
     chai.expect(foundArtifacts).to.have.lengthOf.at.most(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -361,23 +395,32 @@ async function optionSkipFind() {
     const secondOptions = { limit: 2, skip: 2 };
 
     // Find all artifacts on a given project
-    const foundArtifacts = await ArtifactController.find(adminUser, org._id, projID,
-      branchID, firstOptions);
+    const foundArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      firstOptions,
+    );
     // Verify that no more than 2 artifacts were found
     chai.expect(foundArtifacts).to.have.lengthOf.at.most(2);
     // Add artifact ids to the firstBatchIDs array
-    const firstBatchIDs = foundArtifacts.map(e => e._id);
+    const firstBatchIDs = foundArtifacts.map((e) => e._id);
 
     // Find the next batch of artifacts
-    const secondArtifacts = await ArtifactController.find(adminUser, org._id, projID, branchID,
-      secondOptions);
+    const secondArtifacts = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      secondOptions,
+    );
     // Verify that no more than 2 artifacts were found
     chai.expect(secondArtifacts).to.have.lengthOf.at.most(2);
     // Verify the second batch of artifacts are not the same as the first
-    const secondBatchIDs = secondArtifacts.map(e => e._id);
+    const secondBatchIDs = secondArtifacts.map((e) => e._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -399,12 +442,18 @@ async function optionPopulateCreate() {
     const artObj = {
       id: 'populate-artifact',
       location: 'location',
-      filename: 'file.txt'
+      filename: 'file.txt',
     };
 
     // Create the artifact
-    const createdArtifacts = await ArtifactController.create(adminUser, org._id, projID,
-      branchID, artObj, options);
+    const createdArtifacts = await ArtifactController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artObj,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(createdArtifacts.length).to.equal(1);
     const art = createdArtifacts[0];
@@ -419,16 +468,14 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (art[field] !== null) {
+      } else if (art[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof art[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in art[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -446,14 +493,14 @@ async function optionFieldsCreate() {
       id: 'fields-artifact',
       description: 'Fields Artifact',
       location: 'location/field',
-      filename: 'file.dat'
+      filename: 'file.dat',
 
     };
     const artObjNotFind = {
       id: 'not-fields-artifact',
       description: 'Not Fields Artifact',
       location: 'not/location/field',
-      filename: 'notfile.dat'
+      filename: 'notfile.dat',
     };
     // Create the options object with the list of fields specifically find
     const findOptions = { fields: ['description', 'createdBy'] };
@@ -463,8 +510,14 @@ async function optionFieldsCreate() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Create the artifact only with specific fields returned
-    const createdArtifacts = await ArtifactController.create(adminUser, org._id, projID,
-      branchID, artObjFind, findOptions);
+    const createdArtifacts = await ArtifactController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artObjFind,
+      findOptions,
+    );
     // Expect there to be exactly 1 artifact created
     chai.expect(createdArtifacts.length).to.equal(1);
     const art = createdArtifacts[0];
@@ -479,8 +532,14 @@ async function optionFieldsCreate() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Create the artifact without the notFind fields
-    const notFindArtifacts = await ArtifactController.create(adminUser, org._id,
-      projID, branchID, artObjNotFind, notFindOptions);
+    const notFindArtifacts = await ArtifactController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artObjNotFind,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 artifact created
     chai.expect(notFindArtifacts.length).to.equal(1);
     const art2 = notFindArtifacts[0];
@@ -490,8 +549,7 @@ async function optionFieldsCreate() {
 
     // Check that the keys in the notFindOptions are not in art
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -512,12 +570,18 @@ async function optionPopulateUpdate() {
     // Create the update object
     const updateObj = {
       id: 'populate-artifact',
-      description: 'Update Artifact'
+      description: 'Update Artifact',
     };
 
     // Update the artifact
-    const updatedArtifacts = await ArtifactController.update(adminUser, org._id, projID,
-      branchID, updateObj, options);
+    const updatedArtifacts = await ArtifactController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      updateObj,
+      options,
+    );
     // Verify the array length is exactly 1
     chai.expect(updatedArtifacts.length).to.equal(1);
     const art = updatedArtifacts[0];
@@ -532,16 +596,14 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (art[field] !== null) {
+      } else if (art[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof art[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in art[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -557,11 +619,11 @@ async function optionFieldsUpdate() {
     // Create the update objects
     const updateObjFind = {
       id: 'fields-artifact',
-      description: 'Fields Artifact Updated'
+      description: 'Fields Artifact Updated',
     };
     const updateObjNotFind = {
       id: 'not-fields-artifact',
-      description: 'Not Fields Artifact Updated'
+      description: 'Not Fields Artifact Updated',
     };
     // Create the options object with the list of fields specifically find
     const findOptions = { fields: ['description', 'createdBy'] };
@@ -571,8 +633,14 @@ async function optionFieldsUpdate() {
     const fieldsAlwaysProvided = ['_id'];
 
     // Update the artifact only with specific fields returned
-    const updatedArtifacts = await ArtifactController.update(adminUser, org._id, projID,
-      branchID, updateObjFind, findOptions);
+    const updatedArtifacts = await ArtifactController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      updateObjFind,
+      findOptions,
+    );
     // Expect there to be exactly 1 artifact updated
     chai.expect(updatedArtifacts.length).to.equal(1);
     const art = updatedArtifacts[0];
@@ -587,8 +655,14 @@ async function optionFieldsUpdate() {
     chai.expect(visibleFields).to.have.members(expectedFields);
 
     // Update the artifact without the notFind fields
-    const notFindArtifacts = await ArtifactController.update(adminUser, org._id,
-      projID, branchID, updateObjNotFind, notFindOptions);
+    const notFindArtifacts = await ArtifactController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      updateObjNotFind,
+      notFindOptions,
+    );
     // Expect there to be exactly 1 artifact updated
     chai.expect(notFindArtifacts.length).to.equal(1);
     const art2 = notFindArtifacts[0];
@@ -598,8 +672,7 @@ async function optionFieldsUpdate() {
 
     // Check that the keys in the notFindOptions are not in art
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -616,34 +689,44 @@ async function optionSortFind() {
       id: 'testart00',
       description: 'b',
       location: 'b',
-      filename: 'b.txt'
+      filename: 'b.txt',
     },
     {
       id: 'testart01',
       description: 'c',
       location: 'c',
-      filename: 'c.txt'
+      filename: 'c.txt',
     },
     {
       id: 'testart02',
       description: 'a',
       location: 'a',
-      filename: 'a.txt'
+      filename: 'a.txt',
     }];
     // Create sort options
     const sortOption = { sort: 'description' };
     const sortOptionReverse = { sort: '-description' };
 
     // Create the test artifacts
-    const createdElems = await ArtifactController.create(adminUser, org._id, projID,
-      branchID, testArts);
+    const createdElems = await ArtifactController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      testArts,
+    );
     // Validate that 3 artifacts were created
     chai.expect(createdElems.length).to.equal(3);
 
     // Find the artifacts and return them sorted
-    const foundElems = await ArtifactController.find(adminUser, org._id, projID, branchID,
+    const foundElems = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
       testArts.map((e) => e.id),
-      sortOption);
+      sortOption,
+    );
 
     // Expect to find all three artifacts
     chai.expect(foundElems.length).to.equal(3);
@@ -657,9 +740,14 @@ async function optionSortFind() {
     chai.expect(foundElems[2]._id).to.equal(utils.createID(org._id, projID, branchID, 'testart01'));
 
     // Find the artifacts and return them sorted in reverse
-    const reverseElems = await ArtifactController.find(adminUser, org._id, projID, branchID,
+    const reverseElems = await ArtifactController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
       testArts.map((e) => e.id),
-      sortOptionReverse);
+      sortOptionReverse,
+    );
     // Expect to find all three artifacts
     chai.expect(foundElems.length).to.equal(3);
 
@@ -671,10 +759,14 @@ async function optionSortFind() {
     chai.expect(reverseElems[2].description).to.equal('a');
     chai.expect(reverseElems[2]._id).to.equal(utils.createID(org._id, projID, branchID, 'testart02'));
 
-    await ArtifactController.remove(adminUser, org._id, projID, branchID,
-      testArts.map((e) => e.id));
-  }
-  catch (error) {
+    await ArtifactController.remove(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      testArts.map((e) => e.id),
+    );
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -691,34 +783,48 @@ async function optionDeleteBlob() {
       project: projID,
       org: org._id,
       location: testData.artifacts[0].location,
-      filename: testData.artifacts[0].filename
+      filename: testData.artifacts[0].filename,
     };
 
     // Create the options object
     const options = { deleteBlob: true };
 
     // Post blob
-    await ArtifactController.postBlob(adminUser, org._id,
-      projID, artData, artifactBlob);
+    await ArtifactController.postBlob(
+      adminUser,
+      org._id,
+      projID,
+      artData,
+      artifactBlob,
+    );
 
     const artID = testData.artifacts[0].id;
 
     // Delete the artifact and its non referenced blob
-    const deleteArtIDs = await ArtifactController.remove(adminUser, org._id, projID,
-      branchID, artID, options);
+    const deleteArtIDs = await ArtifactController.remove(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      artID,
+      options,
+    );
 
     // Verify response
     chai.expect(deleteArtIDs[0]).to.equal(
-      utils.createID(org._id, projID, branchID, artID)
+      utils.createID(org._id, projID, branchID, artID),
     );
 
     // Ensure blob not found
-    await ArtifactController.getBlob(adminUser,
-      org._id, projID, artData).should.eventually.be.rejectedWith(
-      'Artifact blob not found.'
+    await ArtifactController.getBlob(
+      adminUser,
+      org._id,
+      projID,
+      artData,
+    ).should.eventually.be.rejectedWith(
+      'Artifact blob not found.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

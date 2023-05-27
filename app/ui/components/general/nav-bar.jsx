@@ -33,7 +33,8 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem } from 'reactstrap';
+  DropdownItem,
+} from 'reactstrap';
 
 // MBEE modules
 import { useAuth } from '../context/AuthProvider.js';
@@ -74,19 +75,17 @@ function MbeeNavbar(props) {
   // Respond to change in auth status
   useEffect(() => {
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI((err, data) => {
+    authService.checkAuth((err, data) => {
       if (err) setError(err);
       else if (data) setUser(data);
     });
   }, [auth]);
 
-
   let setNavbarSize;
 
   if (width > 776) {
     setNavbarSize = 'mbee-navbar';
-  }
-  else {
+  } else {
     setNavbarSize = 'small-screen-navbar';
   }
 
@@ -107,7 +106,7 @@ function MbeeNavbar(props) {
               <DropdownToggle nav caret>
                 Docs
               </DropdownToggle>
-              <DropdownMenu right>
+              <DropdownMenu end>
                 <DropdownItem href='/doc/flight-manual'>
                   Flight Manual
                 </DropdownItem>

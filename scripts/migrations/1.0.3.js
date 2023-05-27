@@ -24,7 +24,7 @@ const Webhook = M.require('models.webhook');
 /**
  * @description Handles the database migration from 1.0.2 to 1.0.3.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await webhookHelper();
 };
 
@@ -68,8 +68,8 @@ async function webhookHelper() {
           bulkWrite.push({
             replaceOne: {
               filter: { _id: webhook._id },
-              replacement: webhook
-            }
+              replacement: webhook,
+            },
           });
         }
       });

@@ -28,12 +28,13 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
 import validators from '../../../../../build/json/validators.json';
 import { useApiClient } from '../../context/ApiClientProvider';
+
 const uuidv4 = require('uuid/v4');
 
 /* eslint-enable no-unused-vars */
@@ -46,7 +47,7 @@ function ArtifactForm(props) {
     archived: false,
     filesize: 0,
     location: '',
-    custom: JSON.stringify({}, null, 2)
+    custom: JSON.stringify({}, null, 2),
   });
   const [file, setFile] = useState(null);
   const [upload, setUpload] = useState(true);
@@ -58,27 +59,24 @@ function ArtifactForm(props) {
     if (name === 'archived') {
       setValues((prevState) => ({
         ...prevState,
-        archived: !prevState.archived
+        archived: !prevState.archived,
       }));
-    }
-    else if (name === 'file') {
+    } else if (name === 'file') {
       setFile(files[0]);
       setValues((prevState) => ({
         ...prevState,
-        filename: files[0].name
+        filename: files[0].name,
       }));
-    }
-    else if (name === 'upload' || name === 'existing') {
+    } else if (name === 'upload' || name === 'existing') {
       setUpload((prevState) => !prevState);
       setValues((prevState) => ({
         ...prevState,
-        filename: ''
+        filename: '',
       }));
-    }
-    else {
+    } else {
       setValues((prevState) => ({
         ...prevState,
-        [name]: value
+        [name]: value,
       }));
     }
 
@@ -98,35 +96,34 @@ function ArtifactForm(props) {
     const method = (props.artifactId) ? 'patch' : 'post';
 
     // Extract state data
-    const { id, filename, filesize, location, custom, archived, description } = values;
+    const {
+      id, filename, filesize, location, custom, archived, description,
+    } = values;
 
     // Set size of blob, if file is provided
     const size = (file) ? file.size : filesize;
 
     const data = {
-      id: id,
-      filename: filename,
-      location: location,
+      id,
+      filename,
+      location,
       custom: JSON.parse(custom),
-      archived: archived,
-      description: description,
-      size: size
+      archived,
+      description,
+      size,
     };
 
     // Post or patch the artifact data
     const [err, result] = await artifactService[method](orgID, projID, branchID, data);
 
-
     if (err) {
       if (err === 'Artifact blob already exists.') {
         props.refresh();
         props.toggle();
-      }
-      else {
+      } else {
         setError(err);
       }
-    }
-    else if (result) {
+    } else if (result) {
       // If posting an artifact, post the blob too
       if (method === 'post') {
         // Add file to be uploaded
@@ -161,28 +158,29 @@ function ArtifactForm(props) {
 
     const options = {
       ids: props.artifactId,
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
 
     // Get artifact data
     artifactService.get(orgID, projectID, branchID, options)
-    .then(([err, artifacts]) => {
-      if (err) {
-        setError(err);
-      }
-      else if (artifacts) {
-        const artifact = artifacts[0];
-        setValues({
-          id: artifact.id,
-          description: artifact.description,
-          filename: artifact.filename,
-          filesize: artifact.size,
-          location: artifact.location,
-          custom: JSON.stringify(artifact.custom, null, 2),
-          archived: artifact.archived
-        });
-      }
-    });
+      .then(([err, artifacts]) => {
+        if (err) {
+          setError(err);
+        } else if (artifacts) {
+          const artifact = artifacts[0];
+          setValues({
+            id: artifact.id,
+            description: artifact.description,
+            filename: artifact.filename,
+            filesize: artifact.size,
+            location: artifact.location,
+            custom: JSON.stringify(artifact.custom, null, 2),
+            archived: artifact.archived,
+          });
+        }
+      });
 
     // Resize custom data field
     $('textarea[name="custom"]').autoResize();
@@ -195,7 +193,6 @@ function ArtifactForm(props) {
   let idInvalid = false;
   let locationInvalid = false;
   let filenameInvalid = false;
-
 
   // If user is editing an Artifact Document use ID from props
   if (props.artifactId) {
@@ -227,8 +224,7 @@ function ArtifactForm(props) {
   // Verify custom data is valid
   try {
     JSON.parse(values.custom);
-  }
-  catch (err) {
+  } catch (err) {
     customInvalid = true;
   }
 

@@ -46,11 +46,10 @@ describe(M.getModuleName(module.filename), () => {
   /**
    * Before: runs before all tests. Creates a test admin.
    */
-  before(async function() {
+  before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       should.not.exist(error);
     }
   });
@@ -58,11 +57,10 @@ describe(M.getModuleName(module.filename), () => {
   /**
    * After: runs after all tests. Removes any remaining users if they exist.
    */
-  after(async function() {
+  after(async () => {
     try {
       await User.deleteMany({ _id: { $in: [adminUser._id, testData.users[0].username] } });
-    }
-    catch (error) {
+    } catch (error) {
       should.not.exist(error);
     }
   });
@@ -94,8 +92,8 @@ async function logFailedLogin() {
   // Create mock request object
   const req = {
     connection: {
-      remoteAddress: '::1'
-    }
+      remoteAddress: '::1',
+    },
   };
 
   // Create mock response object
@@ -106,7 +104,7 @@ async function logFailedLogin() {
 
   // Attempt to authenticate user with wrong password
   await localAuth.handleBasicAuth(req, res, user._id, 'wrongPassword')
-  .should.eventually.be.rejectedWith('Invalid username or password.');
+    .should.eventually.be.rejectedWith('Invalid username or password.');
 
   const foundUser = await User.findOne({ _id: user._id });
 
@@ -134,12 +132,11 @@ async function lockoutUser() {
   const users = await UserController.create(adminUser, userData);
   const user = users[0];
 
-
   // Create mock request object
   const req = {
     connection: {
-      remoteAddress: '::1'
-    }
+      remoteAddress: '::1',
+    },
   };
 
   // Create mock response object
@@ -148,12 +145,12 @@ async function lockoutUser() {
   for (let i = 0; i < 4; i++) {
     // Attempt to authenticate user with wrong password
     await localAuth.handleBasicAuth(req, res, user._id, 'wrongPassword') // eslint-disable-line
-    .should.eventually.be.rejectedWith('Invalid username or password.');
+      .should.eventually.be.rejectedWith('Invalid username or password.');
   }
 
   // Fail for the 5th time
   await localAuth.handleBasicAuth(req, res, user._id, 'wrongPassword')
-  .should.eventually.be.rejectedWith(`Account '${user._id}' has been locked after `
+    .should.eventually.be.rejectedWith(`Account '${user._id}' has been locked after `
     + 'exceeding allowed number of failed login attempts. '
     + 'Please contact your local administrator.');
 
@@ -180,8 +177,8 @@ async function noAdminLockout() {
   // Create mock request object
   const req = {
     connection: {
-      remoteAddress: '::1'
-    }
+      remoteAddress: '::1',
+    },
   };
 
   // Create mock response object
@@ -190,12 +187,12 @@ async function noAdminLockout() {
   for (let i = 0; i < 4; i++) {
     // Attempt to authenticate admin user with wrong password
     await localAuth.handleBasicAuth(req, res, adminUser._id, 'wrongPassword') // eslint-disable-line
-    .should.eventually.be.rejectedWith('Invalid username or password.');
+      .should.eventually.be.rejectedWith('Invalid username or password.');
   }
 
   // Expect specific error message for the only active admin user exceeding the login attempts
   await localAuth.handleBasicAuth(req, res, adminUser._id, 'wrongPassword')
-  .should.eventually.be.rejectedWith('Incorrect login attempts exceeded '
+    .should.eventually.be.rejectedWith('Incorrect login attempts exceeded '
     + 'on only active admin account.');
 
   // The admin user should not be archived

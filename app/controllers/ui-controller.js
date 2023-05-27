@@ -24,7 +24,7 @@
 module.exports = {
   flightManual,
   swaggerDoc,
-  notFound
+  notFound,
 };
 
 // Node modules
@@ -53,18 +53,18 @@ function flightManual(req, res) {
 
     // Turn the file names into section IDs and titles
     const sections = [];
-    files.filter(fname => fname.endsWith('.html')).forEach(section => {
+    files.filter((fname) => fname.endsWith('.html')).forEach((section) => {
       const sectionID = section.replace('.html', '');
       const sectionTitle = sectionID.replace(/-/g, ' ');
       sections.push({
         id: sectionID.replace(/\./g, '-').replace(':', ''),
         title: utils.toTitleCase(sectionTitle, true),
-        content: fs.readFileSync(`${M.root}/build/fm/${section}`)
+        content: fs.readFileSync(`${M.root}/build/fm/${section}`),
       });
     });
     // Render the flight manual
     return utils.render(req, res, 'flight-manual', {
-      sections: sections
+      sections,
     });
   });
 }
@@ -79,13 +79,13 @@ function swaggerSpec() {
   return swaggerJSDoc({
     swaggerDefinition: {
       info: {
-        title: 'MBEE API Documentation',       // Title (required)
-        version: M.version                     // Version (required)
-      }
+        title: 'MBEE API Documentation', // Title (required)
+        version: M.version, // Version (required)
+      },
     },
     apis: [
-      path.join(M.root, 'app', 'api-routes.js') // Path to the API docs
-    ]
+      path.join(M.root, 'app', 'api-routes.js'), // Path to the API docs
+    ],
   });
 }
 
@@ -100,7 +100,7 @@ function swaggerSpec() {
 function swaggerDoc(req, res) {
   return utils.render(req, res, 'swagger', {
     swagger: swaggerSpec(),
-    title: 'API Documentation | Model-Based Engineering Environment'
+    title: 'API Documentation | Model-Based Engineering Environment',
   });
 }
 

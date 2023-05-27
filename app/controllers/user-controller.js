@@ -28,7 +28,7 @@ module.exports = {
   createOrReplace,
   remove,
   updatePassword,
-  search
+  search,
 };
 
 // Node modules
@@ -163,25 +163,26 @@ async function find(requestingUser, users, options) {
     if (Array.isArray(saniUsers)) {
       // An array of usernames, find all
       searchQuery._id = { $in: saniUsers };
-    }
-    else if (typeof saniUsers === 'string') {
+    } else if (typeof saniUsers === 'string') {
       // A single username
       searchQuery._id = saniUsers;
-    }
-    else if (!((typeof saniUsers === 'object' && saniUsers !== null) || saniUsers === undefined)) {
+    } else if (!((typeof saniUsers === 'object' && saniUsers !== null) || saniUsers === undefined)) {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for finding users.', 'warn');
     }
 
     // Find and return the users
-    return await User.find(searchQuery, validatedOptions.fieldsString,
-      { limit: validatedOptions.limit,
+    return await User.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        limit: validatedOptions.limit,
         skip: validatedOptions.skip,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -249,12 +250,10 @@ async function create(requestingUser, users, options) {
     if (Array.isArray(saniUsers)) {
       // users is an array, create many users
       usersToCreate = saniUsers;
-    }
-    else if (typeof saniUsers === 'object') {
+    } else if (typeof saniUsers === 'object') {
       // users is an object, create a single user
       usersToCreate = [saniUsers];
-    }
-    else {
+    } else {
       // users is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating users.', 'warn');
     }
@@ -279,8 +278,7 @@ async function create(requestingUser, users, options) {
         // Check if user with same username is already being created
         assert.ok(!arrUsernames.includes(user.username), 'Multiple users with '
           + `the same username [${user.username}] cannot be created.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       arrUsernames.push(user.username);
@@ -296,7 +294,7 @@ async function create(requestingUser, users, options) {
     // If there are any foundUsers, there is a conflict
     if (foundUsers.length > 0) {
       // Get arrays of the foundUsers's usernames
-      const foundUserUsernames = foundUsers.map(u => u._id);
+      const foundUserUsernames = foundUsers.map((u) => u._id);
 
       // There are one or more users with conflicting usernames
       throw new M.OperationError('Users with the following usernames already exist'
@@ -333,10 +331,12 @@ async function create(requestingUser, users, options) {
     await Organization.updateOne(defaultOrgQuery, { permissions: defaultOrg.permissions });
 
     // Find and return the created users
-    return await User.find({ _id: { $in: arrUsernames } }, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
-  }
-  catch (error) {
+    return await User.find(
+      { _id: { $in: arrUsernames } },
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -406,12 +406,10 @@ async function update(requestingUser, users, options) {
     if (Array.isArray(saniUsers)) {
       // users is an array, update many users
       usersToUpdate = saniUsers;
-    }
-    else if (typeof saniUsers === 'object') {
+    } else if (typeof saniUsers === 'object') {
       // users is an object, update a single user
       usersToUpdate = [saniUsers];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating users.', 'warn');
     }
 
@@ -424,16 +422,14 @@ async function update(requestingUser, users, options) {
         // Ensure each user has a username and that its a string
         assert.ok(user.hasOwnProperty('username'), `User #${index} does not have a username.`);
         assert.ok(typeof user.username === 'string', `User #${index}'s username is not a string.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       // If a duplicate ID, throw an error
       if (duplicateCheck[user.username]) {
         throw new M.DataFormatError(`Multiple objects with the same ID [${user.username}] exist in`
           + ' the update.', 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[user.username] = user.username;
       }
 
@@ -449,11 +445,9 @@ async function update(requestingUser, users, options) {
     const foundUsers = await User.find(searchQuery, null);
     // Verify the same number of users are found as desired
     if (foundUsers.length !== arrUsernames.length) {
-      const foundIDs = foundUsers.map(u => u._id);
-      const notFound = arrUsernames.filter(u => !foundIDs.includes(u));
-      throw new M.NotFoundError(
-        `The following users were not found: [${notFound.toString()}].`, 'warn'
-      );
+      const foundIDs = foundUsers.map((u) => u._id);
+      const notFound = arrUsernames.filter((u) => !foundIDs.includes(u));
+      throw new M.NotFoundError(`The following users were not found: [${notFound.toString()}].`, 'warn');
     }
 
     // Convert usersToUpdate to JMI type 2
@@ -493,17 +487,13 @@ async function update(requestingUser, users, options) {
           if (typeof validators.user[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.user[key]).test(updateUser[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateUser[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateUser[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.user[key] === 'function') {
             if (!validators.user[key](updateUser[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateUser[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateUser[key]}]`, 'warn');
             }
           }
           // Improperly formatted validator
@@ -547,23 +537,25 @@ async function update(requestingUser, users, options) {
       bulkArray.push({
         updateOne: {
           filter: { _id: user._id },
-          update: updateUser
-        }
+          update: updateUser,
+        },
       });
     });
 
     // Update all users through a bulk write to the database
     await User.bulkWrite(bulkArray);
 
-    const foundUpdatedUsers = await User.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+    const foundUpdatedUsers = await User.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event users-updated
     EventEmitter.emit('users-updated', foundUpdatedUsers);
 
     return foundUpdatedUsers;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -626,12 +618,10 @@ async function createOrReplace(requestingUser, users, options) {
     if (Array.isArray(saniUsers)) {
       // users is an array, update many users
       usersToLookup = saniUsers;
-    }
-    else if (typeof saniUsers === 'object') {
+    } else if (typeof saniUsers === 'object') {
       // users is an object, update a single user
       usersToLookup = [saniUsers];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating users.', 'warn');
     }
 
@@ -643,16 +633,14 @@ async function createOrReplace(requestingUser, users, options) {
         // Ensure each user has a username and that its a string
         assert.ok(user.hasOwnProperty('username'), `User #${index} does not have a username.`);
         assert.ok(typeof user.username === 'string', `User #${index}'s username is not a string.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       // If a duplicate ID, throw an error
       if (duplicateCheck[user.username]) {
         throw new M.DataFormatError(`Multiple objects with the same ID [${user.username}] exist in`
           + ' the update.', 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[user.username] = user.username;
       }
       arrUsernames.push(user.username);
@@ -671,10 +659,12 @@ async function createOrReplace(requestingUser, users, options) {
     }
 
     // Write contents to temporary file
-    fs.writeFileSync(path.join(M.root, 'data', `PUT-backup-users-${ts}.json`),
-      JSON.stringify(foundUsers));
+    fs.writeFileSync(
+      path.join(M.root, 'data', `PUT-backup-users-${ts}.json`),
+      JSON.stringify(foundUsers),
+    );
 
-    await User.deleteMany({ _id: { $in: foundUsers.map(u => u._id) } });
+    await User.deleteMany({ _id: { $in: foundUsers.map((u) => u._id) } });
 
     // Emit the event users-deleted
     EventEmitter.emit('users-deleted', foundUsers);
@@ -690,13 +680,15 @@ async function createOrReplace(requestingUser, users, options) {
         // Reinsert original data
         try {
           await User.insertMany(foundUsers);
-          fs.unlinkSync(path.join(M.root, 'data',
-            `PUT-backup-users-${ts}.json`));
+          fs.unlinkSync(path.join(
+            M.root,
+            'data',
+            `PUT-backup-users-${ts}.json`,
+          ));
 
           // Restoration succeeded; pass the original error
           res(error);
-        }
-        catch (restoreError) {
+        } catch (restoreError) {
           // Pass the new error that occurred while trying to restore old users
           res(restoreError);
         }
@@ -706,15 +698,17 @@ async function createOrReplace(requestingUser, users, options) {
     EventEmitter.emit('users-created', createdUsers);
 
     // Delete the temporary file.
-    const filePath = path.join(M.root, 'data',
-      `PUT-backup-users-${ts}.json`);
+    const filePath = path.join(
+      M.root,
+      'data',
+      `PUT-backup-users-${ts}.json`,
+    );
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
 
     return createdUsers;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -765,13 +759,11 @@ async function remove(requestingUser, users, options) {
       // An array of usernames, remove all
       searchedUsernames = saniUsers;
       searchQuery._id = { $in: saniUsers };
-    }
-    else if (typeof saniUsers === 'string') {
+    } else if (typeof saniUsers === 'string') {
       // A single username
       searchedUsernames = [saniUsers];
       searchQuery._id = saniUsers;
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing users.', 'warn');
     }
@@ -779,10 +771,10 @@ async function remove(requestingUser, users, options) {
     // Find the users to delete
     const foundUsers = await User.find(searchQuery);
 
-    foundUsernames = foundUsers.map(u => u._id);
+    foundUsernames = foundUsers.map((u) => u._id);
 
     // Check if all users were found
-    const notFoundUsernames = searchedUsernames.filter(u => !foundUsernames.includes(u));
+    const notFoundUsernames = searchedUsernames.filter((u) => !foundUsernames.includes(u));
     // Some users not found, throw an error
     if (notFoundUsernames.length > 0) {
       throw new M.NotFoundError('The following users were not found: '
@@ -844,8 +836,7 @@ async function remove(requestingUser, users, options) {
 
     // Return the deleted users
     return foundUsernames;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -890,8 +881,7 @@ async function search(requestingUser, query, options) {
     // Search function only: query must be a string
     try {
       assert.ok(typeof query === 'string', 'Query is not a string.');
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -933,14 +923,17 @@ async function search(requestingUser, query, options) {
       delete searchQuery.archived;
     }
 
-    return await User.find(searchQuery, null,
-      { limit: validatedOptions.limit,
+    return await User.find(
+      searchQuery,
+      null,
+      {
+        limit: validatedOptions.limit,
         skip: validatedOptions.skip,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -968,8 +961,13 @@ async function search(requestingUser, query, options) {
  *   M.log.error(error);
  * });
  */
-async function updatePassword(requestingUser, targetUser, oldPassword, newPassword,
-  confirmPassword) {
+async function updatePassword(
+  requestingUser,
+  targetUser,
+  oldPassword,
+  newPassword,
+  confirmPassword,
+) {
   try {
     // Ensure input parameters are correct type
     try {
@@ -987,8 +985,7 @@ async function updatePassword(requestingUser, targetUser, oldPassword, newPasswo
       assert.ok(typeof newPassword === 'string', 'New Password is not a string.');
       assert.ok(typeof confirmPassword === 'string', 'Confirm password is not a string');
       assert.ok(confirmPassword === newPassword, 'Passwords do not match.');
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -1008,8 +1005,7 @@ async function updatePassword(requestingUser, targetUser, oldPassword, newPasswo
     // Check if requesting and target user are the same, and requesting user is not an admin
     if (reqUser._id !== tarUser && !reqUser.admin) {
       throw new M.PermissionError('Cannot set another user\'s password.', 'warn');
-    }
-    else if (reqUser._id === tarUser) {
+    } else if (reqUser._id === tarUser) {
       // Verify the old password matches
       const verified = await User.verifyPassword(foundUser, oldPassword);
 
@@ -1030,14 +1026,13 @@ async function updatePassword(requestingUser, targetUser, oldPassword, newPasswo
     // Save the user with the updated password
     await User.updateOne(userQuery, {
       password: foundUser.password,
-      oldPasswords: oldPasswords,
-      changePassword: reqUser._id !== tarUser
+      oldPasswords,
+      changePassword: reqUser._id !== tarUser,
     });
 
     // Find and return the updated user
     return await User.findOne(userQuery);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

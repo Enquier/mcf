@@ -26,7 +26,6 @@ import { Link } from 'react-router-dom';
 // MBEE modules
 import { useApiClient } from '../../context/ApiClientProvider';
 
-
 /* eslint-enable no-unused-vars */
 
 /**
@@ -64,7 +63,7 @@ export default function ElementSubtree(props) {
 
   const orgID = props.project.org;
   const projID = props.project.id;
-  const branchID = props.branchID;
+  const { branchID } = props;
 
   /**
    * @description Toggle the element to display its children.
@@ -92,7 +91,9 @@ export default function ElementSubtree(props) {
   const refresh = async () => {
     const options = {
       ids: props.id,
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
 
     // Get element data
@@ -109,7 +110,7 @@ export default function ElementSubtree(props) {
       props.setRefreshFunctions(props.id, refresh);
     }
 
-    const contains = data.contains;
+    const { contains } = data;
     const parent = data.id;
     // Verify element does not have children
     if (!contains || contains.length === 0) {
@@ -119,18 +120,19 @@ export default function ElementSubtree(props) {
 
     // Get child elements
     const options = {
-      parent: parent,
-      fields: 'id,name,contains,archived,type',
-      sort: 'name',
-      includeArchived: true
+      params: {
+        parent,
+        includeArchived: true,
+        fields: 'id,name,contains,archived,type',
+        sort: 'name',
+      },
     };
 
     const [err2, elements] = await elementService.get(orgID, projID, branchID, options);
 
     if (err2) {
       setError(err2);
-    }
-    else if (elements) {
+    } else if (elements) {
       // Sort so that the __mbee__ element is first
       const list = [];
       let __mbee__;
@@ -148,8 +150,7 @@ export default function ElementSubtree(props) {
     // Verify if component needs to re-render
     if (data !== prevData) {
       initialize();
-    }
-    else if (props.data !== data) {
+    } else if (props.data !== data) {
       setData(props.data);
       initialize();
     }
@@ -163,7 +164,6 @@ export default function ElementSubtree(props) {
       }
     }
   }, [props.data, props.expand, props.collapse, data]);
-
 
   // Initialize variables
   let elementLink;
@@ -200,7 +200,7 @@ export default function ElementSubtree(props) {
                           clickHandler={props.clickHandler}
                           unsetCheckbox={props.unsetCheckbox}
                           isOpen={isOpen}
-                          url={props.url}/>
+                          url={props.url}/>,
         );
       }
     }
@@ -267,83 +267,83 @@ export default function ElementSubtree(props) {
   const iconMappings = {
     Package: {
       icon: (isOpen) ? 'folder-open' : 'folder',
-      color: 'lightblue'
+      color: 'lightblue',
     },
     package: {
       icon: (isOpen) ? 'folder-open' : 'folder',
-      color: 'lightblue'
+      color: 'lightblue',
     },
     'uml:Package': {
       icon: (isOpen) ? 'folder-open' : 'folder',
-      color: 'lightblue'
+      color: 'lightblue',
     },
     Diagram: {
       icon: 'sitemap',
-      color: 'lightgreen'
+      color: 'lightgreen',
     },
     diagram: {
       icon: 'sitemap',
-      color: 'lightgreen'
+      color: 'lightgreen',
     },
     association: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     Association: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     relationship: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     Relationship: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     Edge: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     edge: {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     'uml:Diagram': {
       icon: 'sitemap',
-      color: 'lightgreen'
+      color: 'lightgreen',
     },
     'uml:Association': {
       icon: 'arrows-alt-h',
-      color: '#333333'
+      color: '#333333',
     },
     'uml:Slot': {
       icon: 'circle',
-      color: 'MediumPurple'
+      color: 'MediumPurple',
     },
     'uml:Property': {
       icon: 'circle',
-      color: 'Gold'
+      color: 'Gold',
     },
     Document: {
       icon: 'file-alt',
-      color: '#465faf'
+      color: '#465faf',
     },
     View: {
       icon: 'align-center',
-      color: '#b0f2c8'
-    }
+      color: '#b0f2c8',
+    },
   };
 
   // Verify data available and type in mapping
   if (data !== null
     && iconMappings.hasOwnProperty(data.type)) {
     // Set the icon to a new icon and color
-    const icon = iconMappings[data.type].icon;
+    const { icon } = iconMappings[data.type];
     const color = (data.archived) ? '#c0c0c0' : iconMappings[data.type].color;
     elementIcon = (
       <i className={`fas fa-${icon}`}
-         style={{ color: color }}/>
+         style={{ color }}/>
     );
   }
 
@@ -358,8 +358,7 @@ export default function ElementSubtree(props) {
             {element}
           </span>
       </Link>);
-  }
-  else {
+  } else {
     elementLink = (
       <span onClick={handleClick}
            className='element-link'>
@@ -375,8 +374,8 @@ export default function ElementSubtree(props) {
   if (data.archived && !props.archived) {
     return null;
   }
-  else {
-    return (
+
+  return (
       <div id={`tree-${props.id}`}
            className={(props.parent) ? 'element-tree' : 'element-tree element-tree-root'}>
         <i className={`fas ${expandIcon}`}
@@ -385,5 +384,4 @@ export default function ElementSubtree(props) {
         {elementLink}
         {(isOpen) ? (<div>{subtree}</div>) : ''}
       </div>);
-  }
 }

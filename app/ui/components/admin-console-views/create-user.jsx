@@ -28,7 +28,7 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
@@ -47,7 +47,7 @@ function CreateUser(props) {
     email: '',
     password: '',
     admin: false,
-    custom: JSON.stringify({}, null, 2)
+    custom: JSON.stringify({}, null, 2),
   });
   const [passwordInvalid, setPasswordInvalid] = useState(false);
   const [error, setError] = useState(false);
@@ -56,13 +56,12 @@ function CreateUser(props) {
     if (e.target.name === 'admin') {
       setState((prevState) => ({
         ...prevState,
-        admin: !prevState.admin
+        admin: !prevState.admin,
       }));
-    }
-    else {
+    } else {
       setState((prevState) => ({
         ...prevState,
-        [e.target.name]: e.target.value
+        [e.target.name]: e.target.value,
       }));
     }
     if (e.target.name === 'password') {
@@ -87,8 +86,7 @@ function CreateUser(props) {
           && lowercaseValidator
           && uppercaseValidator
           && specialCharValidator));
-      }
-      catch (err) {
+      } catch (err) {
         setPasswordInvalid(true);
       }
     }
@@ -103,7 +101,7 @@ function CreateUser(props) {
   const onSubmit = async () => {
     // Set data to send
     const data = {
-      ...state
+      ...state,
     };
 
     // Send request to post user
@@ -112,8 +110,7 @@ function CreateUser(props) {
     // Set the state
     if (err) {
       setError(err);
-    }
-    else if (result) {
+    } else if (result) {
       props.refreshUsers();
       props.toggle();
     }
@@ -123,7 +120,6 @@ function CreateUser(props) {
   useEffect(() => {
     $('textarea[name="custom"]').autoResize();
   }, []);
-
 
   // Initialize validators
   let usernameInvalid = false;
@@ -146,8 +142,7 @@ function CreateUser(props) {
   // Verify if custom data is correct JSON format
   try {
     JSON.parse(state.custom);
-  }
-  catch (err) {
+  } catch (err) {
     customInvalid = true;
   }
 
@@ -306,7 +301,7 @@ function CreateUser(props) {
 
 CreateUser.propTypes = {
   toggle: PropTypes.func,
-  refreshUsers: PropTypes.func
+  refreshUsers: PropTypes.func,
 };
 
 export default CreateUser;

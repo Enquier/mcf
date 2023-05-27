@@ -28,7 +28,7 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
@@ -48,7 +48,7 @@ function ProfileEdit(props) {
     email: props.user.email || '',
     admin: props.user.admin,
     archived: props.user.archived,
-    custom: JSON.stringify(props.user.custom || {}, null, 2)
+    custom: JSON.stringify(props.user.custom || {}, null, 2),
   });
   const [error, setError] = useState(null);
 
@@ -56,13 +56,12 @@ function ProfileEdit(props) {
     if (e.target.name === 'admin' || e.target.name === 'archived') {
       setState((prevState) => ({
         ...prevState,
-        [e.target.name]: !prevState[e.target.name]
+        [e.target.name]: !prevState[e.target.name],
       }));
-    }
-    else {
+    } else {
       setState((prevState) => ({
         ...prevState,
-        [e.target.name]: e.target.value
+        [e.target.name]: e.target.value,
       }));
     }
     // This is needed for successions of events within an input html element for some reason
@@ -72,7 +71,7 @@ function ProfileEdit(props) {
   const onSubmit = async () => {
     const data = {
       ...state,
-      custom: JSON.parse(state.custom)
+      custom: JSON.parse(state.custom),
     };
 
     // Send request
@@ -81,14 +80,12 @@ function ProfileEdit(props) {
     // Set the state
     if (err) {
       setError(err);
-    }
-    else if (result) {
+    } else if (result) {
       props.refreshUsers();
       // Toggle the modal
       props.toggle(props.user);
     }
   };
-
 
   // Initialize variables
   const fnameInvalid = (!RegExp(validators.user.firstName).test(state.fname));
@@ -122,8 +119,7 @@ function ProfileEdit(props) {
   // Verify if custom data is correct JSON format
   try {
     JSON.parse(state.custom);
-  }
-  catch (err) {
+  } catch (err) {
     // Set invalid fields
     customInvalid = true;
   }
@@ -279,7 +275,7 @@ ProfileEdit.propTypes = {
   viewingUser: PropTypes.object,
   togglePasswordModal: PropTypes.func,
   toggle: PropTypes.func,
-  refreshUsers: PropTypes.func
+  refreshUsers: PropTypes.func,
 };
 
 // Export component

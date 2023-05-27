@@ -25,14 +25,16 @@
  *   - `log.error('An error has occurred')`.
  */
 
-
 // Node modules
 const fs = require('fs');
 const path = require('path');
 
 // NPM modules
 const winston = require('winston');
-const { combine, timestamp, label, printf } = winston.format;
+
+const {
+  combine, timestamp, label, printf,
+} = winston.format;
 
 // This defines our log levels
 const levels = {
@@ -41,7 +43,7 @@ const levels = {
   warn: 2,
   info: 3,
   verbose: 4,
-  debug: 5
+  debug: 5,
 };
 
 // This defines the colors for each log level
@@ -51,7 +53,7 @@ const colors = {
   warn: 'yellow',
   info: 'magenta',
   verbose: 'blue',
-  debug: 'green'
+  debug: 'green',
 };
 
 // This defines the unicode format for each color
@@ -65,8 +67,8 @@ const fmt = {
     magenta: '\u001b[35m',
     cyan: '\u001b[36m',
     light_grey: '\u001b[37m',
-    esc: '\u001b[39m'
-  }
+    esc: '\u001b[39m',
+  },
 };
 
 /**
@@ -76,7 +78,7 @@ const fmt = {
  */
 const formatter = printf((msg) => {
   // Retrieve the error stack
-  const stack = new Error().stack;
+  const { stack } = new Error();
   const lines = stack.split('\n');
   const reduced = [];
   let extra = '';
@@ -106,12 +108,12 @@ const formatter = printf((msg) => {
   // because the string includes the color formatter and toUpperCase will
   // break the color formatting.
   let level = msg.level
-  .replace('critical', 'CRITICAL')
-  .replace('error', 'ERROR')
-  .replace('warn', 'WARN')
-  .replace('info', 'INFO')
-  .replace('verbose', 'VERBOSE')
-  .replace('debug', 'DEBUG');
+    .replace('critical', 'CRITICAL')
+    .replace('error', 'ERROR')
+    .replace('warn', 'WARN')
+    .replace('info', 'INFO')
+    .replace('verbose', 'VERBOSE')
+    .replace('debug', 'DEBUG');
 
   // Add memory usage to debug level statements
   if (msg.level.includes('debug')) {
@@ -125,7 +127,7 @@ const formatter = printf((msg) => {
   // If we want colored logs, this is our return string
   if (M.config.log.colorize) {
     const ts = `${fmt.color.light_grey}${msg.timestamp}${fmt.color.esc}`; // timestamp
-    const f = `${fmt.color.cyan}${file}${fmt.color.esc}`;           // file
+    const f = `${fmt.color.cyan}${file}${fmt.color.esc}`; // file
     // Print stack for error and critical logs
     let msgPrint = msg.message;
     if (msg.level.includes('error') || msg.level.includes('critical')) {
@@ -137,18 +139,18 @@ const formatter = printf((msg) => {
 
   // If colorize is false, we remove colors from the log level, timestamp and file.
   level = level
-  .replace('\u001b[30m', '')
-  .replace('\u001b[31m', '')
-  .replace('\u001b[32m', '')
-  .replace('\u001b[33m', '')
-  .replace('\u001b[34m', '')
-  .replace('\u001b[35m', '')
-  .replace('\u001b[36m', '')
-  .replace('\u001b[37m', '')
-  .replace('\u001b[38m', '')
-  .replace('\u001b[39m', '');
+    .replace('\u001b[30m', '')
+    .replace('\u001b[31m', '')
+    .replace('\u001b[32m', '')
+    .replace('\u001b[33m', '')
+    .replace('\u001b[34m', '')
+    .replace('\u001b[35m', '')
+    .replace('\u001b[36m', '')
+    .replace('\u001b[37m', '')
+    .replace('\u001b[38m', '')
+    .replace('\u001b[39m', '');
   const ts = `${msg.timestamp}`; // timestamp
-  const f = `${file}`;           // file
+  const f = `${file}`; // file
   return `${ts} [${level}] ${f}:${line} -> ${extra} ${msg.message}`;
 });
 
@@ -171,33 +173,33 @@ if (!fs.existsSync(path.join(M.root, 'logs'))) {
 function makeLogger(subcommand, opts) {
   const loggerConfig = {
     level: M.config.log.level,
-    levels: levels,
+    levels,
     format: combine(
       label({ label: 'MBEE' }),
       winston.format.colorize(),
       timestamp(),
-      formatter
+      formatter,
     ),
     transports: [
       // The Console transport is not included here for cleaner console output during testing.
       // error log transport - logs error-level and below to error log file
       new winston.transports.File({
         filename: path.join('logs', M.config.log.error_file),
-        level: 'error'
+        level: 'error',
       }),
       // combined log transport - logs default-level and below to combined log file
       // NOTE: Default level specified in config file
       new winston.transports.File({
         filename: path.join('logs', M.config.log.file),
-        level: M.config.log.level
+        level: M.config.log.level,
       }),
       // debug log transport - logs debug-level and below to debug log file
       new winston.transports.File({
         filename: path.join('logs', M.config.log.debug_file),
-        level: 'debug'
-      })
+        level: 'debug',
+      }),
     ],
-    exitOnError: false
+    exitOnError: false,
   };
   // Add in a transport to log to the console if not running tests
   if (!(subcommand === 'test' && opts.includes('--suppress-console'))) {
@@ -208,7 +210,6 @@ function makeLogger(subcommand, opts) {
 
 // Add defined colors to winston logger
 winston.addColors(colors);
-
 
 /**
  * @description Logs the response to an HTTP request.
@@ -254,7 +255,7 @@ function formatResponseLog(req, res) {
   // Set username to anonymous if req.user is not defined
   const username = (req.user) ? (req.user._id || req.user.username) : 'anonymous';
   const date = JSON.stringify(new Date()).replace(/"/g, '');
-  let ip = req.ip;
+  let { ip } = req;
   // If IP is ::1, set it equal to 127.0.0.1
   if (req.ip === '::1') {
     ip = '127.0.0.1';
@@ -271,5 +272,5 @@ function formatResponseLog(req, res) {
 module.exports = {
   makeLogger,
   logResponse,
-  logSecurityResponse
+  logSecurityResponse,
 };

@@ -21,13 +21,12 @@ const path = require('path');
 
 // NPM modules
 const Mocha = require('mocha');
-require('@babel/register')();        // Transpile react tests to javascript
+require('@babel/register')(); // Transpile react tests to javascript
 // require('@babel/polyfill');          // Transpile async await for javascript
 require('core-js/stable');
 require('regenerator-runtime/runtime');
 
 // require(path.join(M.root, 'test', '7xx_ui_tests', 'setup.js'));
-
 
 // If the application is run directly from node, notify the user and fail
 if (module.parent == null) {
@@ -83,8 +82,7 @@ function test(_args) {
         + 'The following command is recommended:'
         + 'node mbee test --grep "[^[1-8]]"\n');
       process.exit(-1);
-    }
-    else if (_args.includes('--grep')) {
+    } else if (_args.includes('--grep')) {
       // Throw an error if --grep and --all are used together
       M.log.error('Cannot use arguments --grep and --all together');
       process.exit(-1);
@@ -127,15 +125,13 @@ function test(_args) {
     // Remove the grep command
     const grepInd = _args.indexOf('--grep');
     _args.splice(grepInd, 2);
-  }
-  else if (_args.includes('--plugin')) {
+  } else if (_args.includes('--plugin')) {
     // Set flag
     plugin = true;
     const ind = _args.indexOf('--plugin');
     try {
       pluginName = _args[ind + 1];
-    }
-    catch (error) {
+    } catch (error) {
       throw new M.DataFormatError('No plugin name provided');
     }
     if (!pluginNames.includes(pluginName)) {
@@ -158,8 +154,7 @@ function test(_args) {
       // The arg started with '--', remove '--' and load the arg in to the opts
       // object as a key with the following arg as the value
       opts[_args[i].replace('--', '')] = _args[i + 1];
-    }
-    else {
+    } else {
       // The arg did NOT start with '--', log the error and exit the process
       M.log.error(`invalid argument (${_args[i]})`);
       process.exit(-1);
@@ -177,13 +172,11 @@ function test(_args) {
       if (fs.existsSync(testDir)) {
         // Call the mochaWalk function to load in all of the test files
         mochaWalk(testDir, mocha);
-      }
-      else {
+      } else {
         M.log.info(`Plugin "${name}" does not have a test directory.`);
       }
     });
-  }
-  else {
+  } else {
     // Set the test directory
     let testDir = `${M.root}/test`;
     if (plugin) {
@@ -205,11 +198,9 @@ function test(_args) {
       if (error) {
         // mocha did not pass all test, exit with error code -1
         process.exit(-1);
-      }
-      else if (plugin) {
+      } else if (plugin) {
         resolve();
-      }
-      else {
+      } else {
         // mocha passed all tests, exit with error code 0
         process.exit(0);
       }
@@ -257,10 +248,10 @@ function mochaWalk(dir, mochaObj) {
     return file.substr(-3) === '.js';
   })
   // Loop through the resulting array of files
-  .forEach(function(file) {
+    .forEach((file) => {
     // Add the full path and filename to mocha
-    mochaObj.addFile(path.join(dir, file));
-  });
+      mochaObj.addFile(path.join(dir, file));
+    });
 }
 
 module.exports = test;

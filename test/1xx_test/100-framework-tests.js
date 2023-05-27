@@ -48,7 +48,7 @@ function emptyTest(done) {
 async function assertionsTest() {
   chai.expect(2).to.equal(2);
   chai.expect(2).to.not.equal(3);
-  chai.expect('0').to.not.equal(0);         // Tests type casting
+  chai.expect('0').to.not.equal(0); // Tests type casting
   chai.expect(0.1 + 0.2).to.not.equal(0.3); // Tests floating point precision
-  chai.expect({}).to.not.equal({});         // Tests object reference
+  chai.expect({}).to.not.equal({}); // Tests object reference
 }

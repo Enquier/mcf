@@ -63,7 +63,7 @@ async function sanitizeHtmlObject() {
     fname: '<script>',
     lname: '</script>',
     admin: true,
-    email: null
+    email: null,
   };
   const htmlSan = sani.html(data);
   chai.expect(htmlSan.name).to.equal('First Last');

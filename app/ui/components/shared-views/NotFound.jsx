@@ -20,7 +20,6 @@
 
 import React from 'react';
 
-
 export default function NotFound(props) {
   return (
     <h2 style={{ textAlign: 'center', marginTop: '3em' }}>404: Page Not Found</h2>

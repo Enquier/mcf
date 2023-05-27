@@ -27,7 +27,7 @@ import {
   Modal,
   ModalBody,
   UncontrolledTooltip,
-  Badge
+  Badge,
 } from 'reactstrap';
 import Delete from '../../shared-views/delete.jsx';
 import CustomData from '../../general/custom-data/custom-data.jsx';
@@ -50,9 +50,9 @@ export default function Element(props) {
 
   const { elementID, providedElement } = useElementContext();
 
-  const orgID = props.orgID;
+  const { orgID } = props;
   const projID = props.projectID;
-  const branchID = props.branchID;
+  const { branchID } = props;
 
   // eslint-disable-next-line arrow-body-style
   const handleCrossRefs = (_element) => {
@@ -67,31 +67,31 @@ export default function Element(props) {
 
       // Make into an object for a uniqueness
       const uniqCrossRefs = {};
-      allCrossRefs.forEach(xr => {
+      allCrossRefs.forEach((xr) => {
         const ref = xr.replace('cf:', '').slice(1, -1);
         uniqCrossRefs[xr] = { id: ref };
       });
 
       // Get a list of IDs from the cross-references
       const uniqCrossRefsValues = Object.values(uniqCrossRefs);
-      const ids = uniqCrossRefsValues.map(xr => xr.id);
+      const ids = uniqCrossRefsValues.map((xr) => xr.id);
 
       // Make call to get names of cross-references elements ....
       const options = {
-        ids: ids,
-        format: 'jmi2',
-        fields: 'id,name,org,project,branch'
+        ids,
+        params: {
+          format: 'jmi2',
+          fields: 'id,name,org,project,branch',
+        },
       };
 
       const [err, elements] = await elementService.get(orgID, projID, branchID, options);
 
       if (err === 'No elements found.') {
         resolve(_element);
-      }
-      else if (err) {
+      } else if (err) {
         reject(err);
-      }
-      else if (elements) {
+      } else if (elements) {
         // Keep track of documentation fields
         // and cross reference text
         let doc = _element.documentation;
@@ -102,14 +102,14 @@ export default function Element(props) {
         for (let i = 0; i < refs.length; i++) {
           // Get the ref, replacing special characters for use in regex
           const ref = refs[i]
-          .replace('[', '\\[')
-          .replace(']', '\\]')
-          .replace('-', '\\-');
+            .replace('[', '\\[')
+            .replace(']', '\\]')
+            .replace('-', '\\-');
           // Create the regex for replacement
           const re = new RegExp(ref, 'g'); // eslint-disable-line security/detect-non-literal-regexp
 
           // Capture the element ID and link
-          const id = uniqCrossRefs[refs[i]].id;
+          const { id } = uniqCrossRefs[refs[i]];
           if (!elements.hasOwnProperty(id)) {
             doc = doc.replace(re, `<Link class='cross-ref-broken' to='#'>${refs[i]}</Link>`);
             continue;
@@ -132,7 +132,9 @@ export default function Element(props) {
   const getElement = async () => {
     const options = {
       ids: elementID,
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
 
     // Get element data
@@ -141,23 +143,22 @@ export default function Element(props) {
     // Set the state
     if (err) {
       setError(err);
-    }
-    else if (elements) {
+    } else if (elements) {
       // Get cross references if they exist
       handleCrossRefs(elements[0])
-      .then(elementChanged => {
-        setElement(elementChanged);
-      })
-      .catch(xrefErr => {
-        setError(xrefErr);
-      });
+        .then((elementChanged) => {
+          setElement(elementChanged);
+        })
+        .catch((xrefErr) => {
+          setError(xrefErr);
+        });
     }
   };
 
   const useProvidedElement = () => {
     handleCrossRefs(providedElement)
-    .then((e) => setElement(e))
-    .catch(xrefErr => setError(xrefErr));
+      .then((e) => setElement(e))
+      .catch((xrefErr) => setError(xrefErr));
   };
 
   // Define toggle function
@@ -171,7 +172,6 @@ export default function Element(props) {
     if (elementID) getElement();
     else if (providedElement) useProvidedElement();
   }, [elementID, providedElement]);
-
 
   let orgid;
   let projid;
@@ -188,8 +188,7 @@ export default function Element(props) {
 
     if (element.name !== null) {
       name = element.name;
-    }
-    else {
+    } else {
       name = element.id;
     }
 
@@ -204,8 +203,7 @@ export default function Element(props) {
             {element.target}
           </span>
         </Link>);
-    }
-    else {
+    } else {
       target = (<span>{element.target}</span>);
     }
 
@@ -220,8 +218,7 @@ export default function Element(props) {
             {element.source}
           </span>
         </Link>);
-    }
-    else {
+    } else {
       source = (<span>{element.source}</span>);
     }
   }

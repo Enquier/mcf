@@ -46,8 +46,7 @@ describe(M.getModuleName(module.filename), () => {
 async function cleanDB() {
   try {
     await db.clear();
-  }
-  catch (error) {
+  } catch (error) {
     M.log.critical('Failed to clean the database.');
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -65,8 +64,7 @@ async function initServerDataModel() {
   try {
     await ServerData.init();
     await ServerData.insertMany({ _id: 'server_data', version: M.version });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.critical('Failed to insert server data document.');
     // Expect no error
     chai.expect(error).to.equal(null);

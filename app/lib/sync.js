@@ -17,7 +17,6 @@
 
 // Node modules
 
-
 // NPM modules
 
 // MBEE modules
@@ -33,7 +32,7 @@ module.exports = {
   syncProject,
   syncBranch,
   syncElement,
-  syncArtifact
+  syncArtifact,
 };
 
 /**
@@ -54,31 +53,30 @@ async function syncOrg(reqUser, apiOrgs, mcfOrgs, authority, connect) {
   const handlePublicOrg = async (apiMcfOrg, mcfOrg) => {
     const users = await User.find({});
     // Set userIDs to the _id of the users array
-    const userIDs = users.map(u => u._id);
+    const userIDs = users.map((u) => u._id);
     // Check if org is NOT null
     if (mcfOrg !== null) {
       // users currently in the database.
       Object.keys(mcfOrg.permissions)
-      .forEach((user) => {
-        if (!userIDs.includes(user)) {
-          delete mcfOrg.permissions.user;
-        }
-      });
+        .forEach((user) => {
+          if (!userIDs.includes(user)) {
+            delete mcfOrg.permissions.user;
+          }
+        });
 
       return OrgController.updateOne({ _id: mcfOrg.id }, { permissions: mcfOrg.permissions });
     }
-    else {
-      // Add each existing user to default org
-      userIDs.forEach((user) => {
-        mcfOrg.permissions[user] = ['read', 'write'];
-      });
 
-      // Save new default organization
-      OrgController.insertMany(mcfOrg).then(response => {
-        M.log.info(`API Public Organization: ${mcfOrg.id} Created`);
-        return response;
-      });
-    }
+    // Add each existing user to default org
+    userIDs.forEach((user) => {
+      mcfOrg.permissions[user] = ['read', 'write'];
+    });
+
+    // Save new default organization
+    OrgController.insertMany(mcfOrg).then((response) => {
+      M.log.info(`API Public Organization: ${mcfOrg.id} Created`);
+      return response;
+    });
   };
 
   // Private Sync Function
@@ -94,25 +92,20 @@ async function syncOrg(reqUser, apiOrgs, mcfOrgs, authority, connect) {
           if (reqUser.admin) {
             return handlePublicOrg(apiMcfOrg, mcfOrg);
           }
-          else {
-            M.log.warn(`Error updating Public Org ${apiOrg.id} in MCF; Public Orgs must be updated by admin`);
-            return null;
-          }
+
+          M.log.warn(`Error updating Public Org ${apiOrg.id} in MCF; Public Orgs must be updated by admin`);
+          return null;
         }
-        else {
-          return OrgController.update(reqUser, apiMcfOrg);
-        }
-      }
-      catch (error) {
+
+        return OrgController.update(reqUser, apiMcfOrg);
+      } catch (error) {
         M.log.warn(`Error updating Org ${apiOrg.id} in MCF`);
       }
-    }
-    else {
+    } else {
       try {
         return APIFormatter.mcfOrg(APIOrgController
-        .update(reqUser, APIFormatter.apiOrg(mcfOrg), connect));
-      }
-      catch (error) {
+          .update(reqUser, APIFormatter.apiOrg(mcfOrg), connect));
+      } catch (error) {
         M.log.warn(`Error updating Org ${mcfOrg.id} in ${APIFormatter.namespace}`);
       }
     }
@@ -121,26 +114,23 @@ async function syncOrg(reqUser, apiOrgs, mcfOrgs, authority, connect) {
   const orgs = [];
   // Syncing Logic
   if (apiOrgs.length >= mcfOrgs.length) {
-    apiOrgs.forEach(apiOrg => {
-      const mcfOrg = mcfOrgs.find(org => org.id === apiOrg.id);
+    apiOrgs.forEach((apiOrg) => {
+      const mcfOrg = mcfOrgs.find((org) => org.id === apiOrg.id);
       if ([mcfOrg].length < 1) {
         // Consider Creation/Deletion Logic
-      }
-      else {
+      } else {
         const updatedOrg = sync(apiOrg, mcfOrg);
         if (updatedOrg !== null) {
           orgs.push(updatedOrg);
         }
       }
     });
-  }
-  else {
-    mcfOrgs.forEach(mcfOrg => {
-      const apiOrg = apiOrgs.find(org => org.id === mcfOrg.id);
+  } else {
+    mcfOrgs.forEach((mcfOrg) => {
+      const apiOrg = apiOrgs.find((org) => org.id === mcfOrg.id);
       if ([apiOrg].length < 1) {
         // Consider Deletion Logic
-      }
-      else {
+      } else {
         const updatedOrg = sync(apiOrg, mcfOrg);
         if (updatedOrg !== null) {
           orgs.push(updatedOrg);

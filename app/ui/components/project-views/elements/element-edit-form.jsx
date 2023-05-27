@@ -17,6 +17,8 @@
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsdoc/require-jsdoc */
+// Other
+import _ from 'lodash';
 
 // React modules
 import React, { useState, useEffect } from 'react';
@@ -30,7 +32,7 @@ import {
   FormGroup,
   Row,
   Label,
-  Input
+  Input,
 } from 'reactstrap';
 
 // MBEE modules
@@ -57,31 +59,31 @@ function ElementEditForm(props) {
     targetNamespace: null,
     documentation: '',
     archived: props.archived,
-    custom: {}
+    custom: {},
   });
   const [customInvalid, setCustomInvalid] = useState('');
   const [error, setError] = useState(null);
 
   const orgID = props.project.org;
   const projID = props.project.id;
-  const branchID = props.branchID;
+  const { branchID } = props;
 
   const textboxProps = [
     { label: 'Last Modified By', disabled: true },
     { label: 'Updated On', disabled: true },
     { label: 'Name', disabled: false },
-    { label: 'Type', disabled: false }
+    { label: 'Type', disabled: false },
   ];
 
   const dropdownProps = [
     { label: 'Source', disabled: true },
     { label: 'Target', disabled: true },
-    { label: 'Parent', disabled: true }
+    { label: 'Parent', disabled: true },
   ];
 
   const textareaProps = [
     { label: 'Documentation' },
-    { label: 'Custom Data' }
+    { label: 'Custom Data' },
   ];
 
   const handleChange = (e) => {
@@ -90,13 +92,12 @@ function ElementEditForm(props) {
       // Change the archived state to opposite value
       setValues((prevState) => ({
         ...prevState,
-        archived: !prevState.archived
+        archived: !prevState.archived,
       }));
-    }
-    else if (name === 'customData') {
+    } else if (name === 'customData') {
       setValues((prevState) => ({
         ...prevState,
-        custom: value
+        custom: value,
       }));
       // Verify if custom data is correct JSON format
       try {
@@ -104,16 +105,14 @@ function ElementEditForm(props) {
           JSON.parse(value);
         }
         setCustomInvalid('');
-      }
-      catch (err) {
+      } catch (err) {
         setCustomInvalid('Custom data must be valid JSON.');
       }
-    }
-    else {
+    } else {
       // Change the state with new value
       setValues((prevState) => ({
         ...prevState,
-        [name]: value
+        [name]: value,
       }));
     }
 
@@ -124,29 +123,32 @@ function ElementEditForm(props) {
     // Get element data
     const options = {
       ids: elementID,
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
     const [err, elements] = await elementService.get(orgID, projID, branchID, options);
 
     if (err) {
       setError(err);
-    }
-    else if (elements) {
+    } else if (elements) {
       const element = elements[0];
       // eslint-disable-next-line max-len
-      const { name, type, documentation, custom, org, project, archived, lastModifiedBy, updatedOn, parent, source,
-        target, targetNamespace, sourceNamespace } = element;
+      const {
+        name, type, documentation, custom, org, project, archived, lastModifiedBy, updatedOn, parent, source,
+        target, targetNamespace, sourceNamespace,
+      } = element;
       const data = {
-        element: element,
-        name: name,
-        type: type,
-        documentation: documentation,
+        element,
+        name,
+        type,
+        documentation,
         custom: JSON.stringify(custom, null, 2),
-        org: org,
-        project: project,
-        archived: archived,
-        lastModifiedBy: lastModifiedBy,
-        updatedOn: updatedOn
+        org,
+        project,
+        archived,
+        lastModifiedBy,
+        updatedOn,
       };
       if (parent) {
         data.parent = parent;
@@ -178,15 +180,17 @@ function ElementEditForm(props) {
 
     // Initialize variables
     // eslint-disable-next-line max-len
-    const { name, type, parent, archived, documentation, custom, source, target, targetNamespace, sourceNamespace } = values;
+    const {
+      name, type, parent, archived, documentation, custom, source, target, targetNamespace, sourceNamespace,
+    } = values;
     const data = {
       id: elementID,
-      name: name,
-      type: type,
-      parent: parent,
-      archived: archived,
-      documentation: documentation,
-      custom: JSON.parse(custom)
+      name,
+      type,
+      parent,
+      archived,
+      documentation,
+      custom: JSON.parse(custom),
     };
 
     // Verify that there is a source and target
@@ -209,8 +213,7 @@ function ElementEditForm(props) {
 
     if (err) {
       setError(err);
-    }
-    else if (elements) {
+    } else if (elements) {
       // This will refresh the updated element in the element tree.
       if (props.refreshFunctions.hasOwnProperty(elementID)) props.refreshFunctions[elementID]();
       // This is used to refresh the element data in the Element.jsx component within the sidepanel.
@@ -229,7 +232,7 @@ function ElementEditForm(props) {
   const parentSelectHandler = (_id) => {
     setValues((prevState) => ({
       ...prevState,
-      parent: _id
+      parent: _id,
     }));
   };
 
@@ -249,20 +252,19 @@ function ElementEditForm(props) {
         sourceNamespace: {
           org: project.org,
           project: project.id,
-          branch: 'master'
-        }
+          branch: 'master',
+        },
       }));
-    }
-    else {
+    } else {
       // Set the sourceNamespace field to null
       setValues((prevState) => ({
         ...prevState,
-        sourceNamespace: null
+        sourceNamespace: null,
       }));
     }
     setValues((prevState) => ({
       ...prevState,
-      source: _id
+      source: _id,
     }));
   };
 
@@ -282,28 +284,27 @@ function ElementEditForm(props) {
         targetNamespace: {
           org: project.org,
           project: project.id,
-          branch: 'master'
-        }
+          branch: 'master',
+        },
       }));
-    }
-    else {
+    } else {
       // Set the targetNamespace field  to null
       setValues((prevState) => ({
         ...prevState,
-        targetNamespace: null
+        targetNamespace: null,
       }));
     }
 
     setValues((prevState) => ({
       ...prevState,
-      target: _id
+      target: _id,
     }));
   };
 
   const handlers = {
     parentSelectHandler,
     sourceSelectHandler,
-    targetSelectHandler
+    targetSelectHandler,
   };
 
   const renderColumnComponents = (componentList, numColumn) => {
@@ -325,7 +326,7 @@ function ElementEditForm(props) {
 
   const renderTextboxes = (numColumn) => {
     // eslint-disable-next-line no-undef
-    const stateNames = textboxProps.map(propObj => toCamel(propObj.label));
+    const stateNames = textboxProps.map((propObj) => _.camelCase(propObj.label));
     const textboxes = textboxProps.map(
       (propObj, index) => (
         <ElementTextbox key={`el-text-${index}`}
@@ -335,14 +336,14 @@ function ElementEditForm(props) {
                         label={propObj.label}
                         placeholder={values[stateNames[index]]}
                         disabled={propObj.disabled}
-                        onChange={handleChange}/>)
+                        onChange={handleChange}/>),
     );
     return renderColumnComponents(textboxes, numColumn);
   };
 
   const renderSelector = (numColumn) => {
     // eslint-disable-next-line no-undef
-    const stateNames = dropdownProps.map(propObj => toCamel(propObj.label));
+    const stateNames = dropdownProps.map((propObj) => _.camelCase(propObj.label));
     const { id, url, project } = props;
     const dropdowns = dropdownProps.map(
       (propObj, index) => (
@@ -363,14 +364,14 @@ function ElementEditForm(props) {
                            parent={stateNames[index] === 'parent'}
                            differentProject={(stateNames[index] === 'parent') ? null : values[`${stateNames[index]}Namespace`]}/>
         </ElementTextbox>
-      )
+      ),
     );
     return renderColumnComponents(dropdowns, numColumn);
   };
 
   const renderTextareas = (numColumn) => {
     // eslint-disable-next-line no-undef
-    const stateNames = textareaProps.map(propObj => toCamel(propObj.label));
+    const stateNames = textareaProps.map((propObj) => _.camelCase(propObj.label));
     const textareas = [];
     textareaProps.forEach((propObj, index) => {
       const value = (stateNames[index] === 'customData') ? 'custom' : 'documentation';
@@ -382,7 +383,7 @@ function ElementEditForm(props) {
                          label={propObj.label}
                          placeholder={values[stateNames[index]]}
                          invalid={customInvalid}
-                         onChange={handleChange}/>
+                         onChange={handleChange}/>,
       );
     });
 
@@ -393,7 +394,6 @@ function ElementEditForm(props) {
   useEffect(() => {
     getElement();
   }, []);
-
 
   const { modal, toggle } = props;
   const { archived } = values;

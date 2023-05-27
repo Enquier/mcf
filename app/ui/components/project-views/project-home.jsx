@@ -20,7 +20,7 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import validators from '../../../../build/json/validators.json';
 
 // MBEE modules
@@ -29,17 +29,17 @@ import SidebarLink from '../general/sidebar/sidebar-link.jsx';
 import SidebarHeader from '../general/sidebar/sidebar-header.jsx';
 import InformationPage from '../shared-views/information-page.jsx';
 import MembersPage from '../shared-views/members/members-page.jsx';
-import ProjectElements from '../project-views/elements/project-elements.jsx';
-import ProjectArtifacts from '../project-views/artifacts/project-artifacts.jsx';
-import Search from '../project-views/search/search.jsx';
-import BranchesTags from '../project-views/branches/branches-tags.jsx';
+import ProjectElements from './elements/project-elements.jsx';
+import ProjectArtifacts from './artifacts/project-artifacts.jsx';
+import Search from './search/search.jsx';
+import BranchesTags from './branches/branches-tags.jsx';
 import { useApiClient } from '../context/ApiClientProvider';
 import { ElementProvider } from '../context/ElementProvider.js';
 
 /* eslint-enable no-unused-vars */
 
 function ProjectHome(props) {
-  const { projectService } = useApiClient();
+  const { authService, projectService } = useApiClient();
   const [project, setProject] = useState(null);
   const [admin, setAdmin] = useState(false);
   const [permissions, setPermissions] = useState(null);
@@ -50,17 +50,18 @@ function ProjectHome(props) {
     const projId = props.match.params.projectid;
 
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI(async (err, user) => {
+    authService.checkAuth(async (err, user) => {
       // Verify if error returned
       if (err) {
         // Set error state
         setError(err.responseText);
-      }
-      else {
+      } else {
         // Set options for request
         const options = {
           ids: projId,
-          includeArchived: true
+          params: {
+            includeArchived: true,
+          },
         };
 
         // Request project data
@@ -69,10 +70,9 @@ function ProjectHome(props) {
         // Set the state
         if (err2) {
           setError(err2);
-        }
-        else if (projects) {
+        } else if (projects) {
           const projectData = projects[0];
-          const username = user.username;
+          const { username } = user;
           const perm = projectData.permissions[username];
 
           // Set state of admin status and user permissions
@@ -83,8 +83,7 @@ function ProjectHome(props) {
           if (projectData.archived && !user.admin && (perm !== 'admin')) {
             setProject(null);
             setError(`Project [${projectData.id}] not found.`);
-          }
-          else {
+          } else {
             setProject(projectData);
           }
         }
@@ -96,7 +95,6 @@ function ProjectHome(props) {
   useEffect(() => {
     refresh();
   }, [props.match.params]);
-
 
   // Define branch, defaults to master
   let branch = 'master';
@@ -208,7 +206,7 @@ function ProjectHome(props) {
         (!project)
           ? <div id='view' className="loading"> {error || 'Loading your project...'} </div>
           : (
-            <Switch>
+            <Routes>
               { /* Route to element page */ }
               <Route path={`${props.match.url}/branches/:branchid/elements`}
                      render={ (renderProps) => <ElementProvider {...renderProps}>
@@ -247,7 +245,7 @@ function ProjectHome(props) {
                                                           permissions={permissions}
                                                           project={project}
                                                           refresh={refresh}/> } />
-            </Switch>
+            </Routes>
           )
       }
     </div>

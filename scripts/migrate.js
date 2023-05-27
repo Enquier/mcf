@@ -29,14 +29,14 @@ const db = M.require('db');
 function migrate(args) {
   // Connect to the database
   db.connect()
-  .then(() => libMigrate.migrate(args))
-  .then(() => db.disconnect())
-  .then(() => process.exit(0))
-  .catch((error) => {
-    M.log.critical(error);
-    db.disconnect();
-    process.exit(1);
-  });
+    .then(() => libMigrate.migrate(args))
+    .then(() => db.disconnect())
+    .then(() => process.exit(0))
+    .catch((error) => {
+      M.log.critical(error);
+      db.disconnect();
+      process.exit(1);
+    });
 }
 
 module.exports = migrate;

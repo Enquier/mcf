@@ -27,12 +27,13 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
 import validators from '../../../../../build/json/validators.json';
 import { useApiClient } from '../../context/ApiClientProvider';
+
 const uuidv4 = require('uuid/v4');
 
 /* eslint-enable no-unused-vars */
@@ -45,7 +46,7 @@ function CreateBranch(props) {
     id: uuidv4(),
     source: 'master',
     tag: false,
-    custom: JSON.stringify({}, null, 2)
+    custom: JSON.stringify({}, null, 2),
   });
   const [error, setError] = useState(null);
 
@@ -55,7 +56,7 @@ function CreateBranch(props) {
   const handleChange = (e) => {
     setValues((prevState) => {
       const newState = {
-        ...prevState
+        ...prevState,
       };
       // Change the state to the new value
       if (e.target.name === 'tag') newState.tag = !prevState.tag;
@@ -76,7 +77,7 @@ function CreateBranch(props) {
     // Data to create the branch
     const data = {
       ...values,
-      custom: JSON.parse(values.custom)
+      custom: JSON.parse(values.custom),
     };
 
     // Send request to create the branch
@@ -84,8 +85,7 @@ function CreateBranch(props) {
 
     if (err) {
       setError(err);
-    }
-    else if (result) {
+    } else if (result) {
       props.refresh();
       props.toggle();
     }
@@ -95,12 +95,11 @@ function CreateBranch(props) {
   useEffect(() => {
     // Get branch data
     branchService.get(orgID, projID)
-    .then(([err, data]) => {
-      if (err) setError(err);
-      else if (data) setBranches(data);
-    });
+      .then(([err, data]) => {
+        if (err) setError(err);
+        else if (data) setBranches(data);
+      });
   }, []);
-
 
   // Initialize validators
   let idInvalid = false;
@@ -129,8 +128,7 @@ function CreateBranch(props) {
   // Verify custom data is valid
   try {
     JSON.parse(values.custom);
-  }
-  catch (err) {
+  } catch (err) {
     // Set invalid fields
     customInvalid = true;
   }

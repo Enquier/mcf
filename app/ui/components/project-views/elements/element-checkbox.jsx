@@ -24,12 +24,14 @@ import {
   FormGroup,
   Label,
   Input,
-  Col
+  Col,
 } from 'reactstrap';
 
 /* eslint-enable no-unused-vars */
 function ElementCheckbox(props) {
-  const { name, label, id, checked, onChange } = props;
+  const {
+    name, label, id, checked, onChange,
+  } = props;
   return (
     <FormGroup check style={{ paddingLeft: 35 }}>
       <Label check for={id} style={{ fontSize: 13, margin: 0 }}>

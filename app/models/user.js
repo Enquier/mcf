@@ -81,93 +81,92 @@ const UserSchema = new db.Schema({
     required: [true, 'Username is required.'],
     validate: [{
       validator: validators.user._id.reserved,
-      message: props => 'Username cannot include the following words: '
-      + `[${validators.reserved}].`
+      message: (props) => 'Username cannot include the following words: '
+      + `[${validators.reserved}].`,
     }, {
       validator: validators.user._id.match,
-      message: props => `Invalid username [${props.value}].`
+      message: (props) => `Invalid username [${props.value}].`,
     }, {
       validator: validators.user._id.maxLength,
-      message: props => `Username length [${props.value.length}] must not be`
-        + ` more than ${validators.user.usernameLength} characters.`
+      message: (props) => `Username length [${props.value.length}] must not be`
+        + ` more than ${validators.user.usernameLength} characters.`,
     }, {
       validator: validators.user._id.minLength,
-      message: props => `Username length [${props.value.length}] must not be`
-        + ' less than 3 characters.'
-    }]
+      message: (props) => `Username length [${props.value.length}] must not be`
+        + ' less than 3 characters.',
+    }],
   },
   password: {
     type: 'String',
-    required: false
+    required: false,
   },
   email: {
     type: 'String',
     default: '',
     validate: [{
-      validator: function(v) {
+      validator(v) {
         if (typeof validators.user.email === 'string') {
           // If the email is invalid and provided, reject
           return !(!RegExp(validators.user.email).test(v) && v);
         }
-        else {
-          return !(!validators.user.email(v) && v);
-        }
+
+        return !(!validators.user.email(v) && v);
       },
-      message: props => `Invalid email [${props.value}].`
-    }]
+      message: (props) => `Invalid email [${props.value}].`,
+    }],
   },
   fname: {
     type: 'String',
     default: '',
     validate: [{
       validator: validators.user.fname,
-      message: props => `Invalid first name [${props.value}].`
-    }]
+      message: (props) => `Invalid first name [${props.value}].`,
+    }],
   },
   preferredName: {
     type: 'String',
     default: '',
     validate: [{
       validator: validators.user.preferredName,
-      message: props => `Invalid preferred name [${props.value}].`
-    }]
+      message: (props) => `Invalid preferred name [${props.value}].`,
+    }],
   },
   lname: {
     type: 'String',
     default: '',
     validate: [{
       validator: validators.user.lname,
-      message: props => `Invalid last name [${props.value}].`
-    }]
+      message: (props) => `Invalid last name [${props.value}].`,
+    }],
   },
   admin: {
     type: 'Boolean',
-    default: false
+    default: false,
   },
   provider: {
     type: 'String',
     validate: [{
       validator: validators.user.provider,
-      message: props => `Invalid provider [${props.value}].`
+      message: (props) => `Invalid provider [${props.value}].`,
     }],
     default: 'local',
-    immutable: true
+    immutable: true,
   },
   failedlogins: {
     type: 'Object',
-    default: []
+    default: [],
   },
   oldPasswords: {
-    type: 'Object'
+    type: 'Object',
   },
   changePassword: {
     type: 'Boolean',
-    default: true
+    default: true,
   },
   integration_keys: {
     type: 'Object',
-    default: []
-  }
+    default: [],
+  },
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
@@ -182,7 +181,7 @@ UserSchema.plugin(extensions);
  * @param {string} pass - The password to be compared with the stored password.
  * @memberOf UserSchema
  */
-UserSchema.static('verifyPassword', function(user, pass) {
+UserSchema.static('verifyPassword', (user, pass) => {
   // Hash the input plaintext password
   const derivedKey = crypto.pbkdf2Sync(pass, user._id.toString(), 1000, 32, 'sha256');
   // Compare the hashed input password with the stored hashed password
@@ -194,23 +193,19 @@ UserSchema.static('verifyPassword', function(user, pass) {
  * @description Returns user fields that can be changed
  * @memberOf UserSchema
  */
-UserSchema.static('getValidUpdateFields', function() {
-  return ['fname', 'preferredName', 'lname', 'email', 'custom', 'archived', 'admin'];
-});
+UserSchema.static('getValidUpdateFields', () => ['fname', 'preferredName', 'lname', 'email', 'custom', 'archived', 'admin']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf UserSchema
  */
-UserSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy'];
-});
+UserSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy']);
 
 /**
  * @description Validates and hashes a password
  * @memberOf UserSchema
  */
-UserSchema.static('hashPassword', function(obj) {
+UserSchema.static('hashPassword', (obj) => {
   // Require auth module
   const AuthController = M.require('lib.auth');
 
@@ -238,7 +233,7 @@ UserSchema.static('hashPassword', function(obj) {
  * @param {string} pass - The new password to be compared with the old passwords.
  * @memberOf UserSchema
  */
-UserSchema.static('checkOldPasswords', function(user, pass) {
+UserSchema.static('checkOldPasswords', (user, pass) => {
   // Check that this feature is enabled in the config file
   // This check should only be run on users stored locally
   if (M.config.auth.hasOwnProperty('oldPasswords')
@@ -275,7 +270,7 @@ UserSchema.static('checkOldPasswords', function(user, pass) {
 UserSchema.index({
   fname: 'text',
   preferredName: 'text',
-  lname: 'text'
+  lname: 'text',
 });
 
 /* -------------------------( User Schema Export )--------------------------- */

@@ -31,7 +31,7 @@ const APIController = M.require('controllers.api-controller');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -48,8 +48,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -62,8 +61,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -108,7 +106,7 @@ function noReqUser(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method);
 
@@ -146,7 +144,7 @@ function invalidOptions(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
     req.query = { invalid: 'invalid option' };
@@ -186,7 +184,7 @@ function conflictingIDs(endpoint) {
   const params = { orgid: 'testorg01' };
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -219,19 +217,19 @@ function conflictingIDs(endpoint) {
  */
 function notFound(endpoint) {
   // Get an unused org id
-  const id = testData.orgs[3].id;
+  const { id } = testData.orgs[3];
   // Parse the method
   const method = testUtils.parseMethod(endpoint);
   // Body must be an array of ids for get and delete; key-value pair for anything else
   const body = (endpoint === 'deleteOrgs' || endpoint === 'getOrgs')
-    ? [id] : { id: id };
+    ? [id] : { id };
   // Add in a params field for singular org endpoints
   let params = {};
   if (!endpoint.includes('Orgs') && endpoint.includes('Org')) {
     params = { orgid: id };
   }
 
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 

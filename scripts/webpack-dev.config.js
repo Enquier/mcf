@@ -16,6 +16,7 @@
 
 const webpack = require('webpack');
 const path = require('path');
+
 const rootPath = path.join(path.dirname(__dirname).split(path.sep).join('/'));
 
 module.exports = {
@@ -26,34 +27,34 @@ module.exports = {
     'org-app': path.join(rootPath, 'app', 'ui', 'components', 'apps', 'org-app.jsx'),
     'project-app': path.join(rootPath, 'app', 'ui', 'components', 'apps', 'project-app.jsx'),
     'profile-app': path.join(rootPath, 'app', 'ui', 'components', 'apps', 'profile-app.jsx'),
-    'admin-console-app': path.join(rootPath, 'app', 'ui', 'components', 'apps', 'admin-console-app.jsx')
+    'admin-console-app': path.join(rootPath, 'app', 'ui', 'components', 'apps', 'admin-console-app.jsx'),
   },
   watch: true,
   output: {
     path: path.join(rootPath, 'build', 'public', 'js'),
-    filename: '[name].js'
+    filename: '[name].js',
   },
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         loader: ['babel-loader'],
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1
-    })
-  ]
+      maxChunks: 1,
+    }),
+  ],
   // devtool: 'source-map'
 };

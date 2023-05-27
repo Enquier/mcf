@@ -26,7 +26,7 @@ module.exports = {
   update,
   createOrReplace,
   remove,
-  search
+  search,
 };
 
 // Disable eslint rule for logic in nested promises
@@ -173,16 +173,25 @@ async function find(requestingUser, organizationID, projectID, branchID, element
     }
 
     // Find the organization and validate that it was found and not archived (unless specified)
-    const organization = await helper.findAndValidate(Org, orgID,
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const organization = await helper.findAndValidate(
+      Org,
+      orgID,
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the project and validate that it was found and not archived (unless specified)
-    const project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const project = await helper.findAndValidate(
+      Project,
+      utils.createID(orgID, projID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the branch and validate that it was found and not archived (unless specified)
-    const branch = await helper.findAndValidate(Branch, utils.createID(orgID, projID, branID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const branch = await helper.findAndValidate(
+      Branch,
+      utils.createID(orgID, projID, branID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Permissions check
     permissions.readElement(reqUser, organization, project, branch);
@@ -192,18 +201,15 @@ async function find(requestingUser, organizationID, projectID, branchID, element
     // Check the type of the elements parameter
     if (Array.isArray(saniElements)) {
       // An array of element ids, find all
-      elementsToFind = saniElements.map(e => utils.createID(orgID, projID, branID, e));
-    }
-    else if (typeof saniElements === 'string') {
+      elementsToFind = saniElements.map((e) => utils.createID(orgID, projID, branID, e));
+    } else if (typeof saniElements === 'string') {
       // A single element id
       elementsToFind = [utils.createID(orgID, projID, branID, saniElements)];
-    }
-    else if (((typeof saniElements === 'object' && saniElements !== null)
+    } else if (((typeof saniElements === 'object' && saniElements !== null)
       || saniElements === undefined)) {
       // Find all elements in the branch
       elementsToFind = [];
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for finding elements.', 'warn');
     }
@@ -214,8 +220,13 @@ async function find(requestingUser, organizationID, projectID, branchID, element
     }
     // Otherwise if a specific depth of the subtree is specified, find those ids
     else if (validatedOptions.depth) {
-      elementsToFind = await findElementTree(orgID, projID, branID, elementsToFind,
-        validatedOptions.depth);
+      elementsToFind = await findElementTree(
+        orgID,
+        projID,
+        branID,
+        elementsToFind,
+        validatedOptions.depth,
+      );
     }
 
     if (validatedOptions.rootpath) {
@@ -245,14 +256,17 @@ async function find(requestingUser, organizationID, projectID, branchID, element
       // If options.limit is defined an is less that 50k or count is less than 50k, find normally
       if ((validatedOptions.limit > 0 && validatedOptions.limit < 50000) || elementCount < 50000) {
         // Find the elements
-        foundElements = await Element.find(searchQuery, validatedOptions.fieldsString,
-          { skip: validatedOptions.skip,
+        foundElements = await Element.find(
+          searchQuery,
+          validatedOptions.fieldsString,
+          {
+            skip: validatedOptions.skip,
             limit: validatedOptions.limit,
             sort: validatedOptions.sort,
-            populate: validatedOptions.populateString
-          });
-      }
-      else {
+            populate: validatedOptions.populateString,
+          },
+        );
+      } else {
         // Define batchLimit, batchSkip and numLoops
         let batchLimit = 50000;
         let batchSkip = 0;
@@ -261,8 +275,7 @@ async function find(requestingUser, organizationID, projectID, branchID, element
         // Get number of loops = the smallest value divided by 50K
         if (validatedOptions.limit && validatedOptions.limit !== 0) {
           numLoops = (elementCount && validatedOptions.limit) / batchLimit;
-        }
-        else {
+        } else {
           numLoops = elementCount / batchLimit;
         }
 
@@ -278,20 +291,23 @@ async function find(requestingUser, organizationID, projectID, branchID, element
 
           // Add find operation to array of promises
           promises.push(
-            Element.find(searchQuery, validatedOptions.fieldsString,
-              { skip: batchSkip,
+            Element.find(
+              searchQuery,
+              validatedOptions.fieldsString,
+              {
+                skip: batchSkip,
                 limit: batchLimit,
                 sort: validatedOptions.sort,
-                populate: validatedOptions.populateString
-              })
-            .then((elems) => {
-              foundElements = foundElements.concat(elems);
-            })
+                populate: validatedOptions.populateString,
+              },
+            )
+              .then((elems) => {
+                foundElements = foundElements.concat(elems);
+              }),
           );
         }
       }
-    }
-    else {
+    } else {
       // Find elements in batches
       for (let i = 0; i < elementsToFind.length / 50000; i++) {
         // Split elementIDs list into batches of 50000
@@ -299,15 +315,19 @@ async function find(requestingUser, organizationID, projectID, branchID, element
 
         // Add find operation to array of promises
         promises.push(
-          Element.find(searchQuery, validatedOptions.fieldsString,
-            { skip: validatedOptions.skip,
+          Element.find(
+            searchQuery,
+            validatedOptions.fieldsString,
+            {
+              skip: validatedOptions.skip,
               limit: validatedOptions.limit,
               sort: validatedOptions.sort,
-              populate: validatedOptions.populateString
-            })
-          .then((elems) => {
-            foundElements = foundElements.concat(elems);
-          })
+              populate: validatedOptions.populateString,
+            },
+          )
+            .then((elems) => {
+              foundElements = foundElements.concat(elems);
+            }),
         );
       }
     }
@@ -317,8 +337,7 @@ async function find(requestingUser, organizationID, projectID, branchID, element
 
     // Return the found elements
     return foundElements;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -403,12 +422,10 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
     if (Array.isArray(saniElements)) {
       // elements is an array, create many elements
       elementsToCreate = saniElements;
-    }
-    else if (typeof saniElements === 'object') {
+    } else if (typeof saniElements === 'object') {
       // elements is an object, create a single element
       elementsToCreate = [saniElements];
-    }
-    else {
+    } else {
       // elements is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating elements.', 'warn');
     }
@@ -466,18 +483,14 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
     }
 
     // Find any referenced artifacts
-    const artifacts = await Artifact.find(
-      { _id: { $in: Array.from(artIDSet) } }, null
-    );
+    const artifacts = await Artifact.find({ _id: { $in: Array.from(artIDSet) } }, null);
 
     // Verify artifacts found
     if (artifacts.length !== artIDSet.size) {
-      const artNotFound = Array.from(artIDSet).filter(a => !artifacts.includes(a));
+      const artNotFound = Array.from(artIDSet).filter((a) => !artifacts.includes(a));
 
-      throw new M.DataFormatError(
-        'The following artifact references were not found: '
-        + `[${artNotFound.map((a) => utils.parseID(a).pop())}]`, 'warn'
-      );
+      throw new M.DataFormatError('The following artifact references were not found: '
+        + `[${artNotFound.map((a) => utils.parseID(a).pop())}]`, 'warn');
     }
 
     // Permissions check
@@ -503,15 +516,15 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
       const tmpQuery = { _id: { $in: arrIDs.slice(i * 50000, i * 50000 + 50000) } };
       // Attempt to find any elements with matching _id
       promises.push(Element.find(tmpQuery, '_id')
-      .then((foundElements) => {
-        if (foundElements.length > 0) {
+        .then((foundElements) => {
+          if (foundElements.length > 0) {
           // Get array of the foundElements's ids
-          const foundElementIDs = foundElements.map(e => utils.parseID(e._id).pop());
-          // There are one or more elements with conflicting IDs
-          throw new M.OperationError('Elements with the following IDs already exist'
+            const foundElementIDs = foundElements.map((e) => utils.parseID(e._id).pop());
+            // There are one or more elements with conflicting IDs
+            throw new M.OperationError('Elements with the following IDs already exist'
             + ` [${foundElementIDs.toString()}].`, 'warn');
-        }
-      }));
+          }
+        }));
     }
 
     await Promise.all(promises);
@@ -550,8 +563,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
           const parentObj = jmi2[element.$parent];
           element.parent = parentObj._id;
           delete element.$parent;
-        }
-        else {
+        } else {
           // Add elements parent to list of elements to search for in DB
           if (!elementsToFind.includes(element.$parent)) {
             elementsToFind.push(element.$parent);
@@ -566,8 +578,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
         if (jmi2.hasOwnProperty(element.$source)) {
           element.source = element.$source;
           delete element.$source;
-        }
-        else {
+        } else {
           // Add elements source to list of elements to search for in DB
           if (!elementsToFind.includes(element.$source)) {
             elementsToFind.push(element.$source);
@@ -582,8 +593,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
         if (jmi2.hasOwnProperty(element.$target)) {
           element.target = element.$target;
           delete element.$target;
-        }
-        else {
+        } else {
           // Add elements target to list of elements to search for in DB
           if (!elementsToFind.includes(element.$target)) {
             elementsToFind.push(element.$target);
@@ -610,8 +620,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
         if (extraElementsJMI2[element.$parent] && extraElementsJMI2[element.$parent]._id) {
           element.parent = extraElementsJMI2[element.$parent]._id;
           delete element.$parent;
-        }
-        else {
+        } else {
           // Parent not found in db, throw an error
           throw new M.NotFoundError(`Parent element [${utils.parseID(element.parent).pop()}] `
             + 'not found.', 'warn');
@@ -623,8 +632,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
         if (extraElementsJMI2[element.$source] && extraElementsJMI2[element.$source]._id) {
           element.source = extraElementsJMI2[element.$source]._id;
           delete element.$source;
-        }
-        else {
+        } else {
           // Source not found in db, throw an error
           throw new M.NotFoundError(`Source element [${utils.parseID(element.source).pop()}] `
             + 'not found.', 'warn');
@@ -636,8 +644,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
         if (extraElementsJMI2[element.$target] && extraElementsJMI2[element.$target]._id) {
           element.target = extraElementsJMI2[element.$target]._id;
           delete element.$target;
-        }
-        else {
+        } else {
           // Target not found in db, throw an error
           throw new M.NotFoundError(`Target element [${utils.parseID(element.target).pop()}] `
             + 'not found.', 'warn');
@@ -650,18 +657,21 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
     M.log.debug('create(): After insertMany()');
 
     promises = [];
-    const createdIDs = createdElements.map(e => e._id);
+    const createdIDs = createdElements.map((e) => e._id);
     // Find elements in batches
     for (let i = 0; i < createdIDs.length / 50000; i++) {
       // Split elementIDs list into batches of 50000
       const tmpQuery = { _id: { $in: createdIDs.slice(i * 50000, i * 50000 + 50000) } };
 
       // Add find operation to promises array
-      promises.push(Element.find(tmpQuery, validatedOptions.fieldsString,
-        { populate: validatedOptions.populateString })
-      .then((_foundElements) => {
-        populatedElements = populatedElements.concat(_foundElements);
-      }));
+      promises.push(Element.find(
+        tmpQuery,
+        validatedOptions.fieldsString,
+        { populate: validatedOptions.populateString },
+      )
+        .then((_foundElements) => {
+          populatedElements = populatedElements.concat(_foundElements);
+        }));
     }
 
     // Return when all elements have been found
@@ -673,8 +683,7 @@ async function create(requestingUser, organizationID, projectID, branchID, eleme
     EventEmitter.emit('elements-created', populatedElements);
 
     return populatedElements;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -764,8 +773,10 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
     const project = await helper.findAndValidate(Project, utils.createID(orgID, projID));
 
     // Find the branch and validate that it was found and not archived
-    const foundBranch = await helper.findAndValidate(Branch,
-      utils.createID(orgID, projID, branID));
+    const foundBranch = await helper.findAndValidate(
+      Branch,
+      utils.createID(orgID, projID, branID),
+    );
 
     // Permissions check
     permissions.updateElement(reqUser, organization, project, foundBranch);
@@ -796,8 +807,7 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
           }
         }));
       });
-    }
-    else if (typeof saniElements === 'object') {
+    } else if (typeof saniElements === 'object') {
       // elements is an object, update a single element
       elementsToUpdate = [saniElements];
       // If updating parent, ensure it won't cause a circular reference
@@ -808,16 +818,14 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
           if (saniElements.parent !== null) {
             throw new M.PermissionError('Cannot change root model parent.', 'warn');
           }
-        }
-        else {
+        } else {
           // Turn parent ID into a name-spaced ID
           saniElements.parent = utils.createID(orgID, projID, branID, saniElements.parent);
           // Find if a circular reference exists
           await moveElementCheck(orgID, projID, branID, saniElements);
         }
       }
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating elements.', 'warn');
     }
     await Promise.all(promises);
@@ -835,8 +843,7 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
       if (duplicateCheck[elem.id]) {
         throw new M.DataFormatError('Multiple objects with the same ID '
           + `[${elem.id}] exist in the update.`, 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[elem.id] = elem.id;
       }
 
@@ -860,18 +867,14 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
     });
 
     // Find any referenced artifacts
-    const artifacts = await Artifact.find(
-      { _id: { $in: Array.from(artIDSet) } }, null
-    );
+    const artifacts = await Artifact.find({ _id: { $in: Array.from(artIDSet) } }, null);
 
     // Verify artifacts found
     if (artifacts.length !== artIDSet.size) {
-      const artNotFound = Array.from(artIDSet).filter(a => !artifacts.includes(a));
+      const artNotFound = Array.from(artIDSet).filter((a) => !artifacts.includes(a));
 
-      throw new M.DataFormatError(
-        'The following artifact references were not found: '
-        + `[${artNotFound.map((a) => utils.parseID(a).pop())}]`, 'warn'
-      );
+      throw new M.DataFormatError('The following artifact references were not found: '
+        + `[${artNotFound.map((a) => utils.parseID(a).pop())}]`, 'warn');
     }
 
     const referencedProjects2 = await Project.find({ _id: { $in: projectRefs } }, null);
@@ -896,9 +899,9 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
 
       // Add find operation to promises array
       promises2.push(Element.find(searchQuery, null)
-      .then((_foundElements) => {
-        foundElements = foundElements.concat(_foundElements);
-      }));
+        .then((_foundElements) => {
+          foundElements = foundElements.concat(_foundElements);
+        }));
     }
 
     // Continue when all elements have been found
@@ -906,12 +909,10 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
 
     // Verify the same number of elements are found as desired
     if (foundElements.length !== arrIDs.length) {
-      const foundIDs = foundElements.map(e => e._id);
-      const notFound = arrIDs.filter(e => !foundIDs.includes(e))
-      .map(e => utils.parseID(e).pop());
-      throw new M.NotFoundError(
-        `The following elements were not found: [${notFound.toString()}].`, 'warn'
-      );
+      const foundIDs = foundElements.map((e) => e._id);
+      const notFound = arrIDs.filter((e) => !foundIDs.includes(e))
+        .map((e) => utils.parseID(e).pop());
+      throw new M.NotFoundError(`The following elements were not found: [${notFound.toString()}].`, 'warn');
     }
 
     const foundSourceTarget = await Element.find(sourceTargetQuery, null);
@@ -961,27 +962,20 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
           if (typeof validators.element[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.element[key]).test(updateElement[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateElement[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateElement[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.element[key] === 'function') {
             if (!validators.element[key](updateElement[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateElement[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateElement[key]}]`, 'warn');
             }
-          }
-          else if (Object.keys(validators.element[key])
-          .every(subkey => typeof validators.element[key][subkey] === 'function')) {
+          } else if (Object.keys(validators.element[key])
+            .every((subkey) => typeof validators.element[key][subkey] === 'function')) {
             const subkeys = Object.keys(validators.element[key]);
             subkeys.forEach((subkey) => {
               if (!validators.element[key][subkey](updateElement[key])) {
-                throw new M.DataFormatError(
-                  `Invalid ${key}: [${updateElement[key]}]`, 'warn'
-                );
+                throw new M.DataFormatError(`Invalid ${key}: [${updateElement[key]}]`, 'warn');
               }
             });
           }
@@ -1025,9 +1019,7 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
           const elemID = utils.parseID(element._id).pop();
           // Error Check: ensure user cannot archive root elements
           if (Element.getValidRootElements().includes(elemID) && updateElement[key]) {
-            throw new M.OperationError(
-              `User cannot archive the root element: ${elemID}.`, 'warn'
-            );
+            throw new M.OperationError(`User cannot archive the root element: ${elemID}.`, 'warn');
           }
 
           // If the element is being archived
@@ -1051,8 +1043,8 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
       bulkArray.push({
         updateOne: {
           filter: { _id: element._id },
-          update: updateElement
-        }
+          update: updateElement,
+        },
       });
     });
 
@@ -1066,11 +1058,14 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
       searchQuery._id = { $in: arrIDs.slice(i * 50000, i * 50000 + 50000) };
 
       // Add find operation to promises array
-      promises3.push(Element.find(searchQuery, validatedOptions.fieldsString,
-        { populate: validatedOptions.populateString })
-      .then((_foundElements) => {
-        foundUpdatedElements = foundUpdatedElements.concat(_foundElements);
-      }));
+      promises3.push(Element.find(
+        searchQuery,
+        validatedOptions.fieldsString,
+        { populate: validatedOptions.populateString },
+      )
+        .then((_foundElements) => {
+          foundUpdatedElements = foundUpdatedElements.concat(_foundElements);
+        }));
     }
 
     // Return when all elements have been found
@@ -1079,8 +1074,7 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
     // Emit the event elements-updated
     EventEmitter.emit('elements-updated', foundUpdatedElements);
     return foundUpdatedElements;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1136,8 +1130,14 @@ async function update(requestingUser, organizationID, projectID, branchID, eleme
  *   M.log.error(error);
  * });
  */
-async function createOrReplace(requestingUser, organizationID, projectID,
-  branchID, elements, options) {
+async function createOrReplace(
+  requestingUser,
+  organizationID,
+  projectID,
+  branchID,
+  elements,
+  options,
+) {
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options, organizationID, projectID, branchID);
@@ -1176,12 +1176,10 @@ async function createOrReplace(requestingUser, organizationID, projectID,
     if (Array.isArray(saniElements)) {
       // elements is an array, create/replace many elements
       elementsToLookup = saniElements;
-    }
-    else if (typeof saniElements === 'object') {
+    } else if (typeof saniElements === 'object') {
       // elements is an object, create/replace a single element
       elementsToLookup = [saniElements];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for creating/replacing'
         + ' elements.', 'warn');
     }
@@ -1195,8 +1193,7 @@ async function createOrReplace(requestingUser, organizationID, projectID,
         // Ensure each element has an id and that its a string
         assert.ok(elem.hasOwnProperty('id'), `Element #${index} does not have an id.`);
         assert.ok(typeof elem.id === 'string', `Element #${index}'s id is not a string.`);
-      }
-      catch (err) {
+      } catch (err) {
         throw new M.DataFormatError(err.message, 'warn');
       }
       const tmpID = utils.createID(orgID, projID, branID, elem.id);
@@ -1204,8 +1201,7 @@ async function createOrReplace(requestingUser, organizationID, projectID,
       if (duplicateCheck[tmpID]) {
         throw new M.DataFormatError('Multiple objects with the same ID '
           + `[${elem.id}] exist in the update.`, 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[tmpID] = tmpID;
       }
       arrIDs.push(tmpID);
@@ -1216,28 +1212,26 @@ async function createOrReplace(requestingUser, organizationID, projectID,
     const searchQuery = { branch: utils.createID(orgID, projID, branID) };
 
     // Find elements in batches
-        for (let i = 0; i < arrIDs.length / 50000; i++) {
+    for (let i = 0; i < arrIDs.length / 50000; i++) {
       // Split arrIDs list into batches of 50000
       searchQuery._id = { $in: arrIDs.slice(i * 50000, i * 50000 + 50000) };
 
       // Add find operation to promises array
       promises.push(Element.find(searchQuery, null)
-      .then((_foundElements) => {
-        foundElements = foundElements.concat(_foundElements);
-      }));
+        .then((_foundElements) => {
+          foundElements = foundElements.concat(_foundElements);
+        }));
     }
 
     // Return when all elements have been found
     await Promise.all(promises);
 
-    const foundElementIDs = foundElements.map(e => e._id);
+    const foundElementIDs = foundElements.map((e) => e._id);
 
     // Error Check: ensure user cannot replace root element
     foundElementIDs.forEach((id) => {
       if (Element.getValidRootElements().includes(utils.parseID(id).pop())) {
-        throw new M.OperationError(
-          `User cannot replace root element: ${utils.parseID(id).pop()}.`, 'warn'
-        );
+        throw new M.OperationError(`User cannot replace root element: ${utils.parseID(id).pop()}.`, 'warn');
       }
     });
 
@@ -1263,12 +1257,15 @@ async function createOrReplace(requestingUser, organizationID, projectID,
     }
 
     // Write contents to temporary file
-    await new Promise(function(res, rej) {
-      fs.writeFile(path.join(M.root, 'data', orgID, projID, branID, `PUT-backup-elements-${ts}.json`),
-        JSON.stringify(foundElements), function(err) {
+    await new Promise((res, rej) => {
+      fs.writeFile(
+        path.join(M.root, 'data', orgID, projID, branID, `PUT-backup-elements-${ts}.json`),
+        JSON.stringify(foundElements),
+        (err) => {
           if (err) rej(err);
           else res();
-        });
+        },
+      );
     });
 
     // Delete elements from database
@@ -1277,25 +1274,28 @@ async function createOrReplace(requestingUser, organizationID, projectID,
     // Emit the event elements-deleted
     EventEmitter.emit('elements-deleted', foundElements);
 
-
     // Try block after elements have been deleted but before being replaced
     // If element creation fails, the old elements will be restored
     try {
       // Create new elements
       createdElements = await create(reqUser, orgID, projID, branID, elementsToLookup, options);
-    }
-    catch (error) {
+    } catch (error) {
       throw await new Promise(async (res) => {
         // Reinsert original data
         try {
           await Element.insertMany(foundElements);
-          fs.unlinkSync(path.join(M.root, 'data', orgID, projID, branID,
-            `PUT-backup-elements-${ts}.json`));
+          fs.unlinkSync(path.join(
+            M.root,
+            'data',
+            orgID,
+            projID,
+            branID,
+            `PUT-backup-elements-${ts}.json`,
+          ));
 
           // Restoration succeeded; pass the original error
           res(error);
-        }
-        catch (restoreErr) {
+        } catch (restoreErr) {
           // Pass the new error that occurred while attempting to restore elements
           M.log.error('Problem occurred while attempting to restore deleted elements after '
             + 'unsuccessful replace operation');
@@ -1337,8 +1337,7 @@ async function createOrReplace(requestingUser, organizationID, projectID,
       fs.rmdirSync(path.join(M.root, 'data', orgID));
     }
     return createdElements;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1386,13 +1385,11 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
     // Check the type of the elements parameter
     if (Array.isArray(saniElements) && saniElements.length !== 0) {
       // An array of element ids, remove all
-      elementsToFind = saniElements.map(e => utils.createID(orgID, projID, branID, e));
-    }
-    else if (typeof saniElements === 'string') {
+      elementsToFind = saniElements.map((e) => utils.createID(orgID, projID, branID, e));
+    } else if (typeof saniElements === 'string') {
       // A single element id, remove one
       elementsToFind = [utils.createID(orgID, projID, branID, saniElements)];
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing elements.', 'warn');
     }
@@ -1416,14 +1413,14 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
 
     // Find the elements to delete
     const foundElements = await Element.find({ _id: { $in: elementsToFind } }, null);
-    const foundElementIDs = foundElements.map(e => e._id);
+    const foundElementIDs = foundElements.map((e) => e._id);
 
     // Check if all elements were found
-    const notFoundIDs = elementsToFind.filter(e => !foundElementIDs.includes(e));
+    const notFoundIDs = elementsToFind.filter((e) => !foundElementIDs.includes(e));
     // Some elements not found, throw an error
     if (notFoundIDs.length > 0) {
       throw new M.NotFoundError('The following elements were not found: '
-        + `[${notFoundIDs.map(e => utils.parseID(e).pop())}].`, 'warn');
+        + `[${notFoundIDs.map((e) => utils.parseID(e).pop())}].`, 'warn');
     }
 
     // Find all element IDs and their subtree IDs
@@ -1444,9 +1441,7 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
     uniqueIDs.forEach((id) => {
       const elemID = utils.parseID(id).pop();
       if (Element.getValidRootElements().includes(elemID)) {
-        throw new M.OperationError(
-          `User cannot delete root element: ${elemID}.`, 'warn'
-        );
+        throw new M.OperationError(`User cannot delete root element: ${elemID}.`, 'warn');
       }
     });
 
@@ -1458,9 +1453,9 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
       // Find batch
       promises.push(
         Element.find({ _id: { $in: batchIDs } }, null)
-        .then((e) => {
-          elementsToDelete = elementsToDelete.concat(e);
-        })
+          .then((e) => {
+            elementsToDelete = elementsToDelete.concat(e);
+          }),
       );
     }
     // Return when all deletes have completed
@@ -1484,8 +1479,8 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
     const targets = await Element.find({ target: { $in: uniqueIDs } }, null);
 
     // Get only unique elements
-    const sourceIDs = sources.map(e => e._id);
-    const targetsNotInSource = targets.filter(e => !sourceIDs.includes(e._id));
+    const sourceIDs = sources.map((e) => e._id);
+    const targetsNotInSource = targets.filter((e) => !sourceIDs.includes(e._id));
     const relationships = sources.concat(targetsNotInSource);
 
     const bulkArray = [];
@@ -1509,8 +1504,8 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
       bulkArray.push({
         updateOne: {
           filter: { _id: rel._id },
-          update: u
-        }
+          update: u,
+        },
       });
     }));
 
@@ -1524,8 +1519,7 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
 
     // Return unique IDs of elements deleted
     return uniqueIDs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1552,8 +1546,13 @@ async function remove(requestingUser, organizationID, projectID, branchID, eleme
  *   M.log.error(error);
  * });
  */
-async function findElementTree(organizationID, projectID, branchID, elementIDs,
-  targetDepth = null) {
+async function findElementTree(
+  organizationID,
+  projectID,
+  branchID,
+  elementIDs,
+  targetDepth = null,
+) {
   // Ensure elementIDs is an array
   if (!Array.isArray(elementIDs)) {
     throw new M.DataFormatError('ElementIDs array is not an array.', 'warn');
@@ -1581,7 +1580,7 @@ async function findElementTree(organizationID, projectID, branchID, elementIDs,
     // Find all elements whose parent is in the list of given ids
     const elements = await Element.find({ parent: { $in: ids } }, '_id');
     // Get a list of element ids
-    const foundIDs = elements.map(e => e._id);
+    const foundIDs = elements.map((e) => e._id);
     // Add these elements to the global list of found elements
     foundElements = foundElements.concat(foundIDs);
 
@@ -1651,9 +1650,7 @@ async function moveElementCheck(organizationID, projectID, branchID, element) {
       || (element.id === '__mbee__' && parent !== 'model')
       || (element.id === 'holding_bin' && parent !== '__mbee__')
       || (element.id === 'undefined' && parent !== '__mbee__')) {
-      throw new M.OperationError(
-        `Cannot move the root element: ${element.id}.`, 'warn'
-      );
+      throw new M.OperationError(`Cannot move the root element: ${element.id}.`, 'warn');
     }
   }
 
@@ -1685,8 +1682,7 @@ async function moveElementCheck(organizationID, projectID, branchID, element) {
     if (elementID === foundElement.id) {
       throw new M.OperationError('A circular reference would exist in'
         + ' the model, element cannot be moved.', 'warn');
-    }
-    else {
+    } else {
       // Find the parents parent
       return findElementParentRecursive(foundElement);
     }
@@ -1695,8 +1691,7 @@ async function moveElementCheck(organizationID, projectID, branchID, element) {
   try {
     // Call the recursive find function
     await findElementParentRecursive(element);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1808,16 +1803,25 @@ async function search(requestingUser, organizationID, projectID, branchID, query
     }
 
     // Find the organization and validate that it was found and not archived (unless specified)
-    const organization = await helper.findAndValidate(Org, orgID,
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const organization = await helper.findAndValidate(
+      Org,
+      orgID,
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the project and validate that it was found and not archived (unless specified)
-    const project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const project = await helper.findAndValidate(
+      Project,
+      utils.createID(orgID, projID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the branch and validate that it was found and not archived (unless specified)
-    const branch = await helper.findAndValidate(Branch, utils.createID(orgID, projID, branID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const branch = await helper.findAndValidate(
+      Branch,
+      utils.createID(orgID, projID, branID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Permissions check
     permissions.readElement(reqUser, organization, project, branch);
@@ -1833,14 +1837,17 @@ async function search(requestingUser, organizationID, projectID, branchID, query
     }
 
     // Search for the elements
-    return await Element.find(searchQuery, validatedOptions.fieldsString,
-      { skip: validatedOptions.skip,
+    return await Element.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        skip: validatedOptions.skip,
         limit: validatedOptions.limit,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1891,8 +1898,7 @@ async function findElementRootPath(organizationID, projectID, branchID, elementI
       // If it's a circular reference, exit
       if (foundElements.includes(parentID)) {
         throw new M.DataFormatError('Circular element parent reference', 'warn');
-      }
-      else {
+      } else {
         // Add the parent to the list of elements
         foundElements = foundElements.concat(parentID);
       }
@@ -1900,12 +1906,10 @@ async function findElementRootPath(organizationID, projectID, branchID, elementI
       if (utils.parseID(parentID).pop() === 'model') {
         return '';
       }
-      else {
-        // Recursively Find the parent of the parent
-        return await findElementTreeHelper(parent.parent);
-      }
-    }
-    catch (error) {
+
+      // Recursively Find the parent of the parent
+      return await findElementTreeHelper(parent.parent);
+    } catch (error) {
       throw errors.captureError(error);
     }
   }
@@ -1931,8 +1935,14 @@ async function findElementRootPath(organizationID, projectID, branchID, elementI
  * @param {object} sourceTargetIDs - A list of source and target IDs to be
  * queried for to ensure that they exist before being updated.
  */
-function sourceTargetNamespaceValidator(elem, index, orgID, projID, projectRefs,
-  sourceTargetIDs = null) {
+function sourceTargetNamespaceValidator(
+  elem,
+  index,
+  orgID,
+  projID,
+  projectRefs,
+  sourceTargetIDs = null,
+) {
   try {
     if (elem.hasOwnProperty('sourceNamespace')) {
       assert.ok(elem.hasOwnProperty('source'), `Element #${index} is missing a source id.`);
@@ -1962,8 +1972,12 @@ function sourceTargetNamespaceValidator(elem, index, orgID, projID, projectRefs,
 
       // Change element source to referenced project's id
       const tmpSource = utils.parseID(elem.source).pop();
-      elem.source = utils.createID(elem.sourceNamespace.org,
-        elem.sourceNamespace.project, elem.sourceNamespace.branch, tmpSource);
+      elem.source = utils.createID(
+        elem.sourceNamespace.org,
+        elem.sourceNamespace.project,
+        elem.sourceNamespace.branch,
+        tmpSource,
+      );
 
       // Delete sourceNamespace, it does not get stored in the database
       delete elem.sourceNamespace;
@@ -2002,8 +2016,12 @@ function sourceTargetNamespaceValidator(elem, index, orgID, projID, projectRefs,
 
       // Change element target to referenced project's id
       const tmpTarget = utils.parseID(elem.target).pop();
-      elem.target = utils.createID(elem.targetNamespace.org,
-        elem.targetNamespace.project, elem.targetNamespace.branch, tmpTarget);
+      elem.target = utils.createID(
+        elem.targetNamespace.org,
+        elem.targetNamespace.project,
+        elem.targetNamespace.branch,
+        tmpTarget,
+      );
 
       // Delete targetNamespace, it does not get stored in the database
       delete elem.targetNamespace;
@@ -2013,8 +2031,7 @@ function sourceTargetNamespaceValidator(elem, index, orgID, projID, projectRefs,
         sourceTargetIDs.push(elem.target);
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -2034,20 +2051,23 @@ function sourceAndTargetValidator(elem, index, orgID, projID, branchID) {
     // If element has a source, ensure it has a target
     if (elem.hasOwnProperty('source')) {
       assert.ok(elem.hasOwnProperty('target'), `Element #${index} is missing a target id.`);
-      assert.ok(typeof elem.target === 'string',
-        `Element #${index}'s target is not a string.`);
+      assert.ok(
+        typeof elem.target === 'string',
+        `Element #${index}'s target is not a string.`,
+      );
       elem.source = utils.createID(orgID, projID, branchID, elem.source);
     }
 
     // If element has a target, ensure it has a source
     if (elem.hasOwnProperty('target')) {
       assert.ok(elem.hasOwnProperty('source'), `Element #${index} is missing a source id.`);
-      assert.ok(typeof elem.source === 'string',
-        `Element #${index}'s source is not a string.`);
+      assert.ok(
+        typeof elem.source === 'string',
+        `Element #${index}'s source is not a string.`,
+      );
       elem.target = utils.createID(orgID, projID, branchID, elem.target);
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -2071,8 +2091,7 @@ function elementParentCheck(elem, index, orgID, projID, branchID) {
     assert.ok(typeof elem.parent === 'string', `Element #${index}'s parent is not a string.`);
     elem.parent = utils.createID(orgID, projID, branchID, elem.parent);
     assert.ok(elem.parent !== elem._id, 'Elements parent cannot be self.');
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -2096,8 +2115,7 @@ function elementIDCheck(elem, index, orgID, projID, branchID, arrIDs) {
     elem.id = utils.createID(orgID, projID, branchID, elem.id);
     arrIDs.push(elem.id);
     elem._id = elem.id;
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -2122,8 +2140,7 @@ function artifactIDCheck(elem, index, orgID, projID, branchID, artIDs) {
       elem.artifact = utils.createID(orgID, projID, branchID, elem.artifact);
       artIDs.add(elem.artifact);
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }

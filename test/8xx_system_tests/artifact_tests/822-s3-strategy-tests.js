@@ -44,7 +44,7 @@ describe(M.getModuleName(module.filename), () => {
    * Before: Read in test blobs. Using function rather arrow function
    * for access to 'this' variable.
    */
-  before(async function() {
+  before(async function () {
     // If not using the artifact-s3-strategy strategy, skip this test
     if (M.config.artifact.strategy !== 's3-strategy') {
       M.log.verbose('Test skipped because the s3 artifact strategy is not being'
@@ -53,13 +53,9 @@ describe(M.getModuleName(module.filename), () => {
     }
 
     // Get test file
-    const artifactPath0 = path.join(
-      M.root, testData.artifacts[0].location, testData.artifacts[0].filename
-    );
+    const artifactPath0 = path.join(M.root, testData.artifacts[0].location, testData.artifacts[0].filename);
 
-    const artifactPath1 = path.join(
-      M.root, testData.artifacts[1].location, testData.artifacts[1].filename
-    );
+    const artifactPath1 = path.join(M.root, testData.artifacts[1].location, testData.artifacts[1].filename);
 
     // Get the test file
     artifactBlob0 = fs.readFileSync(artifactPath0);
@@ -87,13 +83,12 @@ async function postBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
   try {
     // Upload the blob
     await s3Strategy.postBlob(artData, artifactBlob0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -108,7 +103,7 @@ async function getBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
   try {
     // Find the artifact previously uploaded.
@@ -119,8 +114,7 @@ async function getBlob() {
 
     // Deep compare both binaries
     chai.expect(artifactBlob).to.deep.equal(artifactBlob0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -134,7 +128,7 @@ async function listBlobs() {
   try {
     const artData = {
       project: project.id,
-      org: org.id
+      org: org.id,
     };
 
     // Find the artifact previously uploaded.
@@ -143,8 +137,7 @@ async function listBlobs() {
     // Validate return data
     chai.expect(blobList[0].location).to.equal(testData.artifacts[0].location);
     chai.expect(blobList[0].filename).to.equal(testData.artifacts[0].filename);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -159,7 +152,7 @@ async function putBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
   try {
     // Replace the blob previously uploaded.
@@ -174,8 +167,7 @@ async function putBlob() {
 
     // Deep compare both binaries
     chai.expect(artifactBlob).to.deep.equal(artifactBlob1);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -191,7 +183,7 @@ async function deleteBlob() {
       location: testData.artifacts[0].location,
       filename: testData.artifacts[0].filename,
       project: project.id,
-      org: org.id
+      org: org.id,
     };
 
     // Delete blob
@@ -199,9 +191,8 @@ async function deleteBlob() {
 
     // Verify blob not found
     await s3Strategy.getBlob(artData)
-    .should.eventually.be.rejectedWith('Artifact blob not found.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Artifact blob not found.');
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

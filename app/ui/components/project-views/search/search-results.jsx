@@ -17,6 +17,9 @@
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
 
+// Other Modules
+import axios from 'axios';
+
 // React modules
 import React, { Component } from 'react';
 import { Table, Row, Button } from 'reactstrap';
@@ -31,7 +34,6 @@ const headerLimit = 5;
 const pageLimit = 10;
 
 class SearchResults extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -52,7 +54,7 @@ class SearchResults extends Component {
       /* eslint-disable-next-line no-undef */
       const headerName = (key === 'id') ? key.toUpperCase() : convertCase(key, 'proper');
       headerRows.push(
-        <th key={key}>{headerName}</th>
+        <th key={key}>{headerName}</th>,
       );
     });
 
@@ -62,7 +64,7 @@ class SearchResults extends Component {
   // Generates the rows of element results
   getRowsData() {
     const keys = this.props.headers.slice(0, headerLimit);
-    const results = this.props.results;
+    const { results } = this.props;
     const rows = [];
 
     // Check if the results count is less than page limit - Use lower result to render rows.
@@ -77,7 +79,7 @@ class SearchResults extends Component {
             data-target={ `#result-${index}` }
             className='result-row clickable'>
           <SearchResult key={index} data={results[index]} keys={keys}/>
-        </tr>
+        </tr>,
       );
 
       // Create element information as list
@@ -141,7 +143,7 @@ class SearchResults extends Component {
               </div>
             </Row>
           </td>
-        </tr>
+        </tr>,
       );
     }
 
@@ -150,14 +152,13 @@ class SearchResults extends Component {
 
   // Handle page changes for paginated results
   onPageChange(event) {
-    let page = this.props.page;
+    let { page } = this.props;
     let skip;
 
     if (event === 'next') {
       skip = (pageLimit * page);
       page += 1;
-    }
-    else if (event === 'back') {
+    } else if (event === 'back') {
       skip = (page > 1) ? ((page - 1) * pageLimit) - pageLimit : 0;
       page -= 1;
     }
@@ -166,30 +167,30 @@ class SearchResults extends Component {
     const url = `${this.props.apiUrl}&skip=${skip}`;
 
     // Do ajax request
-    $.ajax({
+    axios({
       method: 'GET',
-      url: url,
+      url,
       statusCode: {
         401: () => {
           // Refresh when session expires
           window.location.reload();
+        },
+      },
+    })
+      .done((data) => {
+        this.props.handlePageChange(data, page);
+      })
+      .fail((res) => {
+        if (res.status === 404) {
+          this.props.handlePageChange([], page);
         }
-      }
-    })
-    .done(data => {
-      this.props.handlePageChange(data, page);
-    })
-    .fail(res => {
-      if (res.status === 404) {
-        this.props.handlePageChange([], page);
-      }
-    });
+      });
   }
 
   // Displays prev/next buttons based on record count and current page
   displayPageButtons() {
     const currentPage = this.props.page;
-    const results = this.props.results;
+    const { results } = this.props;
 
     const btnPrev = (currentPage > 1)
       ? <Button id='btn-back'
@@ -219,7 +220,7 @@ class SearchResults extends Component {
 
   render() {
     // If no results yet, render empty div
-    const results = this.props.results;
+    const { results } = this.props;
 
     if (!results) {
       return (<div/>);
@@ -248,7 +249,6 @@ class SearchResults extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 // Export component

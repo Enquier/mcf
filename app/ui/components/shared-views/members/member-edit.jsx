@@ -27,7 +27,7 @@ import {
   Label,
   Input,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
@@ -66,11 +66,9 @@ function MemberEdit(props) {
       if (props.org.permissions.hasOwnProperty(name)) {
         setPermissions(props.org.permissions[name]);
       }
-    }
-    else if (props.project.permissions.hasOwnProperty(name)) {
+    } else if (props.project.permissions.hasOwnProperty(name)) {
       setPermissions(props.project.permissions[username]);
-    }
-    else {
+    } else {
       setPermissions('');
     }
   };
@@ -81,8 +79,8 @@ function MemberEdit(props) {
     // Set data to submit
     const data = {
       permissions: {
-        [username]: permissions
-      }
+        [username]: permissions,
+      },
     };
 
     // Initialize options for request
@@ -91,8 +89,7 @@ function MemberEdit(props) {
     if (props.org) {
       patch = (d, o) => orgService.patch(d, o);
       data.id = props.org.id;
-    }
-    else {
+    } else {
       patch = (d, o) => projectService.patch(props.project.org, d, o);
       data.id = props.project.id;
     }
@@ -113,13 +110,14 @@ function MemberEdit(props) {
     // Disable form submit
     if (typeof e !== 'string') {
       e.preventDefault();
-    }
-    else if (e) {
+    } else if (e) {
       query = e;
     }
 
     const options = {
-      limit: 5
+      params: {
+        limit: 5,
+      },
     };
 
     // Make the search request
@@ -129,15 +127,14 @@ function MemberEdit(props) {
     if (err === 'No users found.') {
       // Try the username endpoint
       const options2 = {
-        usernames: query
+        usernames: query,
       };
       const [err2, findData] = await userService.get(options2);
 
       // Set the state
       if (err2) {
         setResults([]);
-      }
-      else if (findData) {
+      } else if (findData) {
         const user = findData[0];
         const userOpt = (
           <div className='members-dropdown-item' key={`user-${user.username}`}
@@ -148,8 +145,7 @@ function MemberEdit(props) {
         );
         setResults(userOpt);
       }
-    }
-    else if (searchData) {
+    } else if (searchData) {
       const userOpts = searchData.map((user) => (
         <div className='members-dropdown-item' key={`user-${user.username}`}
              onClick={() => selectUser(user.username)}>
@@ -184,9 +180,8 @@ function MemberEdit(props) {
     }
   }, [props]);
 
-
-  const org = props.org;
-  const project = props.project;
+  const { org } = props;
+  const { project } = props;
   const title = (org) ? org.name : project.name;
 
   // Check if user is a member of the Org or Project

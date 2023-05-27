@@ -30,7 +30,7 @@ import {
   Card,
   CardBody,
   TabPane,
-  TabContent, Label, FormFeedback, FormGroup, Form
+  TabContent, Label, FormFeedback, FormGroup, Form,
 } from 'reactstrap';
 import classnames from 'classnames';
 
@@ -39,20 +39,19 @@ import CustomEditRow from './custom-edit-row.jsx';
 /* eslint-enable no-unused-vars */
 
 class CustomEdit extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Parse custom data object into rows
     const custom = JSON.parse(props.data);
-    const rows = Object.keys(custom).map(key => ({ key: key, value: custom[key] }));
+    const rows = Object.keys(custom).map((key) => ({ key, value: custom[key] }));
 
     // Initialize state props
     this.state = {
       rows: (rows.length === 0) ? [{ key: '', value: '' }] : rows,
       error: '',
-      activeTab: '1'
+      activeTab: '1',
     };
 
     // Bind Component Functions
@@ -73,22 +72,22 @@ class CustomEdit extends Component {
 
   // Handle adding Row for Key/Value pair input
   addRow() {
-    const rows = this.state.rows;
+    const { rows } = this.state;
     rows.push({ key: '', value: '' });
     this.updateParent(rows);
   }
 
   // Remove key/value pair from custom data object
   removeRow(idx) {
-    const rows = this.state.rows;
+    const { rows } = this.state;
     rows.splice(idx, 1);
     this.updateParent(rows);
   }
 
   // Handle updates to Key/Value input fields.
   handleChange(idx, event) {
-        const { name, value } = event.target;
-    const rows = this.state.rows;
+    const { name, value } = event.target;
+    const { rows } = this.state;
     rows[idx][name] = value;
     this.updateParent(rows);
   }
@@ -97,7 +96,7 @@ class CustomEdit extends Component {
   // eslint-disable-next-line class-methods-use-this
   listDuplicates(rows) {
     // Extract keys from custom data rows
-    const keys = rows.map(row => row.key);
+    const keys = rows.map((row) => row.key);
     const count = keys.reduce((acc, key) => ({ ...acc, [key]: (acc[key] || 0) + 1 }), {});
     return Object.keys(count).filter((elem) => count[elem] > 1);
   }
@@ -107,7 +106,7 @@ class CustomEdit extends Component {
     // Check if valid JSON custom data
     const error = (this.listDuplicates(rows).length > 0) ? 'Invalid: Duplicate keys in JSON' : '';
     this.props.customChange(rows, error);
-    this.setState({ rows: rows, error: error });
+    this.setState({ rows, error });
   }
 
   // Returns row for each key/value pair to be rendered
@@ -129,16 +128,15 @@ class CustomEdit extends Component {
       // Parse custom data object into rows
       try {
         const custom = JSON.parse(this.props.data);
-        const rows = Object.keys(custom).map(key => ({
-          key: key,
-          value: (typeof custom[key] === 'string') ? custom[key] : JSON.stringify(custom[key])
+        const rows = Object.keys(custom).map((key) => ({
+          key,
+          value: (typeof custom[key] === 'string') ? custom[key] : JSON.stringify(custom[key]),
         }));
         this.setState({
           rows: (rows.length === 0) ? [{ key: '', value: '' }] : rows,
-          error: ''
+          error: '',
         });
-      }
-      catch (err) {
+      } catch (err) {
         this.setState({ error: 'Invalid: Custom data must be valid JSON' });
       }
     }
@@ -146,7 +144,7 @@ class CustomEdit extends Component {
 
   render() {
     // const custom = {};
-    const rows = this.state.rows;
+    const { rows } = this.state;
     const duplicates = (rows.length > 0) ? this.listDuplicates(rows) : '';
     let message = this.state.error;
     const invalidWarn = (message.length > 0)
@@ -167,10 +165,9 @@ class CustomEdit extends Component {
       $('textarea[name="custom"]').autoResize();
 
       // Parse custom data input values
-            try {
+      try {
         JSON.parse(this.props.data);
-      }
-      catch (err) {
+      } catch (err) {
         customInvalid = true;
         message = 'Invalid: Custom data must be valid JSON';
       }
@@ -235,7 +232,6 @@ class CustomEdit extends Component {
       </div>
     );
   }
-
 }
 
 export default CustomEdit;

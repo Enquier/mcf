@@ -21,7 +21,6 @@
 // React modules
 import React, { useState, useEffect } from 'react';
 
-
 export default function About(props) {
   const [version, setVersion] = useState(null);
   const [build, setBuild] = useState(null);
@@ -29,11 +28,11 @@ export default function About(props) {
   // Run only once, the first time this component loads
   useEffect(() => {
     window.fetch('/api/version')
-    .then((response) => response.json())
-    .then((data) => {
-      setVersion(data.version);
-      setBuild(data.build);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        setVersion(data.version);
+        setBuild(data.build);
+      });
   }, []);
 
   return (
@@ -67,7 +66,6 @@ export default function About(props) {
         </tr>
         </tbody>
       </table>
-
 
       <h2>Development Team</h2>
       <table className="table table-borderless">

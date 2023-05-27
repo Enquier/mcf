@@ -22,7 +22,9 @@
 import React from 'react';
 
 function ArtifactListItem(props) {
-  const { archived, description, filename, location, size } = props.artifact;
+  const {
+    archived, description, filename, location, size,
+  } = props.artifact;
   const archivedClass = (archived) ? 'grayed-out' : '';
   const bytes = (typeof size === 'number') ? size : 0;
   let classNames = 'list-header';

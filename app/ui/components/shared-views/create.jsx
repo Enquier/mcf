@@ -20,7 +20,7 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import {
   Form,
   FormGroup,
@@ -28,12 +28,13 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
 import validators from '../../../../build/json/validators.json';
 import { useApiClient } from '../context/ApiClientProvider';
+
 const uuidv4 = require('uuid/v4');
 
 /* eslint-enable no-unused-vars */
@@ -46,7 +47,7 @@ function Create(props) {
     name: '',
     id: uuidv4(),
     visibility: 'private',
-    custom: JSON.stringify({}, null, 2)
+    custom: JSON.stringify({}, null, 2),
   });
   const [error, setError] = useState(null);
   const [redirect, setRedirect] = useState(null);
@@ -54,7 +55,7 @@ function Create(props) {
   const handleChange = (e) => {
     setValues((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
     e.persist();
   };
@@ -64,7 +65,7 @@ function Create(props) {
     const data = {
       id: values.id,
       name: values.name,
-      custom: JSON.parse(values.custom)
+      custom: JSON.parse(values.custom),
     };
 
     // Initialize variables
@@ -77,16 +78,14 @@ function Create(props) {
         // Set org as the state prop
         post = (d, o) => projectService.post(values.org, d, o);
         redirectUrl = `/orgs/${values.org}/projects/${values.id}/branches/master/elements`;
-      }
-      else {
+      } else {
         // Set org as the parent prop
         post = (d, o) => projectService.post(props.org.id, d, o);
         redirectUrl = `/orgs/${props.org.id}/projects/${values.id}/branches/master/elements`;
       }
       // Set project visibility
       data.visibility = values.visibility;
-    }
-    else {
+    } else {
       post = (d, o) => orgService.post(d, o);
       redirectUrl = `/orgs/${values.id}`;
     }
@@ -111,7 +110,7 @@ function Create(props) {
     }
   }, []);
 
-  if (redirect) return <Redirect to={redirect}/>;
+  if (redirect) return <Navigate to={redirect}/>;
 
   // Initialize validators
   let title;
@@ -127,8 +126,7 @@ function Create(props) {
     validatorId = `^${validators.project.id.split(validators.ID_DELIMITER).pop()}`;
     // Calculate project ID sans delimiter
     validLen = validators.project.idLength - validators.org.idLength - 1;
-  }
-  else {
+  } else {
     validatorId = validators.org.id;
     validLen = validators.org.idLength;
     title = 'New Organization';
@@ -144,8 +142,7 @@ function Create(props) {
   // Verify custom data is valid
   try {
     JSON.parse(values.custom);
-  }
-  catch (err) {
+  } catch (err) {
     // Set invalid fields
     customInvalid = true;
   }

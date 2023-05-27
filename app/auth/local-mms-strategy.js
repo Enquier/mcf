@@ -19,7 +19,7 @@ module.exports = {
   handleBasicAuth,
   handleTokenAuth,
   doLogin,
-  validatePassword
+  validatePassword,
 };
 // js modules
 const jwt = require('jsonwebtoken');
@@ -30,7 +30,6 @@ const LocalStrategy = M.require('auth.local-strategy');
 const MMSStrategy = M.require('auth.mms-strategy');
 const User = M.require('models.user');
 const utils = M.require('lib.utils');
-
 
 /**
  * @description Handles basic-style authentication. This function gets called both for
@@ -57,15 +56,13 @@ async function handleBasicAuth(req, res, username, password) {
 
     // User is not found locally or is found and provider is MMS
     // try MMS authentication
-    else if (users.length === 0 || (users.length === 1 && users[0].provider === 'mms')) {
+    if (users.length === 0 || (users.length === 1 && users[0].provider === 'mms')) {
       return await MMSStrategy.handleBasicAuth(req, res, username, password);
     }
-    else {
-      // More than 1 user found or provider not set to mms/local
-      throw new M.ServerError('More than one user found or invalid provider.', 'error');
-    }
-  }
-  catch (error) {
+
+    // More than 1 user found or provider not set to mms/local
+    throw new M.ServerError('More than one user found or invalid provider.', 'error');
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -108,8 +105,7 @@ async function handleTokenAuth(req, res, _token) {
 function doLogin(req, res, next) {
   if (req.user.provider === 'mms') {
     MMSStrategy.doLogin(req, res, next);
-  }
-  else {
+  } else {
     const timeDelta = M.config.auth.token.expires
       * utils.timeConversions[M.config.auth.token.units];
 
@@ -120,9 +116,9 @@ function doLogin(req, res, next) {
       id: (req.user.username || req.user._id),
       enabled: true,
       authorities: {
-        0: 'everyone'
+        0: 'everyone',
       },
-      exp: (Date.now() + timeDelta)
+      exp: (Date.now() + timeDelta),
     }, M.config.auth.token.secret);
     M.log.info(`${req.originalUrl} Logged in ${(req.user.username || req.user._id)}`);
     // Callback

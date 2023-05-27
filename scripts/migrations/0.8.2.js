@@ -28,7 +28,7 @@ const Project = M.require('models.project');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await projectHelper();
 };
 
@@ -60,8 +60,8 @@ async function projectHelper() {
       bulkWrite.push({
         replaceOne: {
           filter: { _id: p._id },
-          replacement: p
-        }
+          replacement: p,
+        },
       });
     });
 

@@ -22,7 +22,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-
 // MBEE modules
 import StatsList from '../../general/stats/stats-list.jsx';
 import Stat from '../../general/stats/stat.jsx';
@@ -30,14 +29,13 @@ import Stat from '../../general/stats/stat.jsx';
 
 // Define component
 class OrgListItem extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      width: 0
+      width: 0,
     };
 
     // Create reference
@@ -68,7 +66,7 @@ class OrgListItem extends Component {
 
   render() {
     // Initialize variables
-    const org = this.props.org;
+    const { org } = this.props;
     let colorClass;
 
     // Verify if archived
@@ -109,7 +107,6 @@ class OrgListItem extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

@@ -41,8 +41,7 @@ requiredFunctions.forEach((fxn) => {
 async function connect() {
   try {
     return await DBModule.connect();
-  }
-  catch (error) {
+  } catch (error) {
     M.log.critical('Failed to connect to the database.');
     throw new M.DatabaseError(error.message, 'critical');
   }
@@ -57,8 +56,7 @@ async function connect() {
 async function disconnect() {
   try {
     return await DBModule.disconnect();
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError(error.message, 'critical');
   }
 }
@@ -73,8 +71,7 @@ async function disconnect() {
 async function clear() {
   try {
     return await DBModule.clear();
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError(error.message, 'critical');
   }
 }
@@ -92,8 +89,7 @@ async function clear() {
 function sanitize(data) {
   try {
     return DBModule.sanitize(data);
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError(error.message, 'error');
   }
 }
@@ -105,7 +101,6 @@ function sanitize(data) {
  * mongoose.js Schema class {@link https://mongoosejs.com/docs/api/schema.html}.
  */
 class Schema extends DBModule.Schema {
-
   /**
    * @description Class constructor. Calls the parent constructor and ensures
    * that the parent class defines the required functions.
@@ -210,7 +205,6 @@ class Schema extends DBModule.Schema {
   static(name, fn) {
     super.static(name, fn);
   }
-
 }
 
 /**
@@ -222,7 +216,6 @@ class Schema extends DBModule.Schema {
  * exception, the constructor creates an instance of the model, not a document.
  */
 class Model extends DBModule.Model {
-
   /**
    * @description Class constructor. Calls parent constructor, and ensures that
    * each of the required functions are defined in the parent class.
@@ -294,6 +287,8 @@ class Model extends DBModule.Model {
    * @param {object} [ops.replaceOne.replacement] - The document to replace the
    * found document with.
    * @param {object} [options] - An object containing options.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @example
    * await bulkWrite([
@@ -332,7 +327,10 @@ class Model extends DBModule.Model {
    * (deletedCount) and the success of the operation (result), with 1 being
    * success and 0 being failure.
    */
-  async bulkWrite(ops, options) {
+  async bulkWrite(ops, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.bulkWrite(ops, options, req);
+    }
     return super.bulkWrite(ops, options);
   }
 
@@ -342,11 +340,15 @@ class Model extends DBModule.Model {
    *
    * @param {object} filter - An object containing parameters to filter the
    * find query by.
-   *
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    * @returns {Promise<number>} The number of documents which matched the
    * filter.
    */
-  async countDocuments(filter) {
+  async countDocuments(filter, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.countDocuments(filter, req);
+    }
     return super.countDocuments(filter);
   }
 
@@ -355,10 +357,14 @@ class Model extends DBModule.Model {
    * @async
    *
    * @param {string} name - The name of the index.
-   *
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    * @returns {Promise} Returns an empty promise upon completion.
    */
-  async deleteIndex(name) {
+  async deleteIndex(name, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.deleteIndex(name, req);
+    }
     return super.deleteIndex(name);
   }
 
@@ -369,13 +375,18 @@ class Model extends DBModule.Model {
    * @param {object} filter - An object containing parameters to filter the
    * find query by, and thus delete documents by.
    * @param {object} [options] - An object containing options.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<object>} An object denoting the success of the delete
    * operation. The object should contain the key "n" which is the number of
    * documents deleted and the key "ok" which is either 1 for success or 0 for
    * failure.
    */
-  async deleteMany(filter, options) {
+  async deleteMany(filter, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.deleteMany(filter, options, req);
+    }
     return super.deleteMany(filter, options);
   }
 
@@ -406,11 +417,16 @@ class Model extends DBModule.Model {
    * documents can be populated. Populating a field returns the entire
    * referenced document instead of that document's ID. If no document exists,
    * null is returned.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<object[]>} An array containing the found documents, if
    * any.
    */
-  async find(filter, projection, options) {
+  async find(filter, projection, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.find(filter, projection, options, req);
+    }
     return super.find(filter, projection, options);
   }
 
@@ -429,11 +445,16 @@ class Model extends DBModule.Model {
    * documents can be populated. Populating a field returns the entire
    * referenced document instead of that document's ID. If no document exists,
    * null is returned.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<(object|null)>} The found document, if any otherwise
    * null.
    */
-  async findOne(filter, projection, options) {
+  async findOne(filter, projection, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.findOne(filter, projection, options, req);
+    }
     return super.findOne(filter, projection, options);
   }
 
@@ -455,10 +476,15 @@ class Model extends DBModule.Model {
    * @param {object} [options] - An object containing options.
    * @param {boolean} [options.skipValidation] - If true, will not validate
    * the documents which are being created.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<object[]>} The created documents.
    */
-  async insertMany(docs, options) {
+  async insertMany(docs, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.insertMany(docs, options, req);
+    }
     return super.insertMany(docs, options);
   }
 
@@ -471,12 +497,17 @@ class Model extends DBModule.Model {
    * find query by.
    * @param {object} doc - The object containing updates to the found documents.
    * @param {object} [options] - An object containing options.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<object>} An object denoting the success of the operation.
    * It should contain two keys, "n" which is the number of documents matched
    * and "nModified" which is the number of documents updated.
    */
-  async updateMany(filter, doc, options) {
+  async updateMany(filter, doc, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.updateMany(filter, doc, options, req);
+    }
     return super.updateMany(filter, doc, options);
   }
 
@@ -489,15 +520,19 @@ class Model extends DBModule.Model {
    * find query by.
    * @param {object} doc - The object containing updates to the found document.
    * @param {object} [options] - An object containing options.
+   * @param {object} req - A object containing request specific info
+   * for connection and authentication to the datasource.
    *
    * @returns {Promise<object>} An object denoting the success of the operation.
    * It should contain two keys, "n" which is the number of documents matched
    * and "nModified" which is the number of documents updated.
    */
-  async updateOne(filter, doc, options) {
+  async updateOne(filter, doc, options, req) {
+    if (M.config.db.auth && M.config.db.auth === true) {
+      return super.updateOne(filter, doc, options, req);
+    }
     return super.updateOne(filter, doc, options);
   }
-
 }
 
 /**
@@ -510,7 +545,6 @@ class Model extends DBModule.Model {
  * available at the link above.
  */
 class Store extends DBModule.Store {
-
   /**
    * @description Calls the parent constructor.
    *
@@ -636,7 +670,6 @@ class Store extends DBModule.Store {
   touch(sid, session, cb) {
     return super.touch(sid, session, cb);
   }
-
 }
 
 // Export different classes and functions
@@ -647,5 +680,5 @@ module.exports = {
   sanitize,
   Schema,
   Model,
-  Store
+  Store,
 };

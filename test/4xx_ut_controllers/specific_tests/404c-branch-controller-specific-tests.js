@@ -52,16 +52,19 @@ describe(M.getModuleName(module.filename), () => {
       projID = utils.parseID(proj._id).pop();
 
       // Create additional branches for the tests to utilize
-      branches = await BranchController.create(adminUser, org._id, projID,
-        testData.branches.slice(1, 8));
+      branches = await BranchController.create(
+        adminUser,
+        org._id,
+        projID,
+        testData.branches.slice(1, 8),
+      );
       // Sort the branches; they will be returned out of order if custom id validators are used
       branches = branches.sort((a, b) => {
         if (a._id === 'master') return -1;
         if (Number(a.name.slice(-1)) > Number(b.name.slice(-1))) return 1;
-        else return -1;
+        return -1;
       });
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -77,8 +80,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -127,8 +129,13 @@ async function optionPopulateFind() {
     const options = { populate: fields };
 
     // Perform a find on the branch
-    const foundBranches = await BranchController.find(adminUser, org._id, projID,
-      utils.parseID(branch._id).pop(), options);
+    const foundBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      utils.parseID(branch._id).pop(),
+      options,
+    );
     // There should be one branch
     chai.expect(foundBranches.length).to.equal(1);
     const foundBranch = foundBranches[0];
@@ -143,16 +150,14 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (foundBranch[field] !== null) {
+      } else if (foundBranch[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof foundBranch[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in foundBranch[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -176,31 +181,47 @@ async function optionIncludeArchivedFind() {
     // Archive the second branch
     const archiveUpdate = {
       id: archivedID,
-      archived: true
+      archived: true,
     };
-    await BranchController.update(adminUser, org._id, projID,
-      archiveUpdate);
+    await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      archiveUpdate,
+    );
 
     // Perform a find on the branches
-    const foundBranch = await BranchController.find(adminUser, org._id, projID,
-      [branchID, archivedID]);
+    const foundBranch = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      [branchID, archivedID],
+    );
     // There should be one branch
     chai.expect(foundBranch.length).to.equal(1);
     chai.expect(foundBranch[0]._id).to.equal(branch._id);
 
     // Perform a find on the branches
-    const foundBranches = await BranchController.find(adminUser, org._id, projID,
-      [branchID, archivedID], options);
+    const foundBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      [branchID, archivedID],
+      options,
+    );
     // There should be two branches
     chai.expect(foundBranches.length).to.equal(2);
-    chai.expect(foundBranches.map(b => b._id)).to.have.members([branch._id, archivedBranch._id]);
+    chai.expect(foundBranches.map((b) => b._id)).to.have.members([branch._id, archivedBranch._id]);
 
     // Clean up for the following tests
     archiveUpdate.archived = false;
-    await BranchController.update(adminUser, org._id, projID,
-      archiveUpdate);
-  }
-  catch (error) {
+    await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      archiveUpdate,
+    );
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -218,11 +239,16 @@ async function optionFieldsFind() {
 
     // Create fields option
     const fields = ['name', 'source', 'tag'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Perform a find on the branch
-    const foundBranches = await BranchController.find(adminUser, org._id, projID,
-      branchID, options);
+    const foundBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      options,
+    );
     // There should be one branch
     chai.expect(foundBranches.length).to.equal(1);
     const foundBranch = foundBranches[0];
@@ -234,8 +260,7 @@ async function optionFieldsFind() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -261,8 +286,7 @@ async function optionLimitFind() {
     const limitBranches = await BranchController.find(adminUser, org._id, projID, options);
     // There should only be as many branches as specified in the limit option
     chai.expect(limitBranches.length).to.equal(options.limit);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -286,8 +310,7 @@ async function optionSkipFind() {
     // Find all the branches with the skip option
     const skipBranches = await BranchController.find(adminUser, org._id, projID, options);
     chai.expect(skipBranches.length).to.equal(numBranches - options.skip);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -303,15 +326,15 @@ async function optionSortFind() {
     const testBranches = [
       {
         id: utils.parseID(branches[0]._id).pop(),
-        name: 'b'
+        name: 'b',
       },
       {
         id: utils.parseID(branches[1]._id).pop(),
-        name: 'c'
+        name: 'c',
       },
       {
         id: utils.parseID(branches[2]._id).pop(),
-        name: 'a'
+        name: 'a',
       }];
     // Create sort options
     const sortOption = { sort: 'name' };
@@ -322,8 +345,13 @@ async function optionSortFind() {
     // Expect updatedBranches array to contain 3 projects
     chai.expect(updatedBranches.length).to.equal(3);
 
-    const foundBranches = await BranchController.find(adminUser, org._id, projID,
-      testBranches.map((b) => b.id), sortOption);
+    const foundBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      testBranches.map((b) => b.id),
+      sortOption,
+    );
 
     // Expect to find 3 branches
     chai.expect(foundBranches.length).to.equal(3);
@@ -337,8 +365,13 @@ async function optionSortFind() {
     chai.expect(foundBranches[2]._id).to.equal(branches[1]._id);
 
     // Find the branches and return them sorted in reverse
-    const reverseBranches = await BranchController.find(adminUser, org._id, projID,
-      testBranches.map((b) => b.id), sortOptionReverse);
+    const reverseBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      testBranches.map((b) => b.id),
+      sortOptionReverse,
+    );
 
     // Expect to find 3 branches
     chai.expect(reverseBranches.length).to.equal(3);
@@ -350,8 +383,7 @@ async function optionSortFind() {
     chai.expect(reverseBranches[1]._id).to.equal(branches[0]._id);
     chai.expect(reverseBranches[2].name).to.equal('a');
     chai.expect(reverseBranches[2]._id).to.equal(branches[2]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -375,8 +407,7 @@ async function optionTagFind() {
 
     // Expect the branch to be a tag
     chai.expect(tagBranch.tag).to.equal(true);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -401,8 +432,7 @@ async function optionSourceFind() {
     foundBranches.forEach((branch) => {
       chai.expect(branch.source).to.equal(utils.createID(org._id, projID, 'master'));
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -426,8 +456,7 @@ async function optionNameFind() {
 
     // Validate that the correct branch has been found
     chai.expect(foundBranch.name).to.equal('Branch04');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -449,8 +478,7 @@ async function optionCreatedByFind() {
     foundBranches.forEach((branch) => {
       chai.expect(branch.createdBy).to.equal('test_admin');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -472,8 +500,7 @@ async function optionLastModifiedByFind() {
     foundBranches.forEach((branch) => {
       chai.expect(branch.lastModifiedBy).to.equal('test_admin');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -497,31 +524,47 @@ async function optionArchivedFind() {
     // Archive the second branch
     const archiveUpdate = {
       id: archivedID,
-      archived: true
+      archived: true,
     };
-    await BranchController.update(adminUser, org._id, projID,
-      archiveUpdate);
+    await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      archiveUpdate,
+    );
 
     // Perform a find on the branches
-    const foundBranch = await BranchController.find(adminUser, org._id, projID,
-      [branchID, archivedID]);
+    const foundBranch = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      [branchID, archivedID],
+    );
     // There should be one branch
     chai.expect(foundBranch.length).to.equal(1);
     chai.expect(foundBranch[0]._id).to.equal(branch._id);
 
     // Perform a find on the branches
-    const foundBranches = await BranchController.find(adminUser, org._id, projID,
-      [branchID, archivedID], options);
+    const foundBranches = await BranchController.find(
+      adminUser,
+      org._id,
+      projID,
+      [branchID, archivedID],
+      options,
+    );
     // There should be one branch
     chai.expect(foundBranches.length).to.equal(1);
     chai.expect(foundBranches[0]._id).to.equal(archivedBranch._id);
 
     // Clean up for the following tests
     archiveUpdate.archived = false;
-    await BranchController.update(adminUser, org._id, projID,
-      archiveUpdate);
-  }
-  catch (error) {
+    await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      archiveUpdate,
+    );
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -536,7 +579,7 @@ async function optionArchivedByFind() {
     // Archive a branch
     const update = {
       id: utils.parseID(branches[0]._id).pop(),
-      archived: true
+      archived: true,
     };
     await BranchController.update(adminUser, org._id, projID, update);
 
@@ -550,8 +593,7 @@ async function optionArchivedByFind() {
     foundBranches.forEach((branch) => {
       chai.expect(branch.archivedBy).to.equal('test_admin');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -574,8 +616,7 @@ async function optionCustomFind() {
 
     // Validate the found branch has the custom data
     chai.expect(foundBranch.custom).to.deep.equal({ location: 'Location02' });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -592,7 +633,7 @@ async function optionPopulateCreate() {
     const branchObj = {
       id: branchID,
       name: 'Branch01',
-      source: 'master'
+      source: 'master',
     };
 
     // Delete the branch
@@ -604,8 +645,13 @@ async function optionPopulateCreate() {
     const options = { populate: fields };
 
     // Create the branch
-    const createdBranches = await BranchController.create(adminUser, org._id, projID,
-      branchObj, options);
+    const createdBranches = await BranchController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchObj,
+      options,
+    );
     // There should be one branch
     chai.expect(createdBranches.length).to.equal(1);
     const createdBranch = createdBranches[0];
@@ -620,16 +666,14 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (createdBranch[field] !== null) {
+      } else if (createdBranch[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof createdBranch[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in createdBranch[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -646,7 +690,7 @@ async function optionFieldsCreate() {
     const branchObj = {
       id: branchID,
       name: 'Branch01',
-      source: 'master'
+      source: 'master',
     };
 
     // Delete the branch
@@ -654,11 +698,16 @@ async function optionFieldsCreate() {
 
     // Create fields option
     const fields = ['name', 'source', 'tag'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Create the branch
-    const createdBranches = await BranchController.create(adminUser, org._id, projID,
-      branchObj, options);
+    const createdBranches = await BranchController.create(
+      adminUser,
+      org._id,
+      projID,
+      branchObj,
+      options,
+    );
     // There should be one branch
     chai.expect(createdBranches.length).to.equal(1);
     const foundBranch = createdBranches[0];
@@ -670,8 +719,7 @@ async function optionFieldsCreate() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -687,7 +735,7 @@ async function optionPopulateUpdate() {
     const branchID = utils.parseID(branches[1]._id).pop();
     const branchObj = {
       id: branchID,
-      name: 'Branch01 populate update'
+      name: 'Branch01 populate update',
     };
 
     // Get populate options, without archivedBy because this branch isn't archived
@@ -696,8 +744,13 @@ async function optionPopulateUpdate() {
     const options = { populate: fields };
 
     // Update the branch
-    const updatedBranches = await BranchController.update(adminUser, org._id, projID,
-      branchObj, options);
+    const updatedBranches = await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchObj,
+      options,
+    );
     // There should be one branch
     chai.expect(updatedBranches.length).to.equal(1);
     const updatedBranch = updatedBranches[0];
@@ -712,16 +765,14 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (updatedBranch[field] !== null) {
+      } else if (updatedBranch[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof updatedBranch[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in updatedBranch[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -737,16 +788,21 @@ async function optionFieldsUpdate() {
     const branchID = utils.parseID(branches[1]._id).pop();
     const branchObj = {
       id: branchID,
-      name: 'Branch01 fields update'
+      name: 'Branch01 fields update',
     };
 
     // Create fields option
     const fields = ['name', 'source', 'tag'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Update the branch
-    const updatedBranches = await BranchController.update(adminUser, org._id, projID,
-      branchObj, options);
+    const updatedBranches = await BranchController.update(
+      adminUser,
+      org._id,
+      projID,
+      branchObj,
+      options,
+    );
     // There should be one branch
     chai.expect(updatedBranches.length).to.equal(1);
     const foundBranch = updatedBranches[0];
@@ -758,8 +814,7 @@ async function optionFieldsUpdate() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);

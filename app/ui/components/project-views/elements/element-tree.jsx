@@ -56,7 +56,7 @@ export default function ElementTree(props) {
 
   const orgID = props.project.org;
   const projID = props.project.id;
-  const branchID = props.branchID;
+  const { branchID } = props;
 
   /**
    * @description This is also considered the refresh function for root
@@ -66,8 +66,10 @@ export default function ElementTree(props) {
   const getElement = async () => {
     const options = {
       ids: 'model',
-      fields: 'id,name,contains,type,archived',
-      includeArchived: true
+      params: {
+        fields: 'id,name,contains,type,archived',
+        includeArchived: true,
+      },
     };
 
     const [err, elements] = await elementService.get(orgID, projID, branchID, options);
@@ -82,7 +84,6 @@ export default function ElementTree(props) {
       getElement();
     }
   }, [props.project, props.branchID]);
-
 
   let tree = null;
 

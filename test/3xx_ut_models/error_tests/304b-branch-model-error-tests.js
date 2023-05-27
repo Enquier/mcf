@@ -57,7 +57,7 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function idTooShort() {
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData.project = 'org:proj';
     branchData.branch = 'org:proj:branch';
 
@@ -69,8 +69,7 @@ async function idTooShort() {
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith('Branch '
       + `validation failed: _id: Branch ID length [${utils.parseID(branchData._id).pop().length}] `
       + 'must not be less than 2 characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -89,7 +88,7 @@ async function idTooLong() {
     this.skip();
   }
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData.project = 'org:proj';
 
     // Change id to be too long.
@@ -102,8 +101,7 @@ async function idTooLong() {
       + `failed: _id: Branch ID length [${branchData._id.length - validators.project.idLength - 1}]`
       + ` must not be more than ${validators.branch.idLength - validators.project.idLength - 1}`
       + ' characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -115,15 +113,14 @@ async function idTooLong() {
  */
 async function idNotProvided() {
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData.project = 'org:proj';
     delete branchData.id;
 
     // Expect insertMany() to fail with specific error message
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith('Branch'
       + ' validation failed: _id: Path `_id` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -140,7 +137,7 @@ async function invalidID() {
     this.skip();
   }
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData.project = 'org:proj';
 
     // Change id to be invalid.
@@ -150,8 +147,7 @@ async function invalidID() {
     // Expect insertMany() to fail with specific error message
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith('Branch'
       + ` validation failed: _id: Invalid branch ID [${branchData._id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -163,15 +159,14 @@ async function invalidID() {
  */
 async function projectNotProvided() {
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData._id = `org:proj:${branchData.id}`;
     delete branchData.id;
 
     // Expect insertMany() to fail with specific error message
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith('Branch'
       + ' validation failed: project: Path `project` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -188,7 +183,7 @@ async function projectInvalid() {
     this.skip();
   }
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData._id = `org:proj:${branchData.id}`;
 
     // Set invalid project
@@ -198,10 +193,9 @@ async function projectInvalid() {
     // Expect insertMany() to fail with specific error message
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith(
       `Branch validation failed: project: ${branchData.project} is not a valid `
-      + 'project ID.'
+      + 'project ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -218,7 +212,7 @@ async function sourceInvalid() {
     this.skip();
   }
   try {
-    const branchData = Object.assign({}, testData.branches[0]);
+    const branchData = { ...testData.branches[0] };
     branchData._id = `org:proj:${branchData.id}`;
     branchData.project = 'org:proj';
 
@@ -229,10 +223,9 @@ async function sourceInvalid() {
     // Expect insertMany() to fail with specific error message
     await Branch.insertMany(branchData).should.eventually.be.rejectedWith(
       `Branch validation failed: source: ${branchData.source} is not a valid `
-      + 'source ID.'
+      + 'source ID.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

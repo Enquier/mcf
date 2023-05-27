@@ -21,7 +21,7 @@ module.exports = {
   handleBasicAuth,
   handleTokenAuth,
   doLogin,
-  validatePassword
+  validatePassword,
 };
 
 // Node modules
@@ -77,8 +77,7 @@ async function handleBasicAuth(req, res, username, password) {
 
     // Sync user with local database; return authenticated user object
     return await ldapSync(authUser);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -122,10 +121,9 @@ async function handleTokenAuth(req, res, token) {
     try {
       user = await User.findOne({
         _id: sani.sanitize(decryptedToken.username),
-        archivedOn: null
+        archivedOn: null,
       });
-    }
-    catch (findUserTokenErr) {
+    } catch (findUserTokenErr) {
       throw findUserTokenErr;
     }
     // A valid session was found in the request but the user no longer exists
@@ -140,9 +138,8 @@ async function handleTokenAuth(req, res, token) {
     return user;
   }
   // If token is expired user is unauthorized
-  else {
-    throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
-  }
+
+  throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
 }
 
 /**
@@ -164,7 +161,7 @@ function doLogin(req, res, next) {
     type: 'user',
     username: (req.user.username || req.user._id),
     created: (new Date(Date.now())),
-    expires: (new Date(Date.now() + timeDelta))
+    expires: (new Date(Date.now() + timeDelta)),
   });
   M.log.info(`${req.originalUrl} Logged in ${(req.user.username || req.user._id)}`);
   // Callback
@@ -202,7 +199,7 @@ function ldapConnect() {
     }
 
     // If any items in the array are not strings, fail
-    if (!ldapCA.every(c => typeof c === 'string')) {
+    if (!ldapCA.every((c) => typeof c === 'string')) {
       M.log.error('Failed to load LDAP CA certificates (invalid type in array)');
       return reject(new M.ServerError('An error occurred.', 'error'));
     }
@@ -225,8 +222,8 @@ function ldapConnect() {
     const ldapClient = ldap.createClient({
       url: `${ldapConfig.url}:${ldapConfig.port}`,
       tlsOptions: {
-        ca: arrCaCerts
-      }
+        ca: arrCaCerts,
+      },
     });
     // Handle any errors in connecting to LDAP server
     ldapClient.on('error', (error) => reject(error));
@@ -271,14 +268,14 @@ function ldapSearch(ldapClient, username) {
 
     // Set filter, scope, and attributes of the search
     const opts = {
-      filter: filter,
+      filter,
       scope: 'sub',
       attributes: [
         ldapConfig.attributes.username,
         ldapConfig.attributes.firstName,
         ldapConfig.attributes.lastName,
-        ldapConfig.attributes.email
-      ]
+        ldapConfig.attributes.email,
+      ],
     };
 
     // Check preferredName is a property of ldapConfig.attributes
@@ -372,8 +369,7 @@ async function ldapSync(ldapUserObj) {
   try {
     // Search for user in database
     foundUser = await User.findOne({ _id: ldapUserObj[ldapConfig.attributes.username] });
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError('Search query on user failed', 'warn');
   }
 
@@ -385,7 +381,7 @@ async function ldapSync(ldapUserObj) {
         fname: ldapUserObj[ldapConfig.attributes.firstName],
         preferredName: ldapUserObj[ldapConfig.attributes.preferredName],
         lname: ldapUserObj[ldapConfig.attributes.lastName],
-        email: ldapUserObj[ldapConfig.attributes.email]
+        email: ldapUserObj[ldapConfig.attributes.email],
       };
 
       // Save updated user to database
@@ -393,8 +389,7 @@ async function ldapSync(ldapUserObj) {
 
       // Find the updated user
       userObject = await User.findOne({ _id: ldapUserObj[ldapConfig.attributes.username] });
-    }
-    else {
+    } else {
       // User not found, create a new one
       // Initialize userData with LDAP information
       const initData = {
@@ -404,14 +399,13 @@ async function ldapSync(ldapUserObj) {
         lname: ldapUserObj[ldapConfig.attributes.lastName],
         email: ldapUserObj[ldapConfig.attributes.email],
         provider: 'ldap',
-        changePassword: false
+        changePassword: false,
       };
 
       // Save ldap user
       userObject = (await User.insertMany(initData))[0];
     }
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     throw new M.DatabaseError('Could not save user data to database', 'warn');
   }
@@ -422,8 +416,7 @@ async function ldapSync(ldapUserObj) {
   try {
     // Find the default org
     defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError('Query operation on default organization failed', 'warn');
   }
 
@@ -432,10 +425,11 @@ async function ldapSync(ldapUserObj) {
     defaultOrg.permissions[userObject._id] = ['read', 'write'];
 
     // Save the updated default org
-    await Organization.updateOne({ _id: M.config.server.defaultOrganizationId },
-      { permissions: defaultOrg.permissions });
-  }
-  catch (saveErr) {
+    await Organization.updateOne(
+      { _id: M.config.server.defaultOrganizationId },
+      { permissions: defaultOrg.permissions },
+    );
+  } catch (saveErr) {
     M.log.error(saveErr.message);
     throw new M.DatabaseError('Could not save new user permissions to database', 'warn');
   }

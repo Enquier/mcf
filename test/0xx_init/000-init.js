@@ -41,7 +41,7 @@ const ArtifactStrategy = M.require(`artifact.${M.config.artifact.strategy}`);
  * that group (the first parameter passed into describe) is derived from the
  * name of the current file.
  */
-describe(M.getModuleName(module.filename), function() {
+describe(M.getModuleName(module.filename), function () {
   this.timeout(30000);
   /**
    * Execute the tests.
@@ -63,8 +63,7 @@ describe(M.getModuleName(module.filename), function() {
 async function cleanDB() {
   try {
     await db.clear();
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -88,8 +87,7 @@ async function initModels() {
 
     // Insert server data
     await ServerData.insertMany([{ _id: 'server_data', version: M.version }]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.critical('Failed to initialize models.');
     chai.expect(error.message).to.equal(null);
   }
@@ -109,13 +107,12 @@ async function createDefaultOrg() {
       _id: M.config.server.defaultOrganizationId,
       name: M.config.server.defaultOrganizationName,
       createdBy: null,
-      lastModifiedBy: null
+      lastModifiedBy: null,
     };
 
     // Save the default org
     await Organization.insertMany(defOrg);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -129,8 +126,7 @@ async function clearArtifactStorage() {
   try {
     // Remove artifacts
     await ArtifactStrategy.clear('');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

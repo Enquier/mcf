@@ -83,11 +83,10 @@ describe(M.getModuleName(module.filename), () => {
         testData.elements[5],
         testData.elements[6],
         testData.elements[7],
-        testData.elements[8]
+        testData.elements[8],
       ];
       await ElementController.create(adminUser, org._id, projID, branchID, elemDataObjects);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -104,8 +103,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       await testUtils.removeNonAdminUser();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -169,7 +167,7 @@ describe(M.getModuleName(module.filename), () => {
  * @returns {Function} Returns a function to be used as a test.
  */
 function unauthorizedTest(operation) {
-  return async function() {
+  return async function () {
     let elemData = testData.elements[0];
     let op = operation;
     const id = org._id;
@@ -184,7 +182,7 @@ function unauthorizedTest(operation) {
       case 'update':
         elemData = {
           id: elemData.id,
-          description: 'update'
+          description: 'update',
         };
         break;
       case 'createOrReplace':
@@ -204,9 +202,8 @@ function unauthorizedTest(operation) {
     try {
       // Attempt to perform the unauthorized operation
       await ElementController[operation](nonAdminUser, org._id, projID, branchID, elemData)
-      .should.eventually.be.rejectedWith(`User does not have permission to ${op} items in the ${level} [${id}]`);
-    }
-    catch (error) {
+        .should.eventually.be.rejectedWith(`User does not have permission to ${op} items in the ${level} [${id}]`);
+    } catch (error) {
       M.log.error(error);
       should.not.exist(error);
     }
@@ -222,7 +219,7 @@ function unauthorizedTest(operation) {
  * @returns {Function} Returns a function to be used as a test.
  */
 function archivedTest(model, operation) {
-  return async function() {
+  return async function () {
     let elemData = testData.elements[1];
     let id;
     let name;
@@ -256,7 +253,7 @@ function archivedTest(model, operation) {
       case 'update':
         elemData = {
           id: elemData.id,
-          documentation: 'update'
+          documentation: 'update',
         };
         break;
       case 'find':
@@ -279,14 +276,12 @@ function archivedTest(model, operation) {
       await model.updateOne({ _id: id }, { archived: true });
 
       await ElementController[operation](adminUser, org._id, projID, branchID, elemData)
-      .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
+        .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
         + 'It must first be unarchived before performing this operation.');
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       should.not.exist(error);
-    }
-    finally {
+    } finally {
       // un-archive the model
       await model.updateOne({ _id: id }, { archived: false });
     }
@@ -303,10 +298,9 @@ async function createExisting() {
 
     // Attempt to create an element; this element was already created in the before() function
     await ElementController.create(adminUser, org._id, projID, branchID, elemData)
-    .should.eventually.be.rejectedWith('Elements with the following IDs already exist '
+      .should.eventually.be.rejectedWith('Elements with the following IDs already exist '
       + `[${elemData.id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.warn(error);
     should.not.exist(error);
   }
@@ -324,11 +318,11 @@ async function createExisting() {
  * @returns {Function} Returns a function to be used as a test.
  */
 function notFoundTest(operation, reference) {
-  return async function() {
+  return async function () {
     const elemData = {
       id: (operation === 'create') ? testData.elements[0].id : testData.elements[1].id,
       source: testData.elements[5].source,
-      target: testData.elements[5].target
+      target: testData.elements[5].target,
     };
     const fakeID = 'thiselementshouldntexist';
 
@@ -337,15 +331,13 @@ function notFoundTest(operation, reference) {
     try {
       if (operation === 'create' || reference === 'Parent') {
         await ElementController[operation](adminUser, org._id, projID, branchID, elemData)
-        .should.eventually.be.rejectedWith(`${reference} element [${fakeID}] not found.`);
-      }
-      else {
+          .should.eventually.be.rejectedWith(`${reference} element [${fakeID}] not found.`);
+      } else {
         await ElementController[operation](adminUser, org._id, projID, branchID, elemData)
-        .should.eventually.be.rejectedWith(`The ${reference.toLowerCase()} element [${fakeID}] was `
+          .should.eventually.be.rejectedWith(`The ${reference.toLowerCase()} element [${fakeID}] was `
           + `not found in the project [${projID}].`);
       }
-    }
-    catch (error) {
+    } catch (error) {
       // Remove the element if it actually was created
       if (operation === 'create' && error.message.includes('fulfilled')) {
         ElementController.remove(adminUser, org._id, projID, branchID, elemData.id);
@@ -365,12 +357,12 @@ async function updateSourceToSelf() {
   // Set source to self
   const update = {
     id: elemDataObject.id,
-    source: elemDataObject.id
+    source: elemDataObject.id,
   };
 
   // Attempt to update the element; should be rejected with specific error message
   await ElementController.update(adminUser, org._id, projID, branchID, update)
-  .should.eventually.be.rejectedWith('Element\'s source cannot be self'
+    .should.eventually.be.rejectedWith('Element\'s source cannot be self'
     + ` [${elemDataObject.id}].`);
 }
 
@@ -383,12 +375,12 @@ async function updateTargetToSelf() {
   // Set source to self
   const update = {
     id: elemDataObject.id,
-    target: elemDataObject.id
+    target: elemDataObject.id,
   };
 
   // Attempt to update the element; should be rejected with specific error message
   await ElementController.update(adminUser, org._id, projID, branchID, update)
-  .should.eventually.be.rejectedWith('Element\'s target cannot be self'
+    .should.eventually.be.rejectedWith('Element\'s target cannot be self'
     + ` [${elemDataObject.id}].`);
 }
 
@@ -402,12 +394,12 @@ async function updateSourceWithNoTarget() {
   // Set source to self
   const update = {
     id: elemDataObject.id,
-    source: testData.elements[6].id
+    source: testData.elements[6].id,
   };
 
   // Attempt to update the element; should be rejected with specific error message
   await ElementController.update(adminUser, org._id, projID, branchID, update)
-  .should.eventually.be.rejectedWith('If source element is provided, target'
+    .should.eventually.be.rejectedWith('If source element is provided, target'
     + ' element is required.');
 }
 
@@ -421,12 +413,12 @@ async function updateTargetWithNoSource() {
   // Set source to self
   const update = {
     id: elemDataObject.id,
-    target: testData.elements[6].id
+    target: testData.elements[6].id,
   };
 
   // Attempt to update the element; should be rejected with specific error message
   await ElementController.update(adminUser, org._id, projID, branchID, update)
-  .should.eventually.be.rejectedWith('If target element is provided, source'
+    .should.eventually.be.rejectedWith('If target element is provided, source'
       + ' element is required.');
 }
 
@@ -438,7 +430,7 @@ async function createOnTag() {
 
   // Attempt to create an element; should be rejected with specific error message
   await ElementController.create(adminUser, org._id, projID, tagID, elementObj)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and does`
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and does`
     + ' not allow elements to be created, updated, or deleted.');
 }
 
@@ -449,12 +441,12 @@ async function updateOnTag() {
   // Create the object to update element
   const updateObj = {
     name: 'model_edit',
-    id: 'model'
+    id: 'model',
   };
 
   // Update element via controller; should be rejected with specific error message
   await ElementController.update(adminUser, org._id, projID, tagID, updateObj)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and `
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and `
     + 'does not allow elements to be created, updated, or deleted.');
 }
 
@@ -464,7 +456,7 @@ async function updateOnTag() {
 async function deleteOnTag() {
   // Attempt deleting an element via controller; should be rejected with specific error message
   await ElementController.remove(adminUser, org._id, projID, tagID, testData.elements[1].id)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and`
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and`
     + ' does not allow elements to be created, updated, or deleted.');
 }
 
@@ -482,18 +474,27 @@ async function putInvalidId() {
   const testElemObj1 = testData.elements[8];
   const invalidElemObj = { id: '!!', name: 'element name' };
 
-  await ElementController.createOrReplace(adminUser, org._id, projID, branchID,
-    [testElemObj0, testElemObj1, invalidElemObj])
-  .should.eventually.be.rejectedWith('Element validation failed: _id: '
+  await ElementController.createOrReplace(
+    adminUser,
+    org._id,
+    projID,
+    branchID,
+    [testElemObj0, testElemObj1, invalidElemObj],
+  )
+    .should.eventually.be.rejectedWith('Element validation failed: _id: '
     + `Invalid element ID [${invalidElemObj.id}].`);
 
   let foundElements;
   try {
     // Expected error, find valid elements
-    foundElements = await ElementController.find(adminUser, org._id, projID, branchID,
-      [testElemObj0.id, testElemObj1.id]);
-  }
-  catch (error) {
+    foundElements = await ElementController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      [testElemObj0.id, testElemObj1.id],
+    );
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -513,17 +514,26 @@ async function putWithoutId() {
   const invalidElemObj = { name: 'missing id' };
 
   // Try to put elements; should be rejected with specific error message
-  await ElementController.createOrReplace(adminUser, org._id, projID, branchID,
-    [testElemObj0, testElemObj1, invalidElemObj])
-  .should.eventually.be.rejectedWith('Element #3 does not have an id.');
+  await ElementController.createOrReplace(
+    adminUser,
+    org._id,
+    projID,
+    branchID,
+    [testElemObj0, testElemObj1, invalidElemObj],
+  )
+    .should.eventually.be.rejectedWith('Element #3 does not have an id.');
 
   let foundElems;
   try {
     // Expected error, find valid elements
-    foundElems = await ElementController.find(adminUser,
-      org._id, projID, branchID, [testElemObj0.id, testElemObj1.id]);
-  }
-  catch (error) {
+    foundElems = await ElementController.find(
+      adminUser,
+      org._id,
+      projID,
+      branchID,
+      [testElemObj0.id, testElemObj1.id],
+    );
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

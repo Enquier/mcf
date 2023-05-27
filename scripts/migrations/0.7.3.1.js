@@ -28,7 +28,7 @@ const Project = M.require('models.project');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await projectHelper();
 };
 
@@ -49,20 +49,20 @@ function projectHelper() {
 
     // Find all projects
     Project.find({})
-    .then((foundProjects) => {
-      projects = foundProjects;
+      .then((foundProjects) => {
+        projects = foundProjects;
 
-      // Write contents to temporary file
-      fs.writeFileSync(path.join(M.root, 'data', 'projects-0731.json'), JSON.stringify(projects));
-    })
+        // Write contents to temporary file
+        fs.writeFileSync(path.join(M.root, 'data', 'projects-0731.json'), JSON.stringify(projects));
+      })
     // Add the projectReferences field to each project
-    .then(() => Project.updateMany({}, { projectReferences: [] }))
-    .then(() => {
-      if (fs.existsSync(path.join(M.root, 'data', 'projects-0731.json'))) {
-        fs.unlinkSync(path.join(M.root, 'data', 'projects-0731.json'));
-      }
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+      .then(() => Project.updateMany({}, { projectReferences: [] }))
+      .then(() => {
+        if (fs.existsSync(path.join(M.root, 'data', 'projects-0731.json'))) {
+          fs.unlinkSync(path.join(M.root, 'data', 'projects-0731.json'));
+        }
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }

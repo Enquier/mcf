@@ -35,7 +35,7 @@ import { useApiClient } from '../context/ApiClientProvider';
 
 // Define component
 function ProjectList(props) {
-  const { orgService } = useApiClient();
+  const { authService, orgService } = useApiClient();
   const [width, setWidth] = useState(null);
   const [orgs, setOrgs] = useState([]);
   const [modalCreate, setModalCreate] = useState(false);
@@ -60,17 +60,18 @@ function ProjectList(props) {
 
   const refresh = () => {
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI(async (err, data) => {
+    authService.checkAuth(async (err, data) => {
       // Verify if error
       if (err) {
         // Set error state
         setError(err);
-      }
-      else {
+      } else {
         // Request data
         const options = {
-          populate: 'projects',
-          includeArchived: true
+          params: {
+            populate: 'projects',
+            includeArchived: true,
+          },
         };
         const [err2, orgData] = await orgService.get(options);
 
@@ -95,14 +96,13 @@ function ProjectList(props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
   let projectsAvaliable = false;
 
   // Loop through all orgs
-  const list = orgs.map(org => {
+  const list = orgs.map((org) => {
     // Initialize variables
     const orgId = org.id;
-    const projects = org.projects;
+    const { projects } = org;
     const permProjects = [];
     const archiveProj = org.archived;
     let className;
@@ -118,7 +118,7 @@ function ProjectList(props) {
     }
 
     // Push all projects to the viewable projects
-    projects.forEach(project => permProjects.push(<ProjectListItem className='hover-darken project-hover'
+    projects.forEach((project) => permProjects.push(<ProjectListItem className='hover-darken project-hover'
                                                                   archiveProj={archiveProj}
                                                                   key={`proj-key-${project.id}`}
                                                                   project={project}

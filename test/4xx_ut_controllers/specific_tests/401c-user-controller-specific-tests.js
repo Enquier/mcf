@@ -42,8 +42,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       // Create test admin
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error.message);
       // Expect no error
       chai.expect(error.message).to.equal(null);
@@ -56,8 +55,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error.message);
       // Expect no error
       chai.expect(error.message).to.equal(null);
@@ -89,8 +87,10 @@ describe(M.getModuleName(module.filename), () => {
   // ------------- Remove -------------
   // --------- Update Password --------
   // ------------- Search -------------
-  it('should search an archived user when the option archived is provided',
-    optionArchivedSearch);
+  it(
+    'should search an archived user when the option archived is provided',
+    optionArchivedSearch,
+  );
   it('should include archived users in the search results when the option includeArchived'
     + ' is provided', optionIncludeArchivedSearch);
   it('should populate allowed fields when searching a user', optionPopulateSearch);
@@ -111,7 +111,7 @@ async function createArchivedUser() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'Test',
-      archived: true
+      archived: true,
     };
 
     // Create user via UserController
@@ -127,8 +127,7 @@ async function createArchivedUser() {
     chai.expect(createdUser.archivedOn).to.not.equal(null);
     // Remove the test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -145,7 +144,7 @@ async function optionPopulateCreate() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Get the valid populate fields
     const pop = User.getValidPopulateFields();
@@ -169,8 +168,7 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (createdUser[field] !== null) {
+      } else if (createdUser[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof createdUser[field]).to.equal('object');
         // Expect each populated field to at least have an id
@@ -180,8 +178,7 @@ async function optionPopulateCreate() {
 
     // Remove the test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -198,12 +195,12 @@ async function optionFieldsCreate() {
     const userObjFind = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'TestFind'
+      fname: 'TestFind',
     };
     const userObjNotFind = {
       username: 'testuser01',
       password: 'Abc123!@',
-      fname: 'TestNotFind'
+      fname: 'TestNotFind',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['fname', 'createdBy'] };
@@ -237,8 +234,7 @@ async function optionFieldsCreate() {
 
     // Remove the test user
     await UserController.remove(adminUser, [userObjFind.username, userObjNotFind.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -254,12 +250,12 @@ async function archiveUser() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the update object
     const updateObj = {
       username: userData.username,
-      archived: true
+      archived: true,
     };
     // Create the test user
     const createdUsers = await UserController.create(adminUser, userData);
@@ -287,8 +283,7 @@ async function archiveUser() {
 
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -306,7 +301,7 @@ async function optionArchivedFind() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'Test',
-      archived: true
+      archived: true,
     };
     // Create the options object
     const options = { archived: true };
@@ -336,8 +331,7 @@ async function optionArchivedFind() {
 
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -355,7 +349,7 @@ async function optionIncludeArchivedFind() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'Test',
-      archived: true
+      archived: true,
     };
     // Create the options object
     const options = { includeArchived: true };
@@ -386,8 +380,7 @@ async function optionIncludeArchivedFind() {
     chai.expect(archivedUser.archivedBy).to.equal(adminUser._id);
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -405,7 +398,7 @@ async function optionPopulateFind() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Get the valid populate fields
     const pop = User.getValidPopulateFields();
@@ -436,8 +429,7 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (foundUser[field] !== null) {
+      } else if (foundUser[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof foundUser[field]).to.equal('object');
         // Expect each populated field to at least have an id
@@ -447,8 +439,7 @@ async function optionPopulateFind() {
 
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -465,17 +456,17 @@ async function optionLimitFind() {
     const user1 = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     const user2 = {
       username: 'testuser01',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     const user3 = {
       username: 'testuser02',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the options object with a limit of 2
     const options = { limit: 2 };
@@ -491,8 +482,7 @@ async function optionLimitFind() {
 
     // Remove test users
     await UserController.remove(adminUser, [user1.username, user2.username, user3.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -509,22 +499,22 @@ async function optionSkipFind() {
     const user1 = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     const user2 = {
       username: 'testuser01',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     const user3 = {
       username: 'testuser02',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     const user4 = {
       username: 'testuser03',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the first options object with just a limit
     const firstOptions = { limit: 2 };
@@ -541,20 +531,19 @@ async function optionSkipFind() {
     // Verify that no more than 2 users were found
     chai.expect(firstUsers.length).to.equal(2);
     // Add user ids to the firstBatchIDs array
-    const firstBatchIDs = firstUsers.map(u => u._id);
+    const firstBatchIDs = firstUsers.map((u) => u._id);
 
     // Find the next batch of users
     const secondUsers = await UserController.find(adminUser, secondOptions);
     // Verify that no more than 2 users were found
     chai.expect(secondUsers).to.have.lengthOf.at.most(2);
     // Verify the second batch of users are not the same as the first
-    const secondBatchIDs = secondUsers.map(u => u._id);
+    const secondBatchIDs = secondUsers.map((u) => u._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
 
     await UserController.remove(adminUser, [user1.username,
       user2.username, user3.username, user4.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -571,12 +560,12 @@ async function optionPopulateUpdate() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the update object
     const updateUser = {
       username: userData.username,
-      fname: 'Update'
+      fname: 'Update',
     };
     // Get valid populate options
     const pop = User.getValidPopulateFields();
@@ -609,8 +598,7 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (updatedUser[field] !== null) {
+      } else if (updatedUser[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof updatedUser[field]).to.equal('object');
         // Expect each populated field to at least have an id
@@ -619,8 +607,7 @@ async function optionPopulateUpdate() {
     });
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -637,12 +624,12 @@ async function optionFieldsUpdate() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the update object
     const updateUser = {
       username: userData.username,
-      fname: 'Update'
+      fname: 'Update',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['fname', 'createdBy'] };
@@ -697,8 +684,7 @@ async function optionFieldsUpdate() {
 
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -715,13 +701,13 @@ async function optionPopulateReplace() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the replace user object
     const replaceUserObj = {
       username: userData.username,
       password: 'Abc123!@',
-      fname: 'Replaced'
+      fname: 'Replaced',
     };
     // Get valid populate options
     const pop = User.getValidPopulateFields();
@@ -754,8 +740,7 @@ async function optionPopulateReplace() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (replacedUser[field] !== null) {
+      } else if (replacedUser[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof replacedUser[field]).to.equal('object');
         // Expect each populated field to at least have an id
@@ -765,8 +750,7 @@ async function optionPopulateReplace() {
 
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -783,18 +767,18 @@ async function optionFieldsReplace() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'Test'
+      fname: 'Test',
     };
     // Create the replace user objects
     const replaceUserObj1 = {
       username: userData.username,
       password: 'Abc123!@',
-      fname: 'Replaced'
+      fname: 'Replaced',
     };
     const replaceUserObj2 = {
       username: userData.username,
       password: 'Abc123!@',
-      fname: 'ReplacedAgain'
+      fname: 'ReplacedAgain',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['fname', 'createdBy'] };
@@ -812,8 +796,11 @@ async function optionFieldsReplace() {
     chai.expect(createdUser.fname).to.equal(userData.fname);
 
     // Replace a user with field find options
-    const replacedUsers = await UserController.createOrReplace(adminUser, replaceUserObj1,
-      findOptions);
+    const replacedUsers = await UserController.createOrReplace(
+      adminUser,
+      replaceUserObj1,
+      findOptions,
+    );
     const replacedUser = replacedUsers[0];
 
     // Validate that user was replaced properly
@@ -829,8 +816,11 @@ async function optionFieldsReplace() {
     // Check that the only keys in the user are the expected ones
     chai.expect(visibleFields).to.have.members(expectedFields);
 
-    const notFindUsers = await UserController.createOrReplace(adminUser, replaceUserObj2,
-      notFindOptions);
+    const notFindUsers = await UserController.createOrReplace(
+      adminUser,
+      replaceUserObj2,
+      notFindOptions,
+    );
     const notFindUser = notFindUsers[0];
 
     // Validate user replaced properly
@@ -844,8 +834,7 @@ async function optionFieldsReplace() {
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
     // Remove test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -863,7 +852,7 @@ async function optionArchivedSearch() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'FirstName',
-      archived: true
+      archived: true,
     };
     // Search term
     const searchQuery = 'FirstName';
@@ -892,8 +881,7 @@ async function optionArchivedSearch() {
     });
 
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -911,7 +899,7 @@ async function optionIncludeArchivedSearch() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'FirstName',
-      archived: true
+      archived: true,
     };
     // Search term
     const searchQuery = 'FirstName';
@@ -942,8 +930,7 @@ async function optionIncludeArchivedSearch() {
 
     // Remove the test user
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -960,7 +947,7 @@ async function optionPopulateSearch() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     // Search term
     const searchQuery = 'First';
@@ -995,8 +982,7 @@ async function optionPopulateSearch() {
             // Expect each populated field to at least have an id
             chai.expect('_id' in item).to.equal(true);
           });
-        }
-        else if (foundUser[field] !== null) {
+        } else if (foundUser[field] !== null) {
           // Expect each populated field to be an object
           chai.expect(typeof foundUser[field]).to.equal('object');
           // Expect each populated field to at least have an id
@@ -1006,8 +992,7 @@ async function optionPopulateSearch() {
     });
 
     await UserController.remove(adminUser, userData.username);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1024,12 +1009,12 @@ async function optionLimitSearch() {
     const userData = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     const userData2 = {
       username: 'testuser01',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     // Search term
     const searchQuery = 'First';
@@ -1054,8 +1039,7 @@ async function optionLimitSearch() {
     });
 
     await UserController.remove(adminUser, [userData.username, userData2.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1072,17 +1056,17 @@ async function optionSkipSearch() {
     const user1 = {
       username: 'testuser00',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     const user2 = {
       username: 'testuser01',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     const user3 = {
       username: 'testuser02',
       password: 'Abc123!@',
-      fname: 'First'
+      fname: 'First',
     };
     // Search term
     const searchQuery = 'First';
@@ -1102,7 +1086,7 @@ async function optionSkipSearch() {
     chai.expect(firstUsers.length).to.equal(2);
 
     // Add user ids to the firstBatchIDs array
-    const firstBatchIDs = firstUsers.map(u => u._id);
+    const firstBatchIDs = firstUsers.map((u) => u._id);
 
     // Search for next batch of users
     const secondUsers = await UserController.search(adminUser, searchQuery, secondOptions);
@@ -1110,12 +1094,11 @@ async function optionSkipSearch() {
     chai.expect(secondUsers.length).to.equal(1);
 
     // Expect the second search to return different users than the first
-    const secondBatchIDs = secondUsers.map(u => u._id);
+    const secondBatchIDs = secondUsers.map((u) => u._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
 
     await UserController.remove(adminUser, [user1.username, user2.username, user3.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1131,17 +1114,17 @@ async function optionSortFind() {
     const user1 = {
       username: 'testuser0',
       password: 'Abc123!@',
-      fname: 'c'
+      fname: 'c',
     };
     const user2 = {
       username: 'testuser1',
       password: 'Abc123!@',
-      fname: 'a'
+      fname: 'a',
     };
     const user3 = {
       username: 'testuser2',
       password: 'Abc123!@',
-      fname: 'b'
+      fname: 'b',
     };
     // Create sort options
     const sortOption = { sort: 'fname' };
@@ -1153,8 +1136,11 @@ async function optionSortFind() {
     chai.expect(createdUsers.length).to.equal(3);
 
     // Find the users and return them sorted
-    const sortUsers = await UserController.find(adminUser,
-      [user1.username, user2.username, user3.username], sortOption);
+    const sortUsers = await UserController.find(
+      adminUser,
+      [user1.username, user2.username, user3.username],
+      sortOption,
+    );
     // Expect to find all three users
     chai.expect(sortUsers.length).to.equal(3);
 
@@ -1167,8 +1153,11 @@ async function optionSortFind() {
     chai.expect(sortUsers[2]._id).to.equal('testuser0');
 
     // Find the users and return them sorted in reverse
-    const reverseUsers = await UserController.find(adminUser,
-      [user1.username, user2.username, user3.username], sortOptionReverse);
+    const reverseUsers = await UserController.find(
+      adminUser,
+      [user1.username, user2.username, user3.username],
+      sortOptionReverse,
+    );
     // Expect to find all three users
     chai.expect(reverseUsers.length).to.equal(3);
 
@@ -1181,8 +1170,7 @@ async function optionSortFind() {
     chai.expect(reverseUsers[2]._id).to.equal('testuser1');
 
     await UserController.remove(adminUser, [user1.username, user2.username, user3.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -1199,25 +1187,25 @@ async function optionSortSearch() {
       username: 'testuser00',
       password: 'Abc123!@',
       fname: 'b',
-      lname: 'searchme'
+      lname: 'searchme',
     };
     const user2 = {
       username: 'testuser01',
       password: 'Abc123!@',
       fname: 'c',
-      lname: 'searchme'
+      lname: 'searchme',
     };
     const user3 = {
       username: 'testuser02',
       password: 'Abc123!@',
       fname: 'a',
-      lname: 'searchme'
+      lname: 'searchme',
     };
     const user4 = {
       username: 'testuser03',
       password: 'Abc123!@',
       fname: 'd',
-      lname: 'no'
+      lname: 'no',
     };
 
     // Create sort options
@@ -1259,8 +1247,7 @@ async function optionSortSearch() {
 
     await UserController.remove(adminUser, [user1.username, user2.username,
       user3.username, user4.username]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);

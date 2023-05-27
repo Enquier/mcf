@@ -20,15 +20,17 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
+import {
+  Modal, ModalHeader, ModalBody, ModalFooter, Button,
+} from 'reactstrap';
 
 // MBEE modules
 import { useApiClient } from '../context/ApiClientProvider.js';
 
 // Dynamically load Login Modal Message
 import uiConfig from '../../../../build/json/uiConfig.json';
-const loginModal = uiConfig.loginModal;
 
+const { loginModal } = uiConfig;
 
 export default function LoginPage(props) {
   const { authService } = useApiClient();
@@ -56,9 +58,8 @@ export default function LoginPage(props) {
 
     // Create object to send for authentication
     const form = {
-      username: username,
-      password: password,
-      next: next
+      username,
+      password,
     };
 
     const [err] = await authService.login(form);
@@ -79,8 +80,7 @@ export default function LoginPage(props) {
           toggleModal();
         }
       }
-    }
-    else {
+    } else {
       toggleModal();
     }
   };
@@ -95,14 +95,11 @@ export default function LoginPage(props) {
     let hideDivisor = 0;
     if (result.length < 2) {
       hideDivisor = 60;
-    }
-    else if (result[2] === 'h') {
+    } else if (result[2] === 'h') {
       hideDivisor = 60;
-    }
-    else if (result[2] === 's') {
+    } else if (result[2] === 's') {
       hideDivisor = 3600;
-    }
-    else {
+    } else {
       hideDivisor = 60;
     }
     window.sessionStorage.removeItem('mbee-accept-until');
@@ -124,7 +121,6 @@ export default function LoginPage(props) {
     }
   };
 
-
   // Overwrites componentDidLoad to trigger the modal on initial render
   useEffect(() => {
     triggerModal();
@@ -136,7 +132,9 @@ export default function LoginPage(props) {
         <div className="container" style={{ maxWidth: '450px' }}>
           { error
             ? (<div className="alert alert-danger alert-dismissible fade show" role="alert"
-                   style={{ position: 'fixed', top: '100px', left: '50%', transform: 'translateX(-50%)' }}>
+                   style={{
+                     position: 'fixed', top: '100px', left: '50%', transform: 'translateX(-50%)',
+                   }}>
                 {error}
                 <button type="button" className="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -161,9 +159,7 @@ export default function LoginPage(props) {
           </div>
         </div>
         <Modal isOpen={modalOpen}>
-          <ModalHeader>
-            <h5 className="modal-title">NOTICE</h5>
-          </ModalHeader>
+          <ModalHeader>NOTICE</ModalHeader>
           <ModalBody>
             <p style={{ color: '#333' }}>{loginModal.message}</p>
           </ModalBody>

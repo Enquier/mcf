@@ -25,20 +25,19 @@ import { Link } from 'react-router-dom';
 
 // Define component
 class BranchListItem extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      error: null
+      error: null,
     };
   }
 
   render() {
     // Initialize variables
-    const branch = this.props.branch;
+    const { branch } = this.props;
     let classNames = 'list-header';
     let archivedClass;
     let date;
@@ -82,7 +81,6 @@ class BranchListItem extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

@@ -25,7 +25,7 @@ const User = M.require('models.user');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await twoToThreeUserHelper();
 };
 
@@ -39,20 +39,20 @@ function twoToThreeUserHelper() {
   return new Promise((resolve, reject) => {
     // Get all indexes from the users data
     User.getIndexes()
-    .then((indexes) => {
-      const promises = [];
-      // Loop through the found indexes
-      indexes.forEach((index) => {
+      .then((indexes) => {
+        const promises = [];
+        // Loop through the found indexes
+        indexes.forEach((index) => {
         // If unique ID index exists, delete from users collection
-        if (index.name === 'username_1') {
-          promises.push(User.deleteIndex('username_1'));
-        }
-      });
+          if (index.name === 'username_1') {
+            promises.push(User.deleteIndex('username_1'));
+          }
+        });
 
-      // Return when all organization indexes have been dropped
-      return Promise.all(promises);
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+        // Return when all organization indexes have been dropped
+        return Promise.all(promises);
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }

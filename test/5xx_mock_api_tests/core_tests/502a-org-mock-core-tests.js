@@ -27,7 +27,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -44,8 +44,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -58,8 +57,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -117,8 +115,12 @@ function postOrg(done) {
     chai.expect(postedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(postedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(postedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -139,7 +141,7 @@ function postOrgs(done) {
   // Create request object
   const orgData = [
     testData.orgs[1],
-    testData.orgs[2]
+    testData.orgs[2],
   ];
   const params = {};
   const method = 'POST';
@@ -177,8 +179,12 @@ function postOrgs(done) {
       chai.expect(postedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(postedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(postedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -227,8 +233,12 @@ function putOrg(done) {
     chai.expect(replacedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(replacedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(replacedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -251,7 +261,7 @@ function putOrgs(done) {
   const orgData = [
     testData.orgs[1],
     testData.orgs[2],
-    testData.orgs[3]
+    testData.orgs[3],
   ];
   const params = {};
   const method = 'PUT';
@@ -289,8 +299,12 @@ function putOrgs(done) {
       chai.expect(replacedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(replacedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(replacedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -338,8 +352,12 @@ function getOrg(done) {
     chai.expect(foundOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -360,7 +378,7 @@ function getOrgs(done) {
   const orgData = [
     testData.orgs[1],
     testData.orgs[2],
-    testData.orgs[3]
+    testData.orgs[3],
   ];
   // Create request object
   const params = {};
@@ -400,8 +418,12 @@ function getOrgs(done) {
       chai.expect(foundOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -424,7 +446,7 @@ function getAllOrgs(done) {
     testData.orgs[0],
     testData.orgs[1],
     testData.orgs[2],
-    testData.orgs[3]
+    testData.orgs[3],
   ];
 
   // Create request object
@@ -465,8 +487,12 @@ function getAllOrgs(done) {
       chai.expect(foundOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -513,8 +539,12 @@ function patchOrg(done) {
     chai.expect(patchedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(patchedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(patchedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -536,11 +566,11 @@ function patchOrgs(done) {
   const orgData = [
     testData.orgs[1],
     testData.orgs[2],
-    testData.orgs[3]
+    testData.orgs[3],
   ];
   const arrUpdateOrg = orgData.map((p) => ({
     id: p.id,
-    name: testData.orgs[1].name
+    name: testData.orgs[1].name,
   }));
 
   const params = {};
@@ -578,8 +608,12 @@ function patchOrgs(done) {
       chai.expect(patchedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(patchedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(patchedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -638,12 +672,12 @@ function deleteOrgs(done) {
   const orgData = [
     testData.orgs[1],
     testData.orgs[2],
-    testData.orgs[3]
+    testData.orgs[3],
   ];
 
-  const orgIDs = orgData.map(o => o.id);
+  const orgIDs = orgData.map((o) => o.id);
   const ids = orgIDs.join(',');
-  const query = { ids: ids };
+  const query = { ids };
   const body = {};
 
   const params = {};

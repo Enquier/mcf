@@ -53,10 +53,9 @@ const corsOptions = {
     if (!origin || allowlist.includes(origin)) {
       return callback(null, true);
     }
-    else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+
+    callback(new Error('Not allowed by CORS'));
+  },
 };
 
 // Publisher
@@ -76,16 +75,16 @@ module.exports = app;
  * default organization if needed.
  */
 db.connect()
-.then(() => initModels())
-.then(() => migrate.getVersion())
-.then(() => createDefaultOrganization())
-.then(() => createDefaultAdmin())
-.then(() => initApp())
-.then(() => initIntegratedServices())
-.catch(err => {
-  M.log.critical(err.stack);
-  process.exit(1);
-});
+  .then(() => initModels())
+  .then(() => migrate.getVersion())
+  .then(() => createDefaultOrganization())
+  .then(() => createDefaultAdmin())
+  .then(() => initApp())
+  .then(() => initIntegratedServices())
+  .catch((err) => {
+    M.log.critical(err.stack);
+    process.exit(1);
+  });
 
 redisClient.on('connect', () => {
   M.log.info('Redis successfully connected');
@@ -114,9 +113,9 @@ function initApp() {
     app.use(compression());
 
     // Configure the static/public directory
-    const staticDir = path.join(__dirname, '..', 'build', 'public');
+    const staticDir = path.join(__dirname, '..', 'build');
     app.use(express.static(staticDir));
-    app.use('/favicon.ico', express.static('build/public/img/favicon.ico'));
+    // app.use('/favicon.ico', express.static('build/img/favicon.ico'));
 
     // for parsing application/json
     app.use(bodyParser.json({ limit: M.config.server.requestSize || '50mb' }));
@@ -125,8 +124,10 @@ function initApp() {
     app.use(cors(corsOptions));
 
     // for parsing application/xwww-form-urlencoded
-    app.use(bodyParser.urlencoded({ limit: M.config.server.requestSize || '50mb',
-      extended: true }));
+    app.use(bodyParser.urlencoded({
+      limit: M.config.server.requestSize || '50mb',
+      extended: true,
+    }));
 
     // Trust proxy for IP logging
     app.enable('trust proxy');
@@ -150,14 +151,14 @@ function initApp() {
         maxAge: M.config.auth.session.expires * units,
         secure: M.config.auth.session.cookie.secure,
         httpOnly: M.config.auth.session.cookie.httpOnly,
-        sameSite: M.config.auth.session.cookie.sameSite
+        sameSite: M.config.auth.session.cookie.sameSite,
       },
       store: new RedisStore({
         host: M.config.auth.session.redis_host,
         port: M.config.auth.session.redis_port,
         client: redisClient,
-        ttl: 86400
-      })
+        ttl: 86400,
+      }),
     }));
 
     // Enable flash messages
@@ -182,14 +183,18 @@ function initApp() {
 
     // Load the UI/other routes
     if (M.config.server.ui.enabled) {
-      app.get('/doc/api',
+      app.get(
+        '/doc/api',
         middleware.logRoute,
-        UIController.swaggerDoc);
-      app.get('/doc/flight-manual',
+        UIController.swaggerDoc,
+      );
+      app.get(
+        '/doc/flight-manual',
         middleware.logRoute,
-        UIController.flightManual);
+        UIController.flightManual,
+      );
       app.use('/', middleware.logRoute, (req, res) => {
-        res.sendFile(path.join(M.root, 'build', 'public', 'index.html'));
+        res.sendFile(path.join(M.root, 'build', 'index.html'));
       });
     }
     return resolve();
@@ -207,7 +212,7 @@ async function createDefaultOrganization() {
     // Find all users
     const users = await User.find({});
     // Set userIDs to the _id of the users array
-    const userIDs = users.map(u => u._id);
+    const userIDs = users.map((u) => u._id);
 
     // Find the default organization
     const defaultOrgQuery = { _id: M.config.server.defaultOrganizationId };
@@ -218,16 +223,15 @@ async function createDefaultOrganization() {
       // Default organization exists, prune user permissions to only include
       // users currently in the database.
       Object.keys(org.permissions)
-      .forEach((user) => {
-        if (!userIDs.includes(user)) {
-          delete org.permissions.user;
-        }
-      });
+        .forEach((user) => {
+          if (!userIDs.includes(user)) {
+            delete org.permissions.user;
+          }
+        });
 
       // Save the updated organization
       await Organization.updateOne(defaultOrgQuery, { permissions: org.permissions });
-    }
-    else {
+    } else {
       // Default organization does NOT exist, create it and add all active users
       // to permissions list
       const defaultOrg = {
@@ -236,9 +240,9 @@ async function createDefaultOrganization() {
         permissions: {},
         custom: {
           mms: {
-            public: true
-          }
-        }
+            public: true,
+          },
+        },
       };
 
       // Add each existing user to default org
@@ -251,8 +255,7 @@ async function createDefaultOrganization() {
 
       M.log.info('Default Organization Created');
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.ServerError('Failed to create the default organization.', 'error');
   }
 }
@@ -277,7 +280,7 @@ async function createDefaultAdmin() {
         password: M.config.server.defaultAdminPassword,
         provider: 'local',
         admin: true,
-        changePassword: false
+        changePassword: false,
       };
 
       User.hashPassword(adminUserData);
@@ -297,8 +300,7 @@ async function createDefaultAdmin() {
 
       M.log.info('Default Admin Created');
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.ServerError('Failed to create the default admin.', 'error');
   }
 }
@@ -334,7 +336,7 @@ async function initIntegratedServices() {
   });
 
   // Listen to all messages from all channels
-  subscriber.on('message', async function(channel, message) {
+  subscriber.on('message', async (channel, message) => {
     const parsedMessage = JSON.parse(message);
 
     switch (channel) {
@@ -344,7 +346,7 @@ async function initIntegratedServices() {
         // integration key
         const integrationKey = {
           name: parsedMessage.name,
-          key: parsedMessage.key
+          key: parsedMessage.key,
         };
 
         // store user password as integration key

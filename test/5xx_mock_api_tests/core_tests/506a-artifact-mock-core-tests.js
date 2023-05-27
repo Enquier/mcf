@@ -16,7 +16,7 @@
  */
 
 // Node modules
-const fs = require('fs');     // Access the filesystem
+const fs = require('fs'); // Access the filesystem
 const path = require('path'); // Find directory paths
 
 // NPM modules
@@ -30,7 +30,7 @@ const jmi = M.require('lib.jmi-conversions');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org = null;
 let orgID = null;
@@ -61,8 +61,7 @@ describe(M.getModuleName(module.filename), () => {
       // Create project
       proj = await testUtils.createTestProject(adminUser, orgID);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -79,8 +78,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       // Expect no error
       chai.expect(error).to.equal(null);
     }
@@ -119,7 +117,7 @@ function postArtifact(done) {
     filename: artData.filename,
     location: artData.location,
     custom: artData.custom,
-    size: artData.size
+    size: artData.size,
   };
 
   // Create request params
@@ -127,7 +125,7 @@ function postArtifact(done) {
     orgid: orgID,
     projectid: projID,
     branchid: branchID,
-    artifactid: body.id
+    artifactid: body.id,
   };
 
   const method = 'POST';
@@ -153,7 +151,7 @@ function postArtifact(done) {
     chai.expect(createdArtifact.filename).to.equal(artData.filename);
     chai.expect(createdArtifact.strategy).to.equal(M.config.artifact.strategy);
     chai.expect(createdArtifact.custom || {}).to.deep.equal(
-      artData.custom
+      artData.custom,
     );
     chai.expect(createdArtifact.size).to.equal(artData.size);
 
@@ -165,8 +163,12 @@ function postArtifact(done) {
     chai.expect(createdArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(createdArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -187,14 +189,14 @@ function postArtifacts(done) {
   // Define artifact metadata
   const artData = [
     testData.artifacts[1],
-    testData.artifacts[2]
+    testData.artifacts[2],
   ];
 
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
 
   const method = 'POST';
@@ -244,8 +246,12 @@ function postArtifacts(done) {
       chai.expect(createdArt.updatedOn).to.not.equal(null);
 
       // Verify specific fields not returned
-      chai.expect(createdArt).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdArt).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     done();
@@ -272,7 +278,7 @@ function getArtifact(done) {
     orgid: orgID,
     projectid: projID,
     branchid: branchID,
-    artifactid: artData.id
+    artifactid: artData.id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -298,7 +304,7 @@ function getArtifact(done) {
     chai.expect(foundArtifact.filename).to.equal(artData.filename);
     chai.expect(foundArtifact.strategy).to.equal(M.config.artifact.strategy);
     chai.expect(foundArtifact.custom || {}).to.deep.equal(
-      artData.custom
+      artData.custom,
     );
     chai.expect(foundArtifact.size).to.equal(artData.size);
 
@@ -310,8 +316,12 @@ function getArtifact(done) {
     chai.expect(foundArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -332,19 +342,19 @@ function getArtifacts(done) {
   // Define artifact metadata
   const artData = [
     testData.artifacts[1],
-    testData.artifacts[2]
+    testData.artifacts[2],
   ];
 
   const artIDs = [
     testData.artifacts[1].id,
-    testData.artifacts[2].id
+    testData.artifacts[2].id,
   ];
 
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, artIDs, method);
@@ -384,7 +394,7 @@ function getArtifacts(done) {
       chai.expect(foundArtifact.filename).to.equal(artObj.filename);
       chai.expect(foundArtifact.strategy).to.equal(M.config.artifact.strategy);
       chai.expect(foundArtifact.custom || {}).to.deep.equal(
-        artObj.custom
+        artObj.custom,
       );
       chai.expect(foundArtifact.size).to.equal(artObj.size);
 
@@ -396,8 +406,12 @@ function getArtifacts(done) {
       chai.expect(foundArtifact.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundArtifact).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     done();
@@ -419,14 +433,14 @@ function postBlob(done) {
   // Create request body
   const body = {
     location: artData.location,
-    filename: artData.filename
+    filename: artData.filename,
   };
 
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -434,7 +448,7 @@ function postBlob(done) {
   // Attach the file to request
   const artifactPath = path.join(M.root, artData.location, artData.filename);
   req.file = {
-    buffer: fs.readFileSync(artifactPath)
+    buffer: fs.readFileSync(artifactPath),
   };
 
   // Set response as empty object
@@ -471,12 +485,12 @@ function getBlob(done) {
   // Create request params
   const params = {
     orgid: orgID,
-    projectid: projID
+    projectid: projID,
   };
 
   const query = {
     location: artData.location,
-    filename: artData.filename
+    filename: artData.filename,
   };
 
   const method = 'GET';
@@ -518,7 +532,7 @@ function listBlobs(done) {
   // Create request params
   const params = {
     orgid: orgID,
-    projectid: projID
+    projectid: projID,
   };
 
   const method = 'GET';
@@ -561,7 +575,7 @@ function getBlobById(done) {
     orgid: orgID,
     projectid: projID,
     branchid: branchID,
-    artifactid: artData.id
+    artifactid: artData.id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -603,13 +617,13 @@ function deleteBlob(done) {
 
   const query = {
     location: artData.location,
-    filename: artData.filename
+    filename: artData.filename,
   };
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
 
   const method = 'DELETE';
@@ -648,7 +662,7 @@ function patchArtifact(done) {
 
   // Create request body
   const body = {
-    description: 'edited_description'
+    description: 'edited_description',
   };
 
   // Create request params
@@ -656,7 +670,7 @@ function patchArtifact(done) {
     orgid: orgID,
     projectid: projID,
     branchid: branchID,
-    artifactid: testData.artifacts[0].id
+    artifactid: testData.artifacts[0].id,
   };
 
   const method = 'PATCH';
@@ -683,7 +697,7 @@ function patchArtifact(done) {
     chai.expect(updatedArtifact.filename).to.equal(artData.filename);
     chai.expect(updatedArtifact.strategy).to.equal(M.config.artifact.strategy);
     chai.expect(updatedArtifact.custom || {}).to.deep.equal(
-      artData.custom
+      artData.custom,
     );
     chai.expect(updatedArtifact.size).to.equal(artData.size);
 
@@ -695,8 +709,12 @@ function patchArtifact(done) {
     chai.expect(updatedArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(updatedArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -717,19 +735,19 @@ function patchArtifacts(done) {
   // Define artifact metadata
   const artData = [
     testData.artifacts[1],
-    testData.artifacts[2]
+    testData.artifacts[2],
   ];
 
-  const updateObj = artData.map(a => ({
+  const updateObj = artData.map((a) => ({
     id: a.id,
-    description: `${a.description}_edit`
+    description: `${a.description}_edit`,
   }));
 
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
 
   const method = 'PATCH';
@@ -770,7 +788,7 @@ function patchArtifacts(done) {
       chai.expect(updatedArtifact.filename).to.equal(artObj.filename);
       chai.expect(updatedArtifact.strategy).to.equal(M.config.artifact.strategy);
       chai.expect(updatedArtifact.custom || {}).to.deep.equal(
-        artObj.custom
+        artObj.custom,
       );
       chai.expect(updatedArtifact.size).to.equal(artObj.size);
 
@@ -782,8 +800,12 @@ function patchArtifacts(done) {
       chai.expect(updatedArtifact.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(updatedArtifact).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     done();
@@ -810,7 +832,7 @@ function deleteArtifact(done) {
     orgid: orgID,
     projectid: projID,
     branchid: branchID,
-    artifactid: artData.id
+    artifactid: artData.id,
   };
   const method = 'DELETE';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -845,19 +867,19 @@ function deleteArtifacts(done) {
   // Define artifact metadata
   const artIDs = [
     testData.artifacts[1].id,
-    testData.artifacts[2].id
+    testData.artifacts[2].id,
   ];
 
   const ids = artIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
 
   // Create request params
   const params = {
     orgid: orgID,
     projectid: projID,
-    branchid: branchID
+    branchid: branchID,
   };
   const method = 'DELETE';
   const req = testUtils.createRequest(adminUser, params, body, method, query);

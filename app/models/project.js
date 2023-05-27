@@ -62,7 +62,6 @@ const validators = M.require('lib.validators');
 const extensions = M.require('models.plugin.extensions');
 const utils = M.require('lib.utils');
 
-
 /* ----------------------------( Project Model )----------------------------- */
 
 /**
@@ -86,23 +85,23 @@ const ProjectSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.project._id.reserved,
-      message: props => 'Project ID cannot include the following words: '
-      + `[${validators.reserved}].`
+      message: (props) => 'Project ID cannot include the following words: '
+      + `[${validators.reserved}].`,
     }, {
       validator: validators.project._id.match,
-      message: props => `Invalid project ID [${utils.parseID(props.value).pop()}].`
+      message: (props) => `Invalid project ID [${utils.parseID(props.value).pop()}].`,
     }, {
       validator: validators.project._id.maxLength,
       // Return a message, with calculated length of project ID (project.max - org.max - :)
-      message: props => `Project ID length [${props.value.length - validators.org.idLength - 1}]`
+      message: (props) => `Project ID length [${props.value.length - validators.org.idLength - 1}]`
         + ` must not be more than ${validators.project.idLength - validators.org.idLength - 1}`
-        + ' characters.'
+        + ' characters.',
     }, {
       validator: validators.project._id.minLength,
       // Return a message, with calculated length of project ID (project.min - org.min - :)
-      message: props => `Project ID length [${props.value.length - 3}] must not`
-        + ' be less than 2 characters.'
-    }]
+      message: (props) => `Project ID length [${props.value.length - 3}] must not`
+        + ' be less than 2 characters.',
+    }],
   },
   org: {
     type: 'String',
@@ -111,27 +110,27 @@ const ProjectSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.project.org,
-      message: props => `${props.value} is not a valid org ID.`
+      message: (props) => `${props.value} is not a valid org ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   name: {
     type: 'String',
-    required: true
+    required: true,
   },
   permissions: {
     type: 'Object',
     default: {},
     validate: [{
       validator: validators.project.permissions,
-      message: props => 'The project permissions object is not properly formatted.'
-    }]
+      message: (props) => 'The project permissions object is not properly formatted.',
+    }],
   },
   visibility: {
     type: 'String',
     default: 'private',
-    enum: ['private', 'internal']
-  }
+    enum: ['private', 'internal'],
+  },
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
@@ -143,34 +142,25 @@ ProjectSchema.plugin(extensions);
  * @description Returns supported permission levels
  * @memberOf ProjectSchema
  */
-ProjectSchema.static('getPermissionLevels', function() {
-  return ['remove_all', 'read', 'write', 'admin'];
-});
+ProjectSchema.static('getPermissionLevels', () => ['remove_all', 'read', 'write', 'admin']);
 
 /**
  * @description Returns project fields that can be changed
  * @memberOf ProjectSchema
  */
-ProjectSchema.static('getValidUpdateFields', function() {
-  return ['name', 'custom', 'archived', 'permissions', 'visibility'];
-});
+ProjectSchema.static('getValidUpdateFields', () => ['name', 'custom', 'archived', 'permissions', 'visibility']);
 
 /**
  * @description Returns supported visibility levels
  * @memberOf ProjectSchema
  */
-ProjectSchema.static('getVisibilityLevels', function() {
-  return ['internal', 'private'];
-});
+ProjectSchema.static('getVisibilityLevels', () => ['internal', 'private']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf ProjectSchema
  */
-ProjectSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy', 'org'];
-});
-
+ProjectSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy', 'org']);
 
 /* ------------------------( Project Schema Export )------------------------- */
 

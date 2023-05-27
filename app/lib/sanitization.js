@@ -27,7 +27,7 @@ const db = M.require('db');
  *
  * @returns {string} Sanitized string.
  */
-module.exports.sanitize = function(userInput) {
+module.exports.sanitize = function (userInput) {
   return module.exports.db(module.exports.html(userInput));
 };
 
@@ -54,23 +54,23 @@ module.exports.db = db.sanitize;
  *
  * @returns {string} Sanitized user input.
  */
-module.exports.html = function(userInput) {
+module.exports.html = function (userInput) {
   // Check if input is string type
   if (typeof userInput === 'string') {
     // Replace known HTML characters with HTML escape sequences
     return String(userInput)
-    .replace(/&(?!(amp;)|(lt;)|(gt;)|(quot;)|(#039;)|(nbsp))/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+      .replace(/&(?!(amp;)|(lt;)|(gt;)|(quot;)|(#039;)|(nbsp))/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
   // Check if input type is array
-  else if (Array.isArray(userInput)) {
+  if (Array.isArray(userInput)) {
     return userInput.map((value) => this.html(value));
   }
   // Check if input is object type
-  else if (userInput instanceof Object) {
+  if (userInput instanceof Object) {
     const objResult = {};
     // Loop through the object
     Object.keys(userInput).forEach((index) => {
@@ -100,15 +100,15 @@ module.exports.html = function(userInput) {
  *
  * @returns {string} Sanitized user input.
  */
-module.exports.ldapFilter = function(userInput) {
+module.exports.ldapFilter = function (userInput) {
   // If string, replace special characters
   if (typeof userInput === 'string') {
     return String(userInput)
-    .replace(/\\/g, '\\2A')
-    .replace(/\*/g, '\\28')
-    .replace(/\(/g, '\\29')
-    .replace(/\)/g, '\\5C')
-    .replace(/NUL/g, '\\00');
+      .replace(/\\/g, '\\2A')
+      .replace(/\*/g, '\\28')
+      .replace(/\(/g, '\\29')
+      .replace(/\)/g, '\\5C')
+      .replace(/NUL/g, '\\00');
   }
 
   // Return blank string if null

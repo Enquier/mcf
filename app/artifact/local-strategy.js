@@ -19,8 +19,8 @@
 const rootStoragePath = '/storage';
 
 // Node modules
-const path = require('path');    // Find directory paths
-const fs = require('fs');        // Access the filesystem
+const path = require('path'); // Find directory paths
+const fs = require('fs'); // Access the filesystem
 const assert = require('assert');
 const fsExtra = require('fs-extra');
 
@@ -33,7 +33,7 @@ const validator = {
   location: '^[^.]+$',
   filename: '^[^!\\<>:"\'|?*]+$',
   // Matches filename + extensions
-  extension: '^[^!\\<>:"\'|?*]+[.][\\w]+$'
+  extension: '^[^!\\<>:"\'|?*]+[.][\\w]+$',
 };
 
 /**
@@ -57,20 +57,19 @@ function listBlobs(artMetadata) {
     const fullPath = path.join(M.root, rootStoragePath, artMetadata.org, projID);
     const files = fs.readdirSync(fullPath);
 
-    files.forEach(file => {
+    files.forEach((file) => {
       // Split filename by delimiter
       const filePath = file.split('.');
       // Extract location and filename
       // Push obj into array
       blobList.push({
         location: filePath.slice(0, filePath.length - 2).join('/'),
-        filename: filePath.slice(-2).join('.')
+        filename: filePath.slice(-2).join('.'),
       });
     });
 
     return blobList;
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -97,8 +96,7 @@ function getBlob(artMetadata) {
     // Read the artifact file
     // Note: Use sync to ensure file is read before advancing
     return fs.readFileSync(filePath);
-  }
-  catch (err) {
+  } catch (err) {
     throw new M.NotFoundError('Artifact blob not found.', 'warn');
   }
 }
@@ -130,8 +128,7 @@ function postBlob(artMetadata, artifactBlob) {
 
     // Replace the Blob
     putBlob(artMetadata, artifactBlob);
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -160,8 +157,7 @@ function putBlob(artMetadata, artifactBlob) {
   try {
     // Write out artifact file, defaults to 666 permission.
     fs.writeFileSync(fullPath, artifactBlob);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // If the error is a custom error, throw it
     if ((error instanceof errors.CustomError)) {
@@ -188,8 +184,12 @@ function deleteBlob(artMetadata) {
     validateBlobMeta(artMetadata);
 
     // Create directory path
-    const projDirPath = path.join(M.root, rootStoragePath,
-      artMetadata.org, artMetadata.project);
+    const projDirPath = path.join(
+      M.root,
+      rootStoragePath,
+      artMetadata.org,
+      artMetadata.project,
+    );
 
     // Create artifact path
     const blobPath = createBlobPath(artMetadata);
@@ -206,8 +206,7 @@ function deleteBlob(artMetadata) {
       // Delete this directory
       fs.rmdirSync(projDirPath);
     }
-  }
-  catch (error) {
+  } catch (error) {
     if (error.code === 'ENOENT') {
       throw new M.NotFoundError('Artifact blob not found.', 'warn');
     }
@@ -287,7 +286,7 @@ function createDirectory(pathString) {
  */
 function createBlobPath(artMetadata) {
   // defined blob location
-  let location = artMetadata.location;
+  let { location } = artMetadata;
 
   // Get root artifact path
   const artRootPath = path.join(M.root, rootStoragePath);
@@ -307,8 +306,7 @@ function createBlobPath(artMetadata) {
   // Remove os separator with periods
   const convertedLocation = location.replace(
     // eslint-disable-next-line security/detect-non-literal-regexp
-    new RegExp(`\\${path.sep}`, 'g'), '.'
-  );
+    new RegExp(`\\${path.sep}`, 'g'), '.');
 
   // Form the blob name, location concat with filename
   const concatenName = convertedLocation + artMetadata.filename;
@@ -339,14 +337,17 @@ function validateBlobMeta(artMetadata) {
         + ` ${field} field.`);
     });
 
-    assert.ok((RegExp(validator.filename).test(artMetadata.filename)
+    assert.ok(
+      (RegExp(validator.filename).test(artMetadata.filename)
       && RegExp(validator.extension).test(artMetadata.filename)),
-    `Artifact filename [${artMetadata.filename}] is improperly formatted.`);
+      `Artifact filename [${artMetadata.filename}] is improperly formatted.`,
+    );
 
-    assert.ok(RegExp(validator.location).test(artMetadata.location),
-      `Artifact location [${artMetadata.location}] is improperly formatted.`);
-  }
-  catch (error) {
+    assert.ok(
+      RegExp(validator.location).test(artMetadata.location),
+      `Artifact location [${artMetadata.location}] is improperly formatted.`,
+    );
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -364,8 +365,7 @@ function clear(clearPath) {
 
     // Remove artifacts
     fsExtra.removeSync(`${dirToDelete}`);
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -378,5 +378,5 @@ module.exports = {
   putBlob,
   deleteBlob,
   clear,
-  validator
+  validator,
 };

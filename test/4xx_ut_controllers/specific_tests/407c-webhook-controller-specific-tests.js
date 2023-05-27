@@ -51,8 +51,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       project = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(project._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -68,8 +67,7 @@ describe(M.getModuleName(module.filename), () => {
       await Webhook.deleteMany({ _id: { $in: webhookIDs } });
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -113,7 +111,7 @@ async function createOnOrg() {
   try {
     const webhookData = testData.webhooks[0];
     webhookData.reference = {
-      org: org._id
+      org: org._id,
     };
 
     // Create webhook via controller
@@ -142,8 +140,7 @@ async function createOnOrg() {
 
     // Save the generated UUID to be used later in find() tests
     webhookIDs.push(createdWebhook._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -158,7 +155,7 @@ async function createOnProject() {
     const webhookData = testData.webhooks[0];
     webhookData.reference = {
       org: org._id,
-      project: projID
+      project: projID,
     };
 
     // Create webhook via controller
@@ -187,8 +184,7 @@ async function createOnProject() {
 
     // Save the generated UUID to be used later in find() tests
     webhookIDs.push(createdWebhook._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -204,7 +200,7 @@ async function createOnBranch() {
     webhookData.reference = {
       org: org._id,
       project: projID,
-      branch: branchID
+      branch: branchID,
     };
 
     // Create webhook via controller
@@ -233,8 +229,7 @@ async function createOnBranch() {
 
     // Save the generated UUID to be used later in find() tests
     webhookIDs.push(createdWebhook._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -270,8 +265,7 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (webhook[field] !== null) {
+      } else if (webhook[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof webhook[field]).to.equal('object');
         // Expect each populated field to at least have an id
@@ -281,8 +275,7 @@ async function optionPopulateCreate() {
 
     // Keep track of _id to delete it at the end
     webhookIDs.push(webhook._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -324,8 +317,11 @@ async function optionFieldsCreate() {
     webhookIDs.push(webhook._id);
 
     // Create webhook via controller
-    const notFieldsWebhooks = await WebhookController.create(adminUser, webhookData,
-      notFindOptions);
+    const notFieldsWebhooks = await WebhookController.create(
+      adminUser,
+      webhookData,
+      notFindOptions,
+    );
 
     // Expect createdWebhooks array to contain 1 webhook
     chai.expect(notFieldsWebhooks.length).to.equal(1);
@@ -339,8 +335,7 @@ async function optionFieldsCreate() {
 
     // Keep track of _id to delete it at the end
     webhookIDs.push(webhook2._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -361,8 +356,7 @@ async function findOnOrg() {
 
     // Verify webhook found on org
     chai.expect(foundWebhook.reference).to.equal(org._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -383,8 +377,7 @@ async function findOnProject() {
 
     // Verify webhook found on project
     chai.expect(foundWebhook.reference).to.equal(utils.createID(org._id, projID));
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -405,8 +398,7 @@ async function findOnBranch() {
 
     // Verify webhook found on branch
     chai.expect(foundWebhook.reference).to.equal(utils.createID(org._id, projID, branchID));
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -430,18 +422,13 @@ async function optionAllFind() {
     chai.expect(orgWebhooks.length).to.be.at.least(1);
 
     // Expect to find project webhooks
-    const projectWebhooks = foundWebhooks.filter((w) => w.reference === utils.createID(
-      org._id, projID
-    ));
+    const projectWebhooks = foundWebhooks.filter((w) => w.reference === utils.createID(org._id, projID));
     chai.expect(projectWebhooks.length).to.be.at.least(1);
 
     // Expect to find branch webhooks
-    const branchWebhooks = foundWebhooks.filter((w) => w.reference === utils.createID(
-      org._id, projID, branchID
-    ));
+    const branchWebhooks = foundWebhooks.filter((w) => w.reference === utils.createID(org._id, projID, branchID));
     chai.expect(branchWebhooks.length).to.be.at.least(1);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -476,16 +463,14 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (webhook[field] !== null) {
+      } else if (webhook[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof webhook[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in webhook[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -517,14 +502,12 @@ async function optionArchivedFind() {
 
     // un-archive the webhook
     await Webhook.updateOne({ _id: webhookData }, { archived: false });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
   }
 }
-
 
 /**
  * @description Validates that the Webhook Controller can find an archived webhook with the
@@ -551,8 +534,7 @@ async function optionIncludeArchivedFind() {
 
     // un-archive the webhook
     await Webhook.updateOne({ _id: webhookData }, { archived: false });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -594,8 +576,11 @@ async function optionFieldsFind() {
     webhookIDs.push(webhook._id);
 
     // Create webhook via controller
-    const notFieldsWebhooks = await WebhookController.find(adminUser, webhookData,
-      notFindOptions);
+    const notFieldsWebhooks = await WebhookController.find(
+      adminUser,
+      webhookData,
+      notFindOptions,
+    );
 
     // Expect createdWebhooks array to contain 1 webhook
     chai.expect(notFieldsWebhooks.length).to.equal(1);
@@ -609,8 +594,7 @@ async function optionFieldsFind() {
 
     // Keep track of _id to delete it at the end
     webhookIDs.push(webhook2._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -630,8 +614,7 @@ async function optionLimitFind() {
     const foundWebhooks = await WebhookController.find(adminUser, options);
     // Verify that no more than 2 webhooks were found
     chai.expect(foundWebhooks).to.have.lengthOf.at.most(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -654,17 +637,16 @@ async function optionSkipFind() {
     // Verify that no more than 2 webhooks were found
     chai.expect(foundWebhooks).to.have.lengthOf.at.most(2);
     // Add webhook ids to the firstBatchIDs array
-    const firstBatchIDs = foundWebhooks.map(w => w._id);
+    const firstBatchIDs = foundWebhooks.map((w) => w._id);
 
     // Find the next batch of webhooks
     const secondWebhooks = await WebhookController.find(adminUser, secondOptions);
     // Verify that no more than 2 webhooks were found
     chai.expect(secondWebhooks).to.have.lengthOf.at.most(2);
     // Verify the second batch of webhooks are not the same as the first
-    const secondBatchIDs = secondWebhooks.map(w => w._id);
+    const secondBatchIDs = secondWebhooks.map((w) => w._id);
     chai.expect(secondBatchIDs).to.not.have.members(firstBatchIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -681,19 +663,19 @@ async function optionSortFind() {
       name: 'a',
       type: testData.webhooks[0].type,
       triggers: testData.webhooks[0].triggers,
-      url: testData.webhooks[0].url
+      url: testData.webhooks[0].url,
     },
     {
       name: 'b',
       type: testData.webhooks[0].type,
       triggers: testData.webhooks[0].triggers,
-      url: testData.webhooks[0].url
+      url: testData.webhooks[0].url,
     },
     {
       name: 'c',
       type: testData.webhooks[0].type,
       triggers: testData.webhooks[0].triggers,
-      url: testData.webhooks[0].url
+      url: testData.webhooks[0].url,
     }];
 
     // Create sort options
@@ -706,8 +688,11 @@ async function optionSortFind() {
     webhookIDs.push(...createdWebhooks.map((w) => w._id));
 
     // Find the webhooks and return them sorted
-    const foundWebhooks = await WebhookController.find(adminUser,
-      createdWebhooks.map((w) => w._id), sortOption);
+    const foundWebhooks = await WebhookController.find(
+      adminUser,
+      createdWebhooks.map((w) => w._id),
+      sortOption,
+    );
     // Expect to find all three webhooks
     chai.expect(foundWebhooks.length).to.equal(3);
 
@@ -717,8 +702,11 @@ async function optionSortFind() {
     chai.expect(foundWebhooks[2].name).to.equal('c');
 
     // Find the webhooks and return them sorted in reverse
-    const reverseWebhooks = await WebhookController.find(adminUser,
-      createdWebhooks.map((w) => w._id), sortOptionReverse);
+    const reverseWebhooks = await WebhookController.find(
+      adminUser,
+      createdWebhooks.map((w) => w._id),
+      sortOptionReverse,
+    );
     // Expect to find all three webhooks
     chai.expect(reverseWebhooks.length).to.equal(3);
 
@@ -726,8 +714,7 @@ async function optionSortFind() {
     chai.expect(reverseWebhooks[0].name).to.equal('c');
     chai.expect(reverseWebhooks[1].name).to.equal('b');
     chai.expect(reverseWebhooks[2].name).to.equal('a');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -742,7 +729,7 @@ async function archiveWebhook() {
     // Create the update object
     const webhookData = {
       id: webhookIDs[0],
-      archived: true
+      archived: true,
     };
 
     // Update the webhook
@@ -759,8 +746,7 @@ async function archiveWebhook() {
 
     // un-archive the webhook for future use
     Webhook.updateOne({ _id: webhookData.id }, { archived: false });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -780,7 +766,7 @@ async function optionPopulateUpdate() {
     // Create the update object
     const webhookData = {
       id: webhookIDs[1],
-      name: 'Update'
+      name: 'Update',
     };
 
     // Update the webhook
@@ -799,16 +785,14 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (webhook[field] !== null) {
+      } else if (webhook[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof webhook[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in webhook[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -824,7 +808,7 @@ async function optionFieldsUpdate() {
     // Create the update objects
     const webhookData = {
       id: webhookIDs[1],
-      name: 'Fields Update'
+      name: 'Fields Update',
     };
     // Create the options object with the list of fields specifically to find
     const findOptions = { fields: ['name', 'createdBy'] };
@@ -859,8 +843,7 @@ async function optionFieldsUpdate() {
 
     // Check that the keys in the notFindOptions are not in the webhook
     chai.expect(visibleFields2).to.not.have.members(['createdOn', 'updatedOn']);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -886,8 +869,7 @@ async function deleteOnOrg() {
 
     // Expect nothing to be returned
     chai.expect(foundWebhooks.length).to.equal(0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -913,8 +895,7 @@ async function deleteOnProject() {
 
     // Expect nothing to be returned
     chai.expect(foundWebhooks.length).to.equal(0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -940,8 +921,7 @@ async function deleteOnBranch() {
 
     // Expect nothing to be returned
     chai.expect(foundWebhooks.length).to.equal(0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

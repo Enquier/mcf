@@ -39,14 +39,13 @@ const reservedKeywords = ['css', 'js', 'img', 'doc', 'docs', 'webfonts',
   'blob', 'artifact', 'artifacts', 'list'];
 
 // Create a validator function to test ids against the reserved keywords
-const reserved = function(data) {
+const reserved = function (data) {
   const parsedId = utils.parseID(data).pop();
   return !reservedKeywords.includes(parsedId);
 };
 
-
 // The custom data validator used in all models
-const customDataValidator = function(v) {
+const customDataValidator = function (v) {
   // Must be an object and not null
   return (typeof v === 'object' && v !== null);
 };
@@ -57,7 +56,7 @@ const customDataValidator = function(v) {
  * @param {object} data - The data to validate.
  * @returns {boolean} Returns true if data is valid.
  */
-const permissionsValidator = function(data) {
+const permissionsValidator = function (data) {
   let bool = true;
   // If the permissions object is not a JSON object, reject
   if (typeof data !== 'object' || Array.isArray(data) || data === null) {
@@ -65,7 +64,7 @@ const permissionsValidator = function(data) {
   }
   // Check that each every key/value pair's value is an array of strings
   Object.values(data).forEach((val) => {
-    if (!Array.isArray(val) || !val.every(s => typeof s === 'string')) {
+    if (!Array.isArray(val) || !val.every((s) => typeof s === 'string')) {
       bool = false;
     }
   });
@@ -93,22 +92,22 @@ const org = {
     : `^${id}$`,
   idLength: customValidators.org_id_length || idLength,
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the ID is invalid, reject
       return RegExp(org.id).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the ID is longer than max length, reject
       return data.length <= org.idLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the ID is shorter than min length, reject
       return data.length > 1;
-    }
+    },
   },
   permissions: permissionsValidator,
-  custom: customDataValidator
+  custom: customDataValidator,
 };
 
 /**
@@ -134,23 +133,23 @@ const project = {
   + (customValidators.project_id_length ? parseInt(customValidators.project_id_length, 10)
     : idLength),
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the ID is invalid, reject
       return RegExp(project.id).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the ID is longer than max length, reject
       return data.length <= project.idLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the ID is shorter than min length, reject
       return data.length > 4;
-    }
+    },
   },
   org: org._id.match,
   permissions: permissionsValidator,
-  custom: customDataValidator
+  custom: customDataValidator,
 };
 
 /**
@@ -176,26 +175,26 @@ const branch = {
     + (customValidators.branch_id_length ? parseInt(customValidators.branch_id_length, 10)
       : idLength),
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the ID is invalid, reject
       return RegExp(branch.id).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the ID is longer than max length, reject
       return data.length <= branch.idLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the ID is shorter than min length, reject
       return data.length > 7;
-    }
+    },
   },
   project: project._id.match,
-  source: function(data) {
+  source(data) {
     // Allow either null or a matching id
     return data === null || RegExp(branch.id).test(data);
   },
-  custom: customDataValidator
+  custom: customDataValidator,
 };
 
 /**
@@ -225,35 +224,35 @@ const artifact = {
   filenameRegEx: (artifactVal.filename) ? artifactVal.filename : '^[^!\\<>:"\'|?*]+$',
   extension: (artifactVal.extension) ? artifactVal.extension : '^[^!\\<>:"\'|?*]+[.][\\w]+$',
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the ID is invalid, reject
       return RegExp(artifact.id).test(data);
     },
-    optionalMatch: function(data) {
+    optionalMatch(data) {
       // Allow either null or a matching id
       return data === null || RegExp(artifact.id).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the ID is longer than max length, reject
       return data.length <= artifact.idLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the ID is shorter than min length, reject
       return data.length > 10;
-    }
+    },
   },
   project: project._id.match,
   branch: branch._id.match,
-  filename: function(data) {
+  filename(data) {
     // If the filename is improperly formatted, reject
     return (RegExp(artifact.filenameRegEx).test(data)
       && RegExp(artifact.extension).test(data));
   },
-  location: function(data) {
+  location(data) {
     // If the location is improperly formatted, reject
     return RegExp(artifact.locationRegEx).test(data);
-  }
+  },
 };
 
 /**
@@ -280,33 +279,33 @@ const element = {
     : idLength),
   custom: customDataValidator,
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the ID is invalid, reject
       return RegExp(element.id).test(data);
     },
-    optionalMatch: function(data) {
+    optionalMatch(data) {
       // Allow either null or a matching id
       return data === null || RegExp(element.id).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the ID is longer than max length, reject
       return data.length <= element.idLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the ID is shorter than min length, reject
       return data.length > 10;
-    }
+    },
   },
   project: project._id.match,
   branch: branch._id.match,
-  artifact: () => artifact._id.optionalMatch
+  artifact: () => artifact._id.optionalMatch,
 };
 // Define parent, source, and target after so that they can access element._id.optionalMatch
 element.parent = element._id.optionalMatch;
 element.source = {
   id: element._id.optionalMatch,
-  target: function(data) {
+  target(data) {
     // If source is provided
     if (data) {
       // Reject if target is null
@@ -314,11 +313,11 @@ element.source = {
     }
     // Source null, return true
     return true;
-  }
+  },
 };
 element.target = {
   id: element._id.optionalMatch,
-  source: function(data) {
+  source(data) {
     // If target is provided
     if (data) {
       // Reject if source is null
@@ -326,7 +325,7 @@ element.target = {
     }
     // Target null, return true
     return true;
-  }
+  },
 };
 
 /**
@@ -349,37 +348,37 @@ const user = {
   firstName: customValidators.user_fname || '^(([a-zA-Z])([-a-zA-Z ])*)?$',
   lastName: customValidators.user_lname || '^(([a-zA-Z])([-a-zA-Z ])*)?$',
   _id: {
-    reserved: reserved,
-    match: function(data) {
+    reserved,
+    match(data) {
       // If the username is invalid, reject
       return RegExp(user.username).test(data);
     },
-    maxLength: function(data) {
+    maxLength(data) {
       // If the username is longer than max length, reject
       return data.length <= user.usernameLength;
     },
-    minLength: function(data) {
+    minLength(data) {
       // If the username is shorter than min length, reject
       return data.length > 2;
-    }
+    },
   },
-  fname: function(data) {
+  fname(data) {
     // If the fname is invalid and provided, reject
     return !(!RegExp(user.firstName).test(data) && data);
   },
-  preferredName: function(data) {
+  preferredName(data) {
     // If the fname is invalid and provided, reject
     return !(!RegExp(user.firstName).test(data) && data);
   },
-  lname: function(data) {
+  lname(data) {
     // If the fname is invalid and provided, reject
     return !(!RegExp(user.lastName).test(data) && data);
   },
-  provider: function(data) {
+  provider(data) {
     // If the user provider is defined and does not include value, return false
     return !(customValidators.user_provider && !customValidators.user_provider.includes(data));
   },
-  custom: customDataValidator
+  custom: customDataValidator,
 };
 
 /**
@@ -398,38 +397,38 @@ const user = {
  */
 const webhook = {
   type: {
-    outgoing: function(data) {
+    outgoing(data) {
       // An outgoing webhook must have a url field and cannot have a tokenLocation.
       return data === 'Outgoing'
         ? typeof this.url === 'string' && !this.tokenLocation
         : true;
     },
-    incoming: function(data) {
+    incoming(data) {
       // An incoming webhook must have a token and tokenLocation and cannot have a url field.
       return data === 'Incoming'
         ? (typeof this.token === 'string' && typeof this.tokenLocation === 'string')
         && this.url === undefined
         : true;
-    }
+    },
   },
-  triggers: function(data) {
+  triggers(data) {
     return Array.isArray(data) && data.every((s) => typeof s === 'string');
   },
-  url: function(data) {
+  url(data) {
     return typeof data === 'string';
   },
-  token: function(data) {
+  token(data) {
     // Protect against null entries
     return typeof data === 'string';
   },
-  tokenLocation: function(data) {
+  tokenLocation(data) {
     // Protect against null entries
     return typeof data === 'string';
   },
-  reference: function(data) {
+  reference(data) {
     return (data === '' || RegExp(org.id).test(data)
       || RegExp(project.id).test(data) || RegExp(branch.id).test(data));
-  }
+  },
 };
 
 /**
@@ -443,9 +442,8 @@ const webhook = {
  */
 const url = {
   // starts with one and only one '/'
-  next: customValidators.url_next || '^(\/)(?!\/)' // eslint-disable-line no-useless-escape
+  next: customValidators.url_next || '^(\/)(?!\/)', // eslint-disable-line no-useless-escape
 };
-
 
 module.exports = {
   org,
@@ -457,5 +455,5 @@ module.exports = {
   webhook,
   url,
   id,
-  idLength
+  idLength,
 };

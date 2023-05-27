@@ -30,7 +30,7 @@ const APIController = M.require('controllers.api-controller');
 /* --------------------( Test Data )-------------------- */
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let nonAdminUser = null;
 
@@ -49,8 +49,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       adminUser = await testUtils.createTestAdmin();
       nonAdminUser = await testUtils.createNonAdminUser();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -64,8 +63,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await testUtils.removeTestAdmin();
       await testUtils.removeNonAdminUser();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -95,7 +93,7 @@ function noReqUser(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method);
 
@@ -134,7 +132,7 @@ function invalidOptions(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
     req.query = { invalid: 'invalid option' };

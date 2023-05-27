@@ -20,20 +20,22 @@
 
 // React modules
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, InputGroup, Modal, ModalBody } from 'reactstrap';
+import {
+  Button, InputGroup, Modal, ModalBody,
+} from 'reactstrap';
 
 // MBEE modules
 import List from '../general/list/list.jsx';
-import OrgList from '../home-views/org-list.jsx';
+import OrgList from './org-list.jsx';
 import Create from '../shared-views/create.jsx';
 import Delete from '../shared-views/delete.jsx';
-import { useApiClient } from '../context/ApiClientProvider.js';
+import { useApiClient } from '../context/ApiClientProvider';
 
 /* eslint-enable no-unused-vars */
 
 // Define HomePage Component
 function Home(props) {
-  const { orgService } = useApiClient();
+  const { authService, orgService } = useApiClient();
   const [width, setWidth] = useState(null);
   const [modalCreate, setModalCreate] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
@@ -46,7 +48,7 @@ function Home(props) {
   const [error, setError] = useState(null);
   const homeRef = useRef();
 
-  const setMountedComponentStates = (userData, orgData) => {
+  const setMountedComponentStates = async (userData, orgData) => {
     // Initialize variables
     let writePermOrgs = [];
 
@@ -62,8 +64,7 @@ function Home(props) {
           writePermOrgs.push(org);
         }
       });
-    }
-    else if (userData.admin) {
+    } else if (userData.admin) {
       writePermOrgs = orgs;
     }
 
@@ -106,17 +107,17 @@ function Home(props) {
   const onExpandChange = (orgID, value) => {
     setDisplayOrgs((currentState) => ({
       ...currentState,
-      [orgID]: value
+      [orgID]: value,
     }));
   };
 
   const handleExpandCollapse = (e) => {
-    const name = e.target.name;
+    const { name } = e.target;
     const expanded = (name === 'expand');
 
     setDisplayOrgs((currentState) => {
       const newState = {
-        ...currentState
+        ...currentState,
       };
       Object.keys(newState).forEach((org) => {
         newState[org] = expanded;
@@ -127,17 +128,18 @@ function Home(props) {
 
   const refresh = () => {
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI(async (err, data) => {
+    authService.checkAuth(async (err, data) => {
       if (err) {
         setError(err);
-      }
-      else {
+      } else {
         setUser(data);
 
         // Set options for org request
         const options = {
-          populate: 'projects',
-          includeArchived: true
+          params: {
+            populate: 'projects',
+            includeArchived: true,
+          },
         };
 
         // Make request for org data
@@ -163,7 +165,6 @@ function Home(props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
   // Initialize variables
   let titleClass = 'workspace-title workspace-title-padding';
   const list = [];
@@ -171,7 +172,7 @@ function Home(props) {
   // Loop through all orgs
   if (orgs.length > 0) {
     orgs.forEach((org) => {
-      const username = user.username;
+      const { username } = user;
 
       const showProj = (displayOrgs[org.id]);
 
@@ -186,9 +187,8 @@ function Home(props) {
                              showProjs={showProj}
                              onExpandChange={onExpandChange}
                              refresh={refresh}/>);
-        }
-        // Verify write permissions and not archived org
-        else if (org.permissions[username] === 'write' && !org.archived) {
+        } else if (org.permissions[username] === 'write' && !org.archived) {
+          // Verify write permissions and not archived org
           list.push(<OrgList org={org} key={`org-key-${org.id}`}
                              user={user}
                              write={write}
@@ -196,9 +196,8 @@ function Home(props) {
                              showProjs={showProj}
                              onExpandChange={onExpandChange}
                              refresh={refresh}/>);
-        }
-        // Verify read permissions and not archived org
-        else if (org.permissions[username] === 'read' && !org.archived) {
+        } else if (org.permissions[username] === 'read' && !org.archived) {
+          // Verify read permissions and not archived org
           list.push(<OrgList org={org} key={`org-key-${org.id}`}
                              user={user}
                              admin={admin}
@@ -206,8 +205,7 @@ function Home(props) {
                              onExpandChange={onExpandChange}
                              refresh={refresh}/>);
         }
-      }
-      else {
+      } else {
         list.push(<OrgList org={org} key={`org-key-${org.id}`}
                            user={user}
                            write={write}

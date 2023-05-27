@@ -50,7 +50,7 @@ if (!AuthModule.hasOwnProperty('doLogin')) {
  */
 async function authenticate(req, res, next) {
   // Extract authorization metadata
-  const authorization = req.headers.authorization;
+  const { authorization } = req.headers;
   // Delete the authorization field from the request object to protect security-sensitive data
   // from subsequent middleware
   delete req.headers.authorization;
@@ -77,7 +77,7 @@ async function authenticate(req, res, next) {
     // Get the auth scheme and check auth scheme is basic
     const scheme = parts[0];
 
-    /**********************************************************************
+    /** ********************************************************************
      * Handle Basic Authentication
      **********************************************************************
      * This section authenticates a user via a basic auth.
@@ -126,14 +126,12 @@ async function authenticate(req, res, next) {
 
         // Set user req object
         req.user = user;
-      }
-      catch (err) {
+      } catch (err) {
         // Log the error
         M.log.error(err.stack);
         if (err.message === 'Invalid username or password.') {
           error = new M.AuthorizationError(err.message, 'warn');
-        }
-        else {
+        } else {
           error = new M.ServerError('Internal Server Error', 'warn');
         }
         req.flash('loginError', error.message);
@@ -148,7 +146,7 @@ async function authenticate(req, res, next) {
       next();
     }
 
-    /**********************************************************************
+    /** ********************************************************************
      * Handle Token Authentication
      **********************************************************************
      * This section authenticates a user via a bearer token.
@@ -170,12 +168,10 @@ async function authenticate(req, res, next) {
 
         // Set user req object
         req.user = user;
-      }
-      catch (err) {
+      } catch (err) {
         if (err.message === 'Invalid username or password.') {
           req.flash('loginError', err.message);
-        }
-        else {
+        } else {
           req.flash('loginError', 'Internal Server Error');
         }
         // return proper error for API route or redirect for UI
@@ -197,7 +193,7 @@ async function authenticate(req, res, next) {
     }
   } /* end if (authorization) */
 
-  /**********************************************************************
+  /** ********************************************************************
    * Handle Session Token Authentication
    **********************************************************************
    * This section authenticates a user via a stored session token.
@@ -206,7 +202,7 @@ async function authenticate(req, res, next) {
   // Check for token session
   else if (req.session.token) {
     M.log.verbose('Authenticating user via Session Token Auth...');
-    const token = req.session.token;
+    const { token } = req.session;
 
     try {
       // Handle Token Authentication
@@ -216,8 +212,7 @@ async function authenticate(req, res, next) {
 
       // Set user req object
       req.user = user;
-    }
-    catch (err) {
+    } catch (err) {
       // log the error
       M.log.warn(err.stack);
       req.flash('loginError', 'Session Expired');
@@ -232,7 +227,7 @@ async function authenticate(req, res, next) {
     next();
   }
 
-  /**********************************************************************
+  /** ********************************************************************
    * Handle Form Input Authentication
    **********************************************************************
    * This section authenticates a user via form input. This is used
@@ -256,8 +251,7 @@ async function authenticate(req, res, next) {
 
       // Set user req object
       req.user = user;
-    }
-    catch (err) {
+    } catch (err) {
       M.log.error(err.stack);
       req.flash('loginError', 'Invalid username or password.');
 

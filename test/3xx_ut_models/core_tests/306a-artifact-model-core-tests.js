@@ -70,7 +70,7 @@ async function createArtifact() {
     location: artData.location,
     custom: artData.custom,
     strategy: M.config.artifact.strategy,
-    size: artData.size
+    size: artData.size,
   };
 
   try {
@@ -78,8 +78,12 @@ async function createArtifact() {
     const createdArtifact = (await Artifact.insertMany(artifact))[0];
 
     // Verify output
-    chai.expect(createdArtifact._id).to.equal(utils.createID(org.id, project.id, branch.id,
-      artData.id));
+    chai.expect(createdArtifact._id).to.equal(utils.createID(
+      org.id,
+      project.id,
+      branch.id,
+      artData.id,
+    ));
     chai.expect(createdArtifact.filename).to.equal(artData.filename);
     chai.expect(createdArtifact.project).to.equal(utils.createID(org.id, project.id));
     chai.expect(createdArtifact.branch).to.equal(utils.createID(org.id, project.id, branch.id));
@@ -87,8 +91,7 @@ async function createArtifact() {
     chai.expect(createdArtifact.strategy).to.equal(M.config.artifact.strategy);
     chai.expect(createdArtifact.custom || {}).to.deep.equal(artData.custom);
     chai.expect(createdArtifact.size).to.equal(artData.size);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -102,21 +105,20 @@ async function findArtifact() {
   try {
     // Find the artifact previously uploaded.
     const foundArtifact = await Artifact.findOne(
-      { _id: utils.createID(org.id, project.id, branch.id, testData.artifacts[0].id) }
+      { _id: utils.createID(org.id, project.id, branch.id, testData.artifacts[0].id) },
     );
 
     // Verify output
     chai.expect(foundArtifact._id).to.equal(
-      utils.createID(org.id, project.id, branch.id, testData.artifacts[0].id)
+      utils.createID(org.id, project.id, branch.id, testData.artifacts[0].id),
     );
     chai.expect(foundArtifact.filename).to.equal(
-      testData.artifacts[0].filename
+      testData.artifacts[0].filename,
     );
     chai.expect(foundArtifact.project).to.equal(utils.createID(org.id, project.id));
     chai.expect(foundArtifact.branch).to.equal(utils.createID(org.id, project.id, branch.id));
     chai.expect(foundArtifact.location).to.equal(testData.artifacts[0].location);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -138,23 +140,22 @@ async function updateArtifact() {
 
     // Verify output
     chai.expect(foundArtifact._id).to.equal(
-      utils.createID(org.id, project.id, branch.id, artData.id)
+      utils.createID(org.id, project.id, branch.id, artData.id),
     );
     chai.expect(foundArtifact.filename).to.equal('Updated Name');
     chai.expect(foundArtifact.project).to.equal(
-      utils.createID(org.id, project.id)
+      utils.createID(org.id, project.id),
     );
     chai.expect(foundArtifact.branch).to.equal(
-      utils.createID(org.id, project.id, branch.id)
+      utils.createID(org.id, project.id, branch.id),
     );
     chai.expect(foundArtifact.location).to.equal(artData.location);
     chai.expect(foundArtifact.strategy).to.equal(M.config.artifact.strategy);
     chai.expect(foundArtifact.custom || {}).to.deep.equal(
-      artData.custom
+      artData.custom,
     );
     chai.expect(foundArtifact.size).to.equal(artData.size);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -176,8 +177,7 @@ async function deleteArtifact() {
 
     // foundArtifact should be null
     should.not.exist(foundArtifact);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -193,8 +193,7 @@ async function getStaticPopFields() {
       'branch', 'referencedBy'];
     // Verify output
     chai.expect(validPopulatedFields).to.eql(Artifact.getValidPopulateFields());
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

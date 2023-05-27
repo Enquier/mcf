@@ -48,12 +48,13 @@ describe(M.getModuleName(module.filename), () => {
       // Create test admin
       adminUser = await testUtils.createTestAdmin();
       // Create the orgs
-      const createdOrgs = await OrgController.create(adminUser,
-        [testData.orgs[0], testData.orgs[1]]);
+      const createdOrgs = await OrgController.create(
+        adminUser,
+        [testData.orgs[0], testData.orgs[1]],
+      );
       // Expect createdOrgs array to contain 2 orgs
       chai.expect(createdOrgs.length).to.equal(2);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -69,8 +70,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestAdmin();
       // Remove the test orgs
       await OrgController.remove(adminUser, [testData.orgs[0].id, testData.orgs[1].id]);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -99,16 +99,15 @@ async function replaceInvalidId() {
     const invalidOrgObj = { id: '!!', name: 'org name' };
 
     await OrgController.createOrReplace(adminUser, [testOrgObj0, testOrgObj1, invalidOrgObj])
-    .should.eventually.be.rejectedWith(
-      `Organization validation failed: _id: Invalid org ID [${invalidOrgObj.id}].`
-    );
+      .should.eventually.be.rejectedWith(
+        `Organization validation failed: _id: Invalid org ID [${invalidOrgObj.id}].`,
+      );
 
     // Expected error, find valid orgs
     const foundOrgs = await OrgController.find(adminUser, [testOrgObj0.id, testOrgObj1.id]);
     // Expect to find 2 orgs
     foundOrgs.length.should.equal(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -126,16 +125,17 @@ async function replaceWithoutId() {
   const invalidOrgObj = { name: 'missing id' };
 
   // Expect operation to be rejected with specific error message.
-  await OrgController.createOrReplace(adminUser,
-    [testOrgObj0, testOrgObj1, invalidOrgObj])
-  .should.eventually.be.rejectedWith('Org #3 does not have an id.');
+  await OrgController.createOrReplace(
+    adminUser,
+    [testOrgObj0, testOrgObj1, invalidOrgObj],
+  )
+    .should.eventually.be.rejectedWith('Org #3 does not have an id.');
 
   try {
     // Expected error, find valid orgs
     const foundOrgs = await OrgController.find(adminUser, [testOrgObj0.id, testOrgObj1.id]);
     foundOrgs.length.should.equal(2);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

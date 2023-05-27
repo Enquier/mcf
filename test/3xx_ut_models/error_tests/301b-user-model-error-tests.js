@@ -60,7 +60,7 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function usernameTooShort() {
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
 
     // Change username to be too short.
     userData._id = 'ab';
@@ -70,8 +70,7 @@ async function usernameTooShort() {
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: _id: Username length [${userData._id.length}] must `
       + 'not be less than 3 characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -83,7 +82,7 @@ async function usernameTooShort() {
  */
 async function usernameTooLong() {
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
 
     // Change username to be too long.
     userData._id = 'usernamewiththirtysevencharacters12345678';
@@ -93,8 +92,7 @@ async function usernameTooLong() {
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: _id: Username length [${userData._id.length}] must `
       + `not be more than ${validators.user.usernameLength} characters.`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -111,7 +109,7 @@ async function usernameInvalid() {
     this.skip();
   }
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
 
     // Change username to be invalid
     userData._id = 'Inva3l!d_UserN&me';
@@ -120,8 +118,7 @@ async function usernameInvalid() {
     // Expect insertMany() to fail with specific error message
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: _id: Invalid username [${userData._id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -138,7 +135,7 @@ async function fnameInvalid() {
     this.skip();
   }
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change first name to be invalid
@@ -148,8 +145,7 @@ async function fnameInvalid() {
     // Expect insertMany() to fail with specific error message
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: fname: Invalid first name [${userData.fname}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -166,7 +162,7 @@ async function lnameInvalid() {
     this.skip();
   }
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change last name to be invalid
@@ -176,8 +172,7 @@ async function lnameInvalid() {
     // Expect insertMany() to fail with specific error message
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: lname: Invalid last name [${userData.lname}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -194,7 +189,7 @@ async function preferredNameInvalid() {
     this.skip();
   }
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change preferred name to be invalid
@@ -205,8 +200,7 @@ async function preferredNameInvalid() {
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + 'validation failed: preferredName: Invalid preferred name '
       + `[${userData.preferredName}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -218,7 +212,7 @@ async function preferredNameInvalid() {
  */
 async function adminNotBoolean() {
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change admin to not be a boolean.
@@ -229,8 +223,7 @@ async function adminNotBoolean() {
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + 'validation failed: admin: Cast to Boolean failed for value "123" at '
       + 'path "admin"');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -242,7 +235,7 @@ async function adminNotBoolean() {
  */
 async function providerNotString() {
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change provider to not be a string.
@@ -253,8 +246,7 @@ async function providerNotString() {
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + 'validation failed: provider: Cast to String failed for value "{}" at '
       + 'path "provider"');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -266,14 +258,13 @@ async function providerNotString() {
  */
 async function usernameNotProvided() {
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     delete userData.id;
 
     // Expect insertMany() to fail with specific error message
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + 'validation failed: _id: Username is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -290,7 +281,7 @@ async function emailInvalid() {
     this.skip();
   }
   try {
-    const userData = Object.assign({}, testData.users[0]);
+    const userData = { ...testData.users[0] };
     userData._id = userData.username;
 
     // Change email to be invalid
@@ -300,8 +291,7 @@ async function emailInvalid() {
     // Expect insertMany() to fail with specific error message
     await User.insertMany(userData).should.eventually.be.rejectedWith('User '
       + `validation failed: email: Invalid email [${userData.email}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -327,8 +317,7 @@ async function noPasswordReuse() {
 
     // Test the checkOldPasswords function; expect an error
     User.checkOldPasswords.bind(User, userObj, pass).should.throw(M.OperationError);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

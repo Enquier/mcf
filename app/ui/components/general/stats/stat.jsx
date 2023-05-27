@@ -26,7 +26,6 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 // Define component
 class Stat extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -71,8 +70,7 @@ class Stat extends Component {
       icon = <i className={this.props.icon}/>;
       // Verify value is a number, display a '?' if not
       value = Number.isNaN(this.props.value) ? '?' : (<p>{this.props.value}</p>);
-    }
-    else {
+    } else {
       // Set stat properties
       classNames = (this.props._key === 'empty') ? 'empty-item' : 'stats-item';
       icon = <i className={this.props.icon}/>;
@@ -104,7 +102,6 @@ class Stat extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

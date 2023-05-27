@@ -29,7 +29,6 @@ import SidebarHeader from './sidebar-header.jsx';
 
 // Define component
 class Sidebar extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -38,7 +37,7 @@ class Sidebar extends Component {
     this.state = {
       isExpanded: false,
       forceClosed: false,
-      windowWidth: 0
+      windowWidth: 0,
     };
 
     // Bind component functions
@@ -86,8 +85,7 @@ class Sidebar extends Component {
     if (event) {
       if (window.innerWidth >= 1200 && this.state.isExpanded) {
         this.setState({ forceClosed: true });
-      }
-      else {
+      } else {
         this.setState({ forceClosed: false });
       }
     }
@@ -97,7 +95,7 @@ class Sidebar extends Component {
 
   render() {
     // Create the sidebar links
-    const sidebarLink = React.Children.map(this.props.children, child => (
+    const sidebarLink = React.Children.map(this.props.children, (child) => (
       ( // Clone the react element sidebar link and change expanded state
         ((child.type === SidebarLink) || (child.type === SidebarHeader))
           ? React.cloneElement(child, { isExpanded: this.state.isExpanded })
@@ -131,7 +129,6 @@ class Sidebar extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

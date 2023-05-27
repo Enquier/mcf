@@ -31,7 +31,7 @@ const utils = M.require('lib.utils');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 const filepath = path.join(M.root, '/test/testzip.json');
 let adminUser = null;
 let org = null;
@@ -60,8 +60,7 @@ describe(M.getModuleName(module.filename), () => {
       // Create project
       proj = await testUtils.createTestProject(adminUser, org._id, projData);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -78,8 +77,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
       await fs.unlinkSync(filepath);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -108,7 +106,7 @@ function postGzip(done) {
   // Initialize the request attributes
   const params = {
     orgid: org._id,
-    projectid: projID
+    projectid: projID,
   };
   const body = {};
   const method = 'POST';
@@ -116,8 +114,15 @@ function postGzip(done) {
   const headers = 'application/gzip';
 
   // Create a read stream of the zip file and give it request-like attributes
-  const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-    filepath, headers);
+  const req = testUtils.createReadStreamRequest(
+    adminUser,
+    params,
+    body,
+    method,
+    query,
+    filepath,
+    headers,
+  );
   req.headers['accept-encoding'] = 'gzip';
 
   // Set response as empty object
@@ -159,55 +164,62 @@ function patchGzip(done) {
 
   // Create the branch to be patched
   BranchController.create(adminUser, org._id, projID, branchData)
-  .then(() => {
-    branchData.name = 'updated';
-    branchData.tag = undefined;
-    branchData.source = undefined;
+    .then(() => {
+      branchData.name = 'updated';
+      branchData.tag = undefined;
+      branchData.source = undefined;
 
-    // Create a gzip file for testing
-    const zippedData = zlib.gzipSync(JSON.stringify(branchData));
-    fs.appendFileSync((filepath), zippedData);
+      // Create a gzip file for testing
+      const zippedData = zlib.gzipSync(JSON.stringify(branchData));
+      fs.appendFileSync((filepath), zippedData);
 
-    // Initialize the request attributes
-    const params = {
-      orgid: org._id,
-      projectid: projID
-    };
-    const body = {};
-    const method = 'POST';
-    const query = {};
-    const headers = 'application/gzip';
+      // Initialize the request attributes
+      const params = {
+        orgid: org._id,
+        projectid: projID,
+      };
+      const body = {};
+      const method = 'POST';
+      const query = {};
+      const headers = 'application/gzip';
 
-    // Create a read stream of the zip file and give it request-like attributes
-    const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-      filepath, headers);
-    req.headers['accept-encoding'] = 'gzip';
+      // Create a read stream of the zip file and give it request-like attributes
+      const req = testUtils.createReadStreamRequest(
+        adminUser,
+        params,
+        body,
+        method,
+        query,
+        filepath,
+        headers,
+      );
+      req.headers['accept-encoding'] = 'gzip';
 
-    // Set response as empty object
-    const res = {};
+      // Set response as empty object
+      const res = {};
 
-    // Verifies status code and headers
-    testUtils.createResponse(res);
+      // Verifies status code and headers
+      testUtils.createResponse(res);
 
-    // Verifies the response data
-    res.send = function send(_data) {
+      // Verifies the response data
+      res.send = function send(_data) {
       // Verify response body
-      const updatedBranches = JSON.parse(_data);
-      const updatedBranch = updatedBranches[0];
+        const updatedBranches = JSON.parse(_data);
+        const updatedBranch = updatedBranches[0];
 
-      // Verify branch updated properly
-      chai.expect(updatedBranch.id).to.equal(branchData.id);
-      chai.expect(updatedBranch.name).to.equal(branchData.name);
-      chai.expect(updatedBranch.custom || {}).to.deep.equal(branchData.custom);
-      chai.expect(updatedBranch.project).to.equal(projID);
+        // Verify branch updated properly
+        chai.expect(updatedBranch.id).to.equal(branchData.id);
+        chai.expect(updatedBranch.name).to.equal(branchData.name);
+        chai.expect(updatedBranch.custom || {}).to.deep.equal(branchData.custom);
+        chai.expect(updatedBranch.project).to.equal(projID);
 
-      // Clear the data used for testing
-      fs.truncateSync(filepath);
+        // Clear the data used for testing
+        fs.truncateSync(filepath);
 
-      done();
-    };
+        done();
+      };
 
-    // PATCH a branch
-    APIController.patchBranches(req, res, next(req, res));
-  });
+      // PATCH a branch
+      APIController.patchBranches(req, res, next(req, res));
+    });
 }

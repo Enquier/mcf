@@ -24,13 +24,15 @@ import {
   FormGroup,
   Label,
   Input,
-  Col
+  Col,
 } from 'reactstrap';
 
 /* eslint-enable no-unused-vars */
 
 function ElementTextarea(props) {
-  const { name, label, value, id, placeholder, onChange, invalid } = props;
+  const {
+    name, label, value, id, placeholder, onChange, invalid,
+  } = props;
   const _invalid = (invalid.length > 0 && name === 'customData');
   return (
     <React.Fragment>

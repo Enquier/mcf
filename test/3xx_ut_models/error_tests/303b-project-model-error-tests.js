@@ -59,7 +59,7 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function idTooShort() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData.org = 'org';
 
     // Change id to be too short.
@@ -70,8 +70,7 @@ async function idTooShort() {
     await Project.insertMany(projData).should.eventually.be.rejectedWith('Project'
       + ` validation failed: _id: Project ID length [${utils.parseID(projData._id).pop().length}]`
       + ' must not be less than 2 characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -83,7 +82,7 @@ async function idTooShort() {
  */
 async function idTooLong() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData.org = 'org';
 
     // Change id to be too long.
@@ -96,8 +95,7 @@ async function idTooLong() {
       + ` failed: _id: Project ID length [${projData._id.length - validators.org.idLength - 1}]`
       + ` must not be more than ${validators.project.idLength - validators.org.idLength - 1}`
       + ' characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -109,15 +107,14 @@ async function idTooLong() {
  */
 async function idNotProvided() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData.org = 'org';
     delete projData.id;
 
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith('Project'
       + ' validation failed: _id: Path `_id` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -134,7 +131,7 @@ async function invalidID() {
     this.skip();
   }
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData.org = 'org';
 
     // Change id to be invalid
@@ -144,8 +141,7 @@ async function invalidID() {
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith('Project'
       + ` validation failed: _id: Invalid project ID [${projData._id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -157,15 +153,14 @@ async function invalidID() {
  */
 async function orgNotProvided() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData._id = `org:${projData.id}`;
     delete projData.id;
 
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith('Project'
       + ' validation failed: org: Path `org` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -182,17 +177,16 @@ async function orgInvalid() {
     this.skip();
   }
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData._id = `org:${projData.id}`;
     projData.org = '!!';
     delete projData.id;
 
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith(
-      `Project validation failed: org: ${projData.org} is not a valid org ID.`
+      `Project validation failed: org: ${projData.org} is not a valid org ID.`,
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -204,7 +198,7 @@ async function orgInvalid() {
  */
 async function nameNotProvided() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData._id = `org:${projData.id}`;
     projData.org = 'org';
 
@@ -215,8 +209,7 @@ async function nameNotProvided() {
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith('Project'
       + ' validation failed: name: Path `name` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -228,23 +221,22 @@ async function nameNotProvided() {
  */
 async function permissionsInvalid() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData._id = `org:${projData.id}`;
     projData.org = 'org';
     delete projData.id;
 
     // Set invalid permissions
     projData.permissions = {
-      invalid: 'permissions'
+      invalid: 'permissions',
     };
 
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith(
       'Project validation failed: permissions: The project permissions object '
-      + 'is not properly formatted.'
+      + 'is not properly formatted.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -256,7 +248,7 @@ async function permissionsInvalid() {
  */
 async function visibilityInvalid() {
   try {
-    const projData = Object.assign({}, testData.projects[0]);
+    const projData = { ...testData.projects[0] };
     projData._id = `org:${projData.id}`;
     projData.org = 'org';
     delete projData.id;
@@ -267,10 +259,9 @@ async function visibilityInvalid() {
     // Expect insertMany() to fail with specific error message
     await Project.insertMany(projData).should.eventually.be.rejectedWith(
       `Project validation failed: visibility: \`${projData.visibility}\` is not`
-      + ' a valid enum value for path `visibility`.'
+      + ' a valid enum value for path `visibility`.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

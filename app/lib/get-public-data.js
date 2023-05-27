@@ -34,7 +34,7 @@ const utils = M.require('lib.utils');
  *
  * @returns {object} The modified object.
  */
-module.exports.getPublicData = function(requestingUser, object, type, options) {
+module.exports.getPublicData = function (requestingUser, object, type, options) {
   // If options is undefined, set it equal to an empty object
   if (options === undefined) {
     options = {}; // eslint-disable-line
@@ -87,8 +87,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     if (typeof artifact.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, artifact.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = artifact.createdBy;
     }
   }
@@ -99,8 +98,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     if (typeof artifact.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, artifact.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = artifact.lastModifiedBy;
     }
   }
@@ -111,8 +109,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     if (typeof artifact.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, artifact.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = artifact.archivedBy;
     }
   }
@@ -123,8 +120,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     if (typeof artifact.branch === 'object') {
       // Get the public data of branch
       branch = getBranchPublicData(requestingUser, artifact.branch, {});
-    }
-    else {
+    } else {
       branch = utils.parseID(artifact.branch).pop();
     }
   }
@@ -135,8 +131,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     if (typeof artifact.project === 'object') {
       // Get the public data of project
       project = getProjectPublicData(requestingUser, artifact.project, {});
-    }
-    else {
+    } else {
       project = idParts[1];
     }
   }
@@ -145,37 +140,36 @@ function getArtifactPublicData(requestingUser, artifact, options) {
     id: idParts.pop(),
     description: artifact.description,
     size: artifact.size,
-    branch: branch,
-    project: project,
+    branch,
+    project,
     org: idParts[0],
     filename: artifact.filename,
     location: artifact.location,
     strategy: artifact.strategy,
     custom: artifact.custom || {},
     createdOn: (artifact.createdOn) ? artifact.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (artifact.updatedOn) ? artifact.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: artifact.archived,
     archivedOn: (artifact.archivedOn) ? artifact.archivedOn.toString() : undefined,
-    archivedBy: archivedBy
+    archivedBy,
 
   };
 
   // Handle the virtual referencedBy field
   if (artifact.referencedBy) {
     // If all contents are objects (they should be)
-    if (artifact.referencedBy.every(a => typeof a === 'object')) {
+    if (artifact.referencedBy.every((a) => typeof a === 'object')) {
       // If the includeArchived option is supplied
       if (options.hasOwnProperty('includeArchived') && options.includeArchived === true) {
         data.referencedBy = artifact.referencedBy
-        .map(a => getElementPublicData(requestingUser, a, {}));
-      }
-      else {
+          .map((a) => getElementPublicData(requestingUser, a, {}));
+      } else {
         // Remove all archived elements
-        const nonArchivedElements = artifact.referencedBy.filter(a => a.archived !== true);
+        const nonArchivedElements = artifact.referencedBy.filter((a) => a.archived !== true);
         data.referencedBy = nonArchivedElements
-        .map(a => getElementPublicData(requestingUser, a, {}));
+          .map((a) => getElementPublicData(requestingUser, a, {}));
       }
     }
   }
@@ -183,7 +177,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -195,7 +189,7 @@ function getArtifactPublicData(requestingUser, artifact, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -238,8 +232,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, element.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = element.createdBy;
     }
   }
@@ -250,8 +243,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, element.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = element.lastModifiedBy;
     }
   }
@@ -262,8 +254,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, element.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = element.archivedBy;
     }
   }
@@ -274,8 +265,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.parent === 'object') {
       // Get the public data of parent
       parent = getElementPublicData(requestingUser, element.parent, {});
-    }
-    else {
+    } else {
       parent = utils.parseID(element.parent).pop();
     }
   }
@@ -286,8 +276,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.source === 'object') {
       // Get the public data of source
       source = getElementPublicData(requestingUser, element.source, {});
-    }
-    else {
+    } else {
       const sourceIdParts = utils.parseID(element.source);
       // If source element's project is not the same as the elements parent
       if (sourceIdParts[1] !== idParts[1]) {
@@ -296,10 +285,9 @@ function getElementPublicData(requestingUser, element, options) {
         sourceNamespace = {
           org: sourceIdParts[0],
           project: sourceIdParts[1],
-          branch: sourceIdParts[2]
+          branch: sourceIdParts[2],
         };
-      }
-      else {
+      } else {
         // Set source to just the element id
         source = sourceIdParts.pop();
       }
@@ -312,8 +300,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.target === 'object') {
       // Get the public data of target
       target = getElementPublicData(requestingUser, element.target, {});
-    }
-    else {
+    } else {
       const targetIdParts = utils.parseID(element.target);
       // If target element's project is not the same as the elements parent
       if (targetIdParts[1] !== idParts[1]) {
@@ -322,10 +309,9 @@ function getElementPublicData(requestingUser, element, options) {
         targetNamespace = {
           org: targetIdParts[0],
           project: targetIdParts[1],
-          branch: targetIdParts[2]
+          branch: targetIdParts[2],
         };
-      }
-      else {
+      } else {
         // Set target to just the element id
         target = targetIdParts.pop();
       }
@@ -338,8 +324,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.branch === 'object') {
       // Get the public data of branch
       branch = getBranchPublicData(requestingUser, element.branch, {});
-    }
-    else {
+    } else {
       branch = utils.parseID(element.branch).pop();
     }
   }
@@ -350,8 +335,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.project === 'object') {
       // Get the public data of project
       project = getProjectPublicData(requestingUser, element.project, {});
-    }
-    else {
+    } else {
       project = utils.parseID(element.project)[1];
     }
   }
@@ -362,8 +346,7 @@ function getElementPublicData(requestingUser, element, options) {
     if (typeof element.artifact === 'object') {
       // Get the public data of parent
       artifact = getArtifactPublicData(requestingUser, element.artifact, {});
-    }
-    else {
+    } else {
       artifact = utils.parseID(element.artifact).pop();
     }
   }
@@ -371,50 +354,47 @@ function getElementPublicData(requestingUser, element, options) {
   const data = {
     id: idParts.pop(),
     name: element.name,
-    branch: branch,
-    project: project,
+    branch,
+    project,
     org: idParts[0],
-    parent: parent,
-    source: source,
-    sourceNamespace: sourceNamespace,
-    target: target,
-    targetNamespace: targetNamespace,
+    parent,
+    source,
+    sourceNamespace,
+    target,
+    targetNamespace,
     type: element.type,
     documentation: element.documentation,
     custom: element.custom || {},
     createdOn: (element.createdOn) ? element.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (element.updatedOn) ? element.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: element.archived,
     archivedOn: (element.archivedOn) ? element.archivedOn.toString() : undefined,
-    archivedBy: archivedBy,
-    artifact: artifact
+    archivedBy,
+    artifact,
 
   };
 
   // Handle the virtual contains field
   if (element.contains) {
     // If all contents are objects (they should be)
-    if (element.contains.every(e => typeof e === 'object')) {
+    if (element.contains.every((e) => typeof e === 'object')) {
       // If the archived option is supplied
       if (options.hasOwnProperty('includeArchived') && options.includeArchived === true) {
         // If the user specified 'contains' in the populate field of options
         if (options.populate && options.populate.includes('contains')) {
-          data.contains = element.contains.map(e => getElementPublicData(requestingUser, e, {}));
+          data.contains = element.contains.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.contains = element.contains.map((e) => utils.parseID(e._id).pop());
         }
-        else {
-          data.contains = element.contains.map(e => utils.parseID(e._id).pop());
-        }
-      }
-      else {
+      } else {
         // Remove all archived elements
-        const tmpContains = element.contains.filter(e => e.archived !== true);
+        const tmpContains = element.contains.filter((e) => e.archived !== true);
         if (options.populate && options.populate.includes('contains')) {
-          data.contains = tmpContains.map(e => getElementPublicData(requestingUser, e, {}));
-        }
-        else {
-          data.contains = tmpContains.map(e => utils.parseID(e._id).pop());
+          data.contains = tmpContains.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.contains = tmpContains.map((e) => utils.parseID(e._id).pop());
         }
       }
     }
@@ -423,26 +403,23 @@ function getElementPublicData(requestingUser, element, options) {
   // Handle the virtual sourceOf field
   if (element.sourceOf) {
     // If all contents are objects (they should be)
-    if (element.sourceOf.every(e => typeof e === 'object')) {
+    if (element.sourceOf.every((e) => typeof e === 'object')) {
       // If the archived option is supplied
       if (options.hasOwnProperty('includeArchived') && options.includeArchived === true) {
         // If user is populating sourceOf, return objects else just ids
         if (options.populate && options.populate.includes('sourceOf')) {
-          data.sourceOf = element.sourceOf.map(e => getElementPublicData(requestingUser, e, {}));
+          data.sourceOf = element.sourceOf.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.sourceOf = element.sourceOf.map((e) => utils.parseID(e._id).pop());
         }
-        else {
-          data.sourceOf = element.sourceOf.map(e => utils.parseID(e._id).pop());
-        }
-      }
-      else {
+      } else {
         // Remove all archived elements
-        const tmpSourceOf = element.sourceOf.filter(e => e.archived !== true);
+        const tmpSourceOf = element.sourceOf.filter((e) => e.archived !== true);
         // If user is populating sourceOf, return objects else just ids
         if (options.populate && options.populate.includes('sourceOf')) {
-          data.sourceOf = tmpSourceOf.map(e => getElementPublicData(requestingUser, e, {}));
-        }
-        else {
-          data.sourceOf = tmpSourceOf.map(e => utils.parseID(e._id).pop());
+          data.sourceOf = tmpSourceOf.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.sourceOf = tmpSourceOf.map((e) => utils.parseID(e._id).pop());
         }
       }
     }
@@ -451,26 +428,23 @@ function getElementPublicData(requestingUser, element, options) {
   // Handle the virtual targetOf field
   if (element.targetOf) {
     // If all contents are objects (they should be)
-    if (element.targetOf.every(e => typeof e === 'object')) {
+    if (element.targetOf.every((e) => typeof e === 'object')) {
       // If the archived option is supplied
       if (options.hasOwnProperty('includeArchived') && options.includeArchived === true) {
         // If user is populating targetOf, return objects else just ids
         if (options.populate && options.populate.includes('targetOf')) {
-          data.targetOf = element.targetOf.map(e => getElementPublicData(requestingUser, e, {}));
+          data.targetOf = element.targetOf.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.targetOf = element.targetOf.map((e) => utils.parseID(e._id).pop());
         }
-        else {
-          data.targetOf = element.targetOf.map(e => utils.parseID(e._id).pop());
-        }
-      }
-      else {
+      } else {
         // Remove all archived elements
-        const tmpTargetOf = element.targetOf.filter(e => e.archived !== true);
+        const tmpTargetOf = element.targetOf.filter((e) => e.archived !== true);
         // If user is populating targetOf, return objects else just ids
         if (options.populate && options.populate.includes('targetOf')) {
-          data.targetOf = tmpTargetOf.map(e => getElementPublicData(requestingUser, e, {}));
-        }
-        else {
-          data.targetOf = tmpTargetOf.map(e => utils.parseID(e._id).pop());
+          data.targetOf = tmpTargetOf.map((e) => getElementPublicData(requestingUser, e, {}));
+        } else {
+          data.targetOf = tmpTargetOf.map((e) => utils.parseID(e._id).pop());
         }
       }
     }
@@ -479,7 +453,7 @@ function getElementPublicData(requestingUser, element, options) {
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -491,7 +465,7 @@ function getElementPublicData(requestingUser, element, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -527,8 +501,7 @@ function getBranchPublicData(requestingUser, branch, options) {
     if (typeof branch.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, branch.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = branch.createdBy;
     }
   }
@@ -539,8 +512,7 @@ function getBranchPublicData(requestingUser, branch, options) {
     if (typeof branch.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, branch.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = branch.lastModifiedBy;
     }
   }
@@ -551,8 +523,7 @@ function getBranchPublicData(requestingUser, branch, options) {
     if (typeof branch.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, branch.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = branch.archivedBy;
     }
   }
@@ -563,8 +534,7 @@ function getBranchPublicData(requestingUser, branch, options) {
     if (typeof branch.project === 'object') {
       // Get the public data of project
       project = getProjectPublicData(requestingUser, branch.project, {});
-    }
-    else {
+    } else {
       project = utils.parseID(branch.project)[1];
     }
   }
@@ -575,8 +545,7 @@ function getBranchPublicData(requestingUser, branch, options) {
     if (typeof branch.source === 'object') {
       // Get the public data of branch
       source = getBranchPublicData(requestingUser, branch.source, {});
-    }
-    else {
+    } else {
       source = utils.parseID(branch.source).pop();
     }
   }
@@ -586,23 +555,23 @@ function getBranchPublicData(requestingUser, branch, options) {
     id: idParts.pop(),
     name: branch.name,
     org: idParts[0],
-    project: project,
-    source: source,
+    project,
+    source,
     tag: branch.tag,
     custom: branch.custom || {},
     createdOn: (branch.createdOn) ? branch.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (branch.updatedOn) ? branch.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: branch.archived,
     archivedOn: (branch.archivedOn) ? branch.archivedOn.toString() : undefined,
-    archivedBy: archivedBy
+    archivedBy,
   };
 
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -614,7 +583,7 @@ function getBranchPublicData(requestingUser, branch, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -647,11 +616,9 @@ function getProjectPublicData(requestingUser, project, options) {
     // Return highest permission
     if (project.permissions[u].includes('admin')) {
       permissions[u] = 'admin';
-    }
-    else if (project.permissions[u].includes('write')) {
+    } else if (project.permissions[u].includes('write')) {
       permissions[u] = 'write';
-    }
-    else {
+    } else {
       permissions[u] = 'read';
     }
   });
@@ -662,8 +629,7 @@ function getProjectPublicData(requestingUser, project, options) {
     if (typeof project.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, project.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = project.createdBy;
     }
   }
@@ -674,8 +640,7 @@ function getProjectPublicData(requestingUser, project, options) {
     if (typeof project.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, project.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = project.lastModifiedBy;
     }
   }
@@ -686,8 +651,7 @@ function getProjectPublicData(requestingUser, project, options) {
     if (typeof project.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, project.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = project.archivedBy;
     }
   }
@@ -699,22 +663,22 @@ function getProjectPublicData(requestingUser, project, options) {
       ? getOrgPublicData(requestingUser, project.org, {})
       : utils.parseID(project._id)[0],
     name: project.name,
-    permissions: permissions,
+    permissions,
     custom: project.custom || {},
     visibility: project.visibility,
     createdOn: (project.createdOn) ? project.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (project.updatedOn) ? project.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: project.archived,
     archivedOn: (project.archivedOn) ? project.archivedOn.toString() : undefined,
-    archivedBy: archivedBy
+    archivedBy,
   };
 
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -726,7 +690,7 @@ function getProjectPublicData(requestingUser, project, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -760,11 +724,9 @@ function getOrgPublicData(requestingUser, org, options) {
     // Return highest permission
     if (org.permissions[u].includes('admin')) {
       permissions[u] = 'admin';
-    }
-    else if (org.permissions[u].includes('write')) {
+    } else if (org.permissions[u].includes('write')) {
       permissions[u] = 'write';
-    }
-    else {
+    } else {
       permissions[u] = 'read';
     }
   });
@@ -775,8 +737,7 @@ function getOrgPublicData(requestingUser, org, options) {
     if (typeof org.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, org.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = org.createdBy;
     }
   }
@@ -787,8 +748,7 @@ function getOrgPublicData(requestingUser, org, options) {
     if (typeof org.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, org.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = org.lastModifiedBy;
     }
   }
@@ -799,8 +759,7 @@ function getOrgPublicData(requestingUser, org, options) {
     if (typeof org.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, org.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = org.archivedBy;
     }
   }
@@ -808,16 +767,15 @@ function getOrgPublicData(requestingUser, org, options) {
   // Handle the virtual projects field
   if (org.projects) {
     // If all contents are objects (they should be)
-    if (org.projects.every(p => typeof p === 'object')) {
+    if (org.projects.every((p) => typeof p === 'object')) {
       // If the archived option is supplied
       if (options.hasOwnProperty('includeArchived') && options.includeArchived === true) {
         projects = org.projects
-        .map(p => getProjectPublicData(requestingUser, p, { archived: true }));
-      }
-      else {
+          .map((p) => getProjectPublicData(requestingUser, p, { archived: true }));
+      } else {
         // Remove all archived projects
-        const tmpContains = org.projects.filter(p => p.archived !== true);
-        projects = tmpContains.map(p => getProjectPublicData(requestingUser, p, {}));
+        const tmpContains = org.projects.filter((p) => p.archived !== true);
+        projects = tmpContains.map((p) => getProjectPublicData(requestingUser, p, {}));
       }
     }
   }
@@ -826,22 +784,22 @@ function getOrgPublicData(requestingUser, org, options) {
   const data = {
     id: org._id,
     name: org.name,
-    permissions: permissions,
+    permissions,
     custom: org.custom || {},
     createdOn: (org.createdOn) ? org.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (org.updatedOn) ? org.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: org.archived,
     archivedOn: (org.archivedOn) ? org.archivedOn.toString() : undefined,
-    archivedBy: archivedBy,
-    projects: projects
+    archivedBy,
+    projects,
   };
 
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -853,7 +811,7 @@ function getOrgPublicData(requestingUser, org, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -886,8 +844,7 @@ function getUserPublicData(requestingUser, user, options) {
     if (typeof user.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, user.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = user.createdBy;
     }
   }
@@ -898,8 +855,7 @@ function getUserPublicData(requestingUser, user, options) {
     if (typeof user.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, user.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = user.lastModifiedBy;
     }
   }
@@ -910,8 +866,7 @@ function getUserPublicData(requestingUser, user, options) {
     if (typeof user.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, user.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = user.archivedBy;
     }
   }
@@ -924,14 +879,14 @@ function getUserPublicData(requestingUser, user, options) {
     email: user.email,
     custom: user.custom || {},
     createdOn: (user.createdOn) ? user.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (user.updatedOn) ? user.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: user.archived,
     archivedOn: (user.archivedOn) ? user.archivedOn.toString() : undefined,
-    archivedBy: archivedBy,
+    archivedBy,
     admin: user.admin,
-    provider: user.provider
+    provider: user.provider,
   };
 
   // Add in admin/self specific fields
@@ -943,7 +898,7 @@ function getUserPublicData(requestingUser, user, options) {
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -955,7 +910,7 @@ function getUserPublicData(requestingUser, user, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { username: data.username };
       // Add specific field to returnObj
       options.fields.forEach((f) => {
@@ -986,8 +941,7 @@ function getWebhookPublicData(requestingUser, webhook, options) {
   // Parse webhook reference
   if (!webhook.reference || webhook.reference === '') {
     reference = '';
-  }
-  else {
+  } else {
     const ids = utils.parseID(webhook.reference);
     reference.org = ids.shift();
     if (ids.length) reference.project = ids.shift();
@@ -1000,8 +954,7 @@ function getWebhookPublicData(requestingUser, webhook, options) {
     if (typeof webhook.createdBy === 'object') {
       // Get the public data of createdBy
       createdBy = getUserPublicData(requestingUser, webhook.createdBy, {});
-    }
-    else {
+    } else {
       createdBy = webhook.createdBy;
     }
   }
@@ -1012,8 +965,7 @@ function getWebhookPublicData(requestingUser, webhook, options) {
     if (typeof webhook.lastModifiedBy === 'object') {
       // Get the public data of lastModifiedBy
       lastModifiedBy = getUserPublicData(requestingUser, webhook.lastModifiedBy, {});
-    }
-    else {
+    } else {
       lastModifiedBy = webhook.lastModifiedBy;
     }
   }
@@ -1024,8 +976,7 @@ function getWebhookPublicData(requestingUser, webhook, options) {
     if (typeof webhook.archivedBy === 'object') {
       // Get the public data of archivedBy
       archivedBy = getUserPublicData(requestingUser, webhook.archivedBy, {});
-    }
-    else {
+    } else {
       archivedBy = webhook.archivedBy;
     }
   }
@@ -1044,23 +995,23 @@ function getWebhookPublicData(requestingUser, webhook, options) {
     description: webhook.description,
     triggers: webhook.triggers,
     url: webhook.url ? webhook.url : undefined,
-    token: token,
+    token,
     tokenLocation: webhook.tokenLocation ? webhook.tokenLocation : undefined,
-    reference: reference,
+    reference,
     custom: webhook.custom || {},
     createdOn: (webhook.createdOn) ? webhook.createdOn.toString() : undefined,
-    createdBy: createdBy,
+    createdBy,
     updatedOn: (webhook.updatedOn) ? webhook.updatedOn.toString() : undefined,
-    lastModifiedBy: lastModifiedBy,
+    lastModifiedBy,
     archived: webhook.archived,
     archivedOn: (webhook.archivedOn) ? webhook.archivedOn.toString() : undefined,
-    archivedBy: archivedBy
+    archivedBy,
   };
 
   // If the fields options is defined
   if (options.hasOwnProperty('fields')) {
     // If fields should be excluded
-    if (options.fields.every(f => f.startsWith('-'))) {
+    if (options.fields.every((f) => f.startsWith('-'))) {
       // For each of those fields
       options.fields.forEach((f) => {
         // If -id, ignore it
@@ -1072,7 +1023,7 @@ function getWebhookPublicData(requestingUser, webhook, options) {
       });
     }
     // If only specific fields should be included
-    else if (options.fields.every(f => !f.startsWith('-'))) {
+    else if (options.fields.every((f) => !f.startsWith('-'))) {
       const returnObj = { id: data.id };
       // Add specific field to returnObj
       options.fields.forEach((f) => {

@@ -34,7 +34,7 @@ import { useApiClient } from '../context/ApiClientProvider';
 
 // Define component
 function OrganizationList(props) {
-  const { orgService } = useApiClient();
+  const { authService, orgService } = useApiClient();
   const [width, setWidth] = useState(null);
   const [orgs, setOrgs] = useState([]);
   const [modalCreate, setModalCreate] = useState(false);
@@ -59,20 +59,20 @@ function OrganizationList(props) {
 
   const refresh = () => {
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI(async (err, data) => {
+    authService.checkAuth(async (err, data) => {
       // Verify if error returned
       if (err) {
         // Set error state
         setError(err.responseText);
-      }
-      else {
+      } else {
         // Get org data
         const options = {
-          populate: 'projects',
-          includeArchived: true
+          params: {
+            populate: 'projects',
+            includeArchived: true,
+          },
         };
         const [err2, orgData] = await orgService.get(options);
-
         // Set state
         if (err2) setError(err2);
         else if (orgData) setOrgs(orgData);
@@ -94,9 +94,8 @@ function OrganizationList(props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
   // Loop through all orgs
-  const orgList = orgs.map(org => <OrgListItem className='hover-darken' key={`org-key-${org.id}`} org={org} link={`/orgs/${org.id}`}/>);
+  const orgList = orgs.map((org) => <OrgListItem className='hover-darken' key={`org-key-${org.id}`} org={org} link={`/orgs/${org.id}`}/>);
 
   // Return org list
   return (

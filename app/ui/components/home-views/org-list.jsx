@@ -31,7 +31,6 @@ import ProjList from './proj-list.jsx';
 /* eslint-enable no-unused-vars */
 
 class OrgList extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -41,7 +40,7 @@ class OrgList extends Component {
       width: null,
       modalProjCreate: false,
       modalOrgDelete: false,
-      projects: null
+      projects: null,
     };
 
     // Create reference
@@ -73,13 +72,13 @@ class OrgList extends Component {
   }
 
   refresh() {
-    const projects = this.props.org.projects;
+    const { projects } = this.props.org;
     const permissionedProjs = [];
 
     // Verify if system admin
     if (!this.props.admin) {
-      const username = this.props.user.username;
-      projects.forEach(project => {
+      const { username } = this.props.user;
+      projects.forEach((project) => {
         const perm = project.permissions[username];
 
         // Verify if user can see project
@@ -89,9 +88,8 @@ class OrgList extends Component {
           permissionedProjs.push(project);
         }
       });
-    }
-    else {
-      projects.forEach(project => permissionedProjs.push(project));
+    } else {
+      projects.forEach((project) => permissionedProjs.push(project));
     }
     this.setState({ projects: permissionedProjs });
   }
@@ -113,8 +111,7 @@ class OrgList extends Component {
 
     if (this.props.showProjs) {
       icon = 'fas fa-angle-down';
-    }
-    else {
+    } else {
       icon = 'fas fa-angle-right';
     }
 
@@ -124,12 +121,12 @@ class OrgList extends Component {
     // Loop through project-views in each org
     if (this.state.projects) {
       projects = this.state.projects.map(
-        project => (<ProjList project={project}
+        (project) => (<ProjList project={project}
                               admin={this.props.admin}
                               key={`proj-key-${project.id}`}
                               orgid={this.props.org.id}
                               archiveProj={archiveProj}
-                              refresh={this.props.refresh}/>)
+                              refresh={this.props.refresh}/>),
       );
     }
 
@@ -184,7 +181,6 @@ class OrgList extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 // Export component

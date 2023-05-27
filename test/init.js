@@ -36,8 +36,7 @@ before(async () => {
     await Promise.all([Artifact.init(), Branch.init(), Element.init(),
       Organization.init(), Project.init(), ServerData.init(), User.init(),
       Webhook.init()]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     process.exit(1);
   }
@@ -48,8 +47,7 @@ after(async () => {
   try {
     // Disconnect from the database
     await db.disconnect();
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     process.exit(1);
   }

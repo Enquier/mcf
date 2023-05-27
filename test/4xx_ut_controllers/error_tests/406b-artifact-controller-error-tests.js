@@ -71,13 +71,16 @@ describe(M.getModuleName(module.filename), () => {
     tagID = utils.parseID(tag._id).pop();
 
     // Create artifact
-    await ArtifactController.create(adminUser, orgID, projectID, branchID,
-      testData.artifacts[0]);
+    await ArtifactController.create(
+      adminUser,
+      orgID,
+      projectID,
+      branchID,
+      testData.artifacts[0],
+    );
 
     // Get png test file
-    const artifactPath = path.join(
-      M.root, testData.artifacts[0].location, testData.artifacts[0].filename
-    );
+    const artifactPath = path.join(M.root, testData.artifacts[0].location, testData.artifacts[0].filename);
 
     // Get the test file
     artifactBlob = await fs.readFileSync(artifactPath);
@@ -85,7 +88,7 @@ describe(M.getModuleName(module.filename), () => {
       project: projectID,
       org: orgID,
       location: testData.artifacts[0].location,
-      filename: testData.artifacts[0].filename
+      filename: testData.artifacts[0].filename,
     };
 
     // Create Blob
@@ -100,8 +103,7 @@ describe(M.getModuleName(module.filename), () => {
       // Remove organization
       // Note: Projects and artifacts under organization will also be removed
       await testUtils.removeTestOrg();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -134,13 +136,17 @@ async function findNonexistingBlob() {
     project: projectID,
     org: orgID,
     location: testData.artifacts[1].location,
-    filename: testData.artifacts[1].filename
+    filename: testData.artifacts[1].filename,
   };
 
   // Attempt to find an artifact; should be rejected with specific error message
-  await ArtifactController.getBlob(adminUser, orgID, projectID,
-    artData)
-  .should.eventually.be.rejectedWith('Artifact blob not found.');
+  await ArtifactController.getBlob(
+    adminUser,
+    orgID,
+    projectID,
+    artData,
+  )
+    .should.eventually.be.rejectedWith('Artifact blob not found.');
 }
 
 /**
@@ -150,7 +156,7 @@ async function createInTag() {
   const artifactObj = testData.artifacts[0];
   // Attempt to create an artifact; should be rejected with specific error message
   await ArtifactController.create(adminUser, org._id, projectID, tagID, artifactObj)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and does`
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and does`
       + ' not allow artifacts to be created, updated, or deleted.');
 }
 
@@ -164,13 +170,18 @@ async function createExistingBlob() {
     project: projectID,
     org: orgID,
     location: testData.artifacts[0].location,
-    filename: testData.artifacts[0].filename
+    filename: testData.artifacts[0].filename,
   };
 
   // Attempt to create a blob; should be rejected with specific error message
-  await ArtifactController.postBlob(adminUser, orgID, projectID,
-    artData, artifactBlob)
-  .should.eventually.be.rejectedWith('Artifact blob already exists.');
+  await ArtifactController.postBlob(
+    adminUser,
+    orgID,
+    projectID,
+    artData,
+    artifactBlob,
+  )
+    .should.eventually.be.rejectedWith('Artifact blob already exists.');
 }
 
 /**
@@ -183,17 +194,21 @@ async function createExistingArtifact() {
     name: testData.artifacts[0].name,
     filename: testData.artifacts[0].filename,
     location: testData.artifacts[0].location,
-    custom: testData.artifacts[0].custom
+    custom: testData.artifacts[0].custom,
   };
 
   // Attempt to create an artifact; should be rejected with specific error message
   try {
-    await ArtifactController.create(adminUser, orgID,
-      projectID, branchID, artObj).should.eventually.be.rejectedWith(
-      `Artifacts with the following IDs already exist [${testData.artifacts[0].id}].`
+    await ArtifactController.create(
+      adminUser,
+      orgID,
+      projectID,
+      branchID,
+      artObj,
+    ).should.eventually.be.rejectedWith(
+      `Artifacts with the following IDs already exist [${testData.artifacts[0].id}].`,
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -210,17 +225,21 @@ async function updateNonexistingArtifact() {
     name: testData.artifacts[2].name,
     filename: testData.artifacts[2].filename,
     location: testData.artifacts[2].location,
-    custom: testData.artifacts[2].custom
+    custom: testData.artifacts[2].custom,
   };
 
   // Attempt to update an artifact; should be rejected with specific error message
   try {
-    await ArtifactController.update(adminUser, orgID,
-      projectID, branchID, artObj).should.eventually.be.rejectedWith(
-      `The following artifacts were not found: [${testData.artifacts[2].id}].`
+    await ArtifactController.update(
+      adminUser,
+      orgID,
+      projectID,
+      branchID,
+      artObj,
+    ).should.eventually.be.rejectedWith(
+      `The following artifacts were not found: [${testData.artifacts[2].id}].`,
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -234,12 +253,12 @@ async function updateInTag() {
   // Create the object to update artifact
   const updateObj = {
     name: 'model_edit',
-    id: 'model'
+    id: 'model',
   };
 
   // Update artifact via controller; should be rejected with specific error message
   await ArtifactController.update(adminUser, orgID, projectID, tagID, updateObj)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and `
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and `
       + 'does not allow artifacts to be created, updated, or deleted.');
 }
 
@@ -249,7 +268,7 @@ async function updateInTag() {
 async function deleteInTag() {
   // Attempt deleting an artifact via controller; should be rejected with specific error message
   await ArtifactController.remove(adminUser, orgID, projectID, tagID, testData.artifacts[1].id)
-  .should.eventually.be.rejectedWith(`[${tagID}] is a tag and`
+    .should.eventually.be.rejectedWith(`[${tagID}] is a tag and`
       + ' does not allow artifacts to be created, updated, or deleted.');
 }
 
@@ -262,16 +281,24 @@ async function deleteNonexistingBlob() {
     project: projectID,
     org: orgID,
     location: testData.artifacts[0].location,
-    filename: testData.artifacts[0].filename
+    filename: testData.artifacts[0].filename,
   };
 
   // Delete the blob
-  await ArtifactController.deleteBlob(adminUser, orgID, projectID,
-    artData);
+  await ArtifactController.deleteBlob(
+    adminUser,
+    orgID,
+    projectID,
+    artData,
+  );
 
   // Attempt to delete a nonexistent blob
   // Should be rejected with specific error message
-  await ArtifactController.deleteBlob(adminUser, orgID, projectID,
-    artData)
-  .should.eventually.be.rejectedWith('Artifact blob not found.');
+  await ArtifactController.deleteBlob(
+    adminUser,
+    orgID,
+    projectID,
+    artData,
+  )
+    .should.eventually.be.rejectedWith('Artifact blob not found.');
 }

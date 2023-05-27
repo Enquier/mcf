@@ -1,3 +1,9 @@
+import $ from 'jquery';
+import axios from 'axios';
+
+const uiConfig = require('../../../build/json/uiConfig.json');
+
+const formatter = require(`../api/${(uiConfig.apiServer) ? uiConfig.apiServer.type : 'mcf'}-api-client/lib/formatter.js`);
 /**
  * @classification UNCLASSIFIED
  *
@@ -19,65 +25,11 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 $.fn.extend({
-  autoResize: function() {
+  autoResize() {
     const nlines = $(this).html().split('\n').length;
     $(this).attr('rows', nlines + 1);
-  }
+  },
 });
-
-
-/**
- * Determines the identity of the current user. If the user is stored in session
- * storage, that is used. Otherwise, an API call is made to /api/users/whoami
- * to get the user information and store it in session storage.
- *
- * Takes a callback as input that will passed an error, and the user data.
- */
-// eslint-disable-next-line no-unused-vars
-function mbeeWhoAmI(callback) {
-  // If user is already stored, use that.
-  if (window.sessionStorage.hasOwnProperty('mbee-user')
-    && window.sessionStorage['mbee-user'] !== null) {
-    return callback(null, JSON.parse(window.sessionStorage['mbee-user']));
-  }
-
-  // If not found, do ajax call
-  const url = '/api/users/whoami?minified=true';
-  $.ajax({
-    method: 'GET',
-    url: url,
-    statusCode: {
-      401: () => {
-        const path = window.location.pathname;
-        if (!path.startsWith('/doc') && !path.startsWith('/login')
-          && !path.startsWith('/about')) {
-          // Refresh when session expires
-          window.location.reload();
-        }
-      }
-    },
-    success: (_data) => {
-      const data = {
-        username: _data.username,
-        fname: _data.fname,
-        lname: _data.lname,
-        preferredName: _data.preferredName,
-        email: _data.email,
-        custom: _data.custom,
-        admin: _data.admin,
-        provider: _data.provider,
-        changePassword: _data.changePassword
-      };
-      if (data.username) {
-        window.sessionStorage.setItem('mbee-user', JSON.stringify(data));
-      }
-      callback(null, data);
-    },
-    error: (err) => {
-      callback(err, null);
-    }
-  });
-}
 
 /**
  * @description Given an API parameter string, converts to Proper Case. Conversely, given a Proper
@@ -103,8 +55,7 @@ function convertCase(param, caseType) {
     // Convert API params to option values
     convertedCase = param.split(/(?=[A-Z])/).join(' ');
     convertedCase = convertedCase.charAt(0).toUpperCase() + convertedCase.slice(1);
-  }
-  else if (caseType === 'api') {
+  } else if (caseType === 'api') {
     // Remove spaces fom string
     convertedCase = param.split(' ').join('');
     // Convert first character to lower case
@@ -122,32 +73,15 @@ function convertCase(param, caseType) {
  * @returns {string} - Decoded string.
  */
 // eslint-disable-next-line no-unused-vars
-function decodeHTML(encodedString) {
+export const decodeHTML = (encodedString) => {
   // Check if input is string type
   if (typeof encodedString === 'string') {
     // Replace HTML escape sequences with corresponding characters
     return String(encodedString)
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'");
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'");
   }
-}
-
-/**
- * @description Converts a passed in string to camel case.
- *
- * @param {string} aString - string to convert to camel case.
- *
- * @returns {string} - Camel case string.
- */
-// eslint-disable-next-line no-unused-vars
-function toCamel(aString) {
-  return aString.replace(/\W/g, ' ').trim().toLowerCase().replace(
-    /(?:\b\w|\s+)/g,
-    function(match, index) {
-      if (+match === 0) return ''; return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    }
-  );
-}
+};

@@ -22,7 +22,7 @@ module.exports = {
   find,
   create,
   update,
-  remove
+  remove,
 };
 
 // Node modules
@@ -140,8 +140,7 @@ async function find(requestingUser, organizationID, projectID, branches, options
           // Ensure the search option is a string
           if ((o === 'tag' || o === 'archived') && typeof options[o] !== 'boolean') {
             throw new M.DataFormatError(`The option '${o}' is not a boolean.`, 'warn');
-          }
-          else if ((typeof options[o] !== 'string') && (o !== 'tag' && o !== 'archived')) {
+          } else if ((typeof options[o] !== 'string') && (o !== 'tag' && o !== 'archived')) {
             throw new M.DataFormatError(`The option '${o}' is not a string.`, 'warn');
           }
 
@@ -166,12 +165,18 @@ async function find(requestingUser, organizationID, projectID, branches, options
     }
 
     // Find the org and check that it has been found and is not archived (unless specified)
-    const organization = await helper.findAndValidate(Org, orgID,
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const organization = await helper.findAndValidate(
+      Org,
+      orgID,
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the project and check that it has been found and is not archived (unless specified)
-    const project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const project = await helper.findAndValidate(
+      Project,
+      utils.createID(orgID, projID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Check permissions
     permissions.readBranch(reqUser, organization, project);
@@ -179,32 +184,32 @@ async function find(requestingUser, organizationID, projectID, branches, options
     // Check the type of the branches parameter
     if (Array.isArray(saniBranches)) {
       // An array of branch ids, find all
-      branchesToFind = saniBranches.map(b => utils.createID(orgID, projID, b));
+      branchesToFind = saniBranches.map((b) => utils.createID(orgID, projID, b));
       searchQuery._id = { $in: branchesToFind };
-    }
-    else if (typeof saniBranches === 'string') {
+    } else if (typeof saniBranches === 'string') {
       // A single branch id
       searchQuery._id = utils.createID(orgID, projID, saniBranches);
-    }
-    else if (!((typeof saniBranches === 'object' && saniBranches !== null)
+    } else if (!((typeof saniBranches === 'object' && saniBranches !== null)
       || saniBranches === undefined)) {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for finding branches.', 'warn');
     }
 
     // Find and return branches
-    return await Branch.find(searchQuery, validatedOptions.fieldsString,
-      { limit: validatedOptions.limit,
+    return await Branch.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        limit: validatedOptions.limit,
         skip: validatedOptions.skip,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
-
 
 /**
  * @description This functions creates one or many branches from the provided
@@ -250,11 +255,10 @@ async function create(requestingUser, organizationID, projectID, branches, optio
     // Specific to create branch function: sources must all be the same
     try {
       if (Array.isArray(branches)) {
-        assert.ok(branches.every(b => b.source === branches[0].source), 'One or more items in branches source '
+        assert.ok(branches.every((b) => b.source === branches[0].source), 'One or more items in branches source '
           + 'field is not the same.');
       }
-    }
-    catch (error) {
+    } catch (error) {
       throw new M.DataFormatError(error.message, 'warn');
     }
 
@@ -276,12 +280,10 @@ async function create(requestingUser, organizationID, projectID, branches, optio
     if (Array.isArray(saniBranches)) {
       // Branches is an array, create many branches
       branchesToCreate = saniBranches;
-    }
-    else if (typeof saniBranches === 'object') {
+    } else if (typeof saniBranches === 'object') {
       // Branches is an object, create a single branch
       branchesToCreate = [saniBranches];
-    }
-    else {
+    } else {
       // Branches is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating branches.', 'warn');
     }
@@ -316,8 +318,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
 
         index++;
       });
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -349,7 +350,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
     // If there are any foundBranches, there is a conflict
     if (foundBranches.length > 0) {
       // Get arrays of the foundBranches' ids
-      const foundBranchIDs = foundBranches.map(b => utils.parseID(b._id).pop());
+      const foundBranchIDs = foundBranches.map((b) => utils.parseID(b._id).pop());
 
       // There are one or more branches with conflicting IDs
       throw new M.OperationError('Branches with the following IDs already exist'
@@ -416,7 +417,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
             updatedOn: Date.now(),
             archived: e.archived,
             archivedOn: (e.archivedOn) ? e.archivedOn : null,
-            archivedBy: (e.archivedBy) ? e.archivedBy : null
+            archivedBy: (e.archivedBy) ? e.archivedBy : null,
           };
 
           // If the element has a source
@@ -431,8 +432,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
               // If the element's source is in this project,
               // create new ID
               elemObj.source = utils.createID(branch._id, elemSourceID);
-            }
-            else {
+            } else {
               // If the element's source is in another project,
               // keep the original id
               elemObj.source = e.source;
@@ -451,8 +451,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
               // If the element's target is in this project,
               // create new ID
               elemObj.target = utils.createID(branch._id, elemTargetID);
-            }
-            else {
+            } else {
               // If the element's target is in another project,
               // keep the original id
               elemObj.source = e.target;
@@ -505,7 +504,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
               size: a.size,
               strategy: a.strategy,
               archivedOn: (a.archivedOn) ? a.archivedOn : null,
-              archivedBy: (a.archivedBy) ? a.archivedBy : null
+              archivedBy: (a.archivedBy) ? a.archivedBy : null,
             };
           }));
         });
@@ -518,8 +517,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
           throw new M.DatabaseError('Not all artifacts were cloned from branch.', 'error');
         }
       }
-    }
-    catch (error) {
+    } catch (error) {
       throw await new Promise(async (resolve) => {
         try {
           // If there was an error with inserting elements into the branch
@@ -531,8 +529,7 @@ async function create(requestingUser, organizationID, projectID, branches, optio
           await Artifact.deleteMany({ branch: { $in: arrIDs } });
           // Send original error
           resolve(error);
-        }
-        catch (err) {
+        } catch (err) {
           // Send the new error caused by attempting to delete incomplete branch
           resolve(err);
         }
@@ -542,11 +539,12 @@ async function create(requestingUser, organizationID, projectID, branches, optio
     // Emit the event branches-created
     EventEmitter.emit('branches-created', branchObjects);
 
-    return await Branch.find({ _id: { $in: arrIDs } },
+    return await Branch.find(
+      { _id: { $in: arrIDs } },
       validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
-  }
-  catch (error) {
+      { populate: validatedOptions.populateString },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -613,22 +611,26 @@ async function update(requestingUser, organizationID, projectID, branches, optio
     if (Array.isArray(saniBranches)) {
       // Branches is an array, update many branches
       branchesToUpdate = saniBranches;
-    }
-    else if (typeof saniBranches === 'object') {
+    } else if (typeof saniBranches === 'object') {
       // Branches is an object, update a single branches
       branchesToUpdate = [saniBranches];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating branches.', 'warn');
     }
 
     // Find the org and check that it has been found and is not archived (unless specified)
-    const organization = await helper.findAndValidate(Org, orgID,
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const organization = await helper.findAndValidate(
+      Org,
+      orgID,
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Find the project and check that it has been found and is not archived (unless specified)
-    const project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-      ((options && options.archived) || validatedOptions.includeArchived));
+    const project = await helper.findAndValidate(
+      Project,
+      utils.createID(orgID, projID),
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     // Create list of ids
     let index = 1;
@@ -637,8 +639,7 @@ async function update(requestingUser, organizationID, projectID, branches, optio
         // Ensure each branch has an id and that its a string
         assert.ok(branch.hasOwnProperty('id'), `Branch #${index} does not have an id.`);
         assert.ok(typeof branch.id === 'string', `Branch #${index}'s id is not a string.`);
-      }
-      catch (err) {
+      } catch (err) {
         throw new M.DataFormatError(err.message, 'warn');
       }
       branch.id = utils.createID(orgID, projID, branch.id);
@@ -646,8 +647,7 @@ async function update(requestingUser, organizationID, projectID, branches, optio
       if (duplicateCheck[branch.id]) {
         throw new M.DataFormatError('Multiple objects with the same ID '
           + `[${utils.parseID(branch.id).pop()}] exist in the update.`, 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[branch.id] = branch.id;
       }
       arrIDs.push(branch.id);
@@ -662,19 +662,17 @@ async function update(requestingUser, organizationID, projectID, branches, optio
     // Return when all branches have been found
     const foundBranches = await Branch.find(searchQuery, null);
 
-    foundBranches.forEach(branch => {
+    foundBranches.forEach((branch) => {
       // Check permissions
       permissions.updateBranch(reqUser, organization, project, branch);
     });
 
     // Verify the same number of branches are found as desired
     if (foundBranches.length !== arrIDs.length) {
-      const foundIDs = foundBranches.map(b => b._id);
-      const notFound = arrIDs.filter(b => !foundIDs.includes(b))
-      .map(b => utils.parseID(b).pop());
-      throw new M.NotFoundError(
-        `The following branches were not found: [${notFound.toString()}].`, 'warn'
-      );
+      const foundIDs = foundBranches.map((b) => b._id);
+      const notFound = arrIDs.filter((b) => !foundIDs.includes(b))
+        .map((b) => utils.parseID(b).pop());
+      throw new M.NotFoundError(`The following branches were not found: [${notFound.toString()}].`, 'warn');
     }
 
     // Convert branchesToUpdate to JMI type 2
@@ -711,17 +709,13 @@ async function update(requestingUser, organizationID, projectID, branches, optio
           if (typeof validators.branch[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.branch[key]).test(updateBranch[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateBranch[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateBranch[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.branch[key] === 'function') {
             if (!validators.branch[key](updateBranch[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateBranch[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateBranch[key]}]`, 'warn');
             }
           }
           // Improperly formatted validator
@@ -735,9 +729,7 @@ async function update(requestingUser, organizationID, projectID, branches, optio
         if (key === 'archived') {
           // Error Check: ensure the root branch is not being archived
           if (Branch.getValidRootSource().includes(branch.id)) {
-            throw new M.OperationError(
-              `User cannot archive the master branch: ${branch.id}.`, 'warn'
-            );
+            throw new M.OperationError(`User cannot archive the master branch: ${branch.id}.`, 'warn');
           }
           // If the branch is being archived
           if (updateBranch[key] && !branch[key]) {
@@ -760,24 +752,25 @@ async function update(requestingUser, organizationID, projectID, branches, optio
       bulkArray.push({
         updateOne: {
           filter: { _id: branch._id },
-          update: updateBranch
-        }
+          update: updateBranch,
+        },
       });
     });
 
     // Update all branches through a bulk write to the database
     await Branch.bulkWrite(bulkArray);
 
-
-    const foundUpdatedBranches = await Branch.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+    const foundUpdatedBranches = await Branch.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event branches-updated
     EventEmitter.emit('branches-updated', foundUpdatedBranches);
 
     return foundUpdatedBranches;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -824,15 +817,13 @@ async function remove(requestingUser, organizationID, projectID, branches, optio
     // Check the type of the branches parameter
     if (Array.isArray(saniBranches)) {
       // An array of branches ids, remove all
-      searchedIDs = saniBranches.map(b => utils.createID(orgID, projID, b));
+      searchedIDs = saniBranches.map((b) => utils.createID(orgID, projID, b));
       searchQuery._id = { $in: searchedIDs };
-    }
-    else if (typeof saniBranches === 'string') {
+    } else if (typeof saniBranches === 'string') {
       // A single branch id, remove one
       searchedIDs = [utils.createID(orgID, projID, saniBranches)];
       searchQuery._id = utils.createID(orgID, projID, saniBranches);
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing branches.', 'warn');
     }
@@ -846,20 +837,20 @@ async function remove(requestingUser, organizationID, projectID, branches, optio
     // Find all the branches to delete
     const foundBranches = await Branch.find(searchQuery, null);
 
-    foundBranches.forEach(branch => {
+    foundBranches.forEach((branch) => {
       // Check permissions
       permissions.deleteBranch(reqUser, organization, project, branch);
     });
 
-    const foundBranchIDs = foundBranches.map(b => b._id);
+    const foundBranchIDs = foundBranches.map((b) => b._id);
     ownedQuery.branch = { $in: foundBranchIDs };
 
     // Check if all branches were found
-    const notFoundIDs = searchedIDs.filter(b => !foundBranchIDs.includes(b));
+    const notFoundIDs = searchedIDs.filter((b) => !foundBranchIDs.includes(b));
     // Some branches not found, throw an error
     if (notFoundIDs.length > 0) {
       throw new M.NotFoundError('The following branches were not found: '
-        + `[${notFoundIDs.map(b => utils.parseID(b).pop())}].`, 'warn');
+        + `[${notFoundIDs.map((b) => utils.parseID(b).pop())}].`, 'warn');
     }
 
     // Check that user is not removing the master branch
@@ -867,9 +858,7 @@ async function remove(requestingUser, organizationID, projectID, branches, optio
       // If trying to delete the master branch, throw an error
       const branchID = utils.parseID(id).pop();
       if (Branch.getValidRootSource().includes(branchID)) {
-        throw new M.OperationError(
-          `User cannot delete branch: ${branchID}.`, 'warn'
-        );
+        throw new M.OperationError(`User cannot delete branch: ${branchID}.`, 'warn');
       }
     });
 
@@ -885,7 +874,6 @@ async function remove(requestingUser, organizationID, projectID, branches, optio
     // Delete all the branches
     const retQuery = await Branch.deleteMany(searchQuery);
 
-
     // Verify that all of the branches were correctly deleted
     if (retQuery.n !== foundBranches.length) {
       M.log.error('Some of the following branches were not '
@@ -895,8 +883,7 @@ async function remove(requestingUser, organizationID, projectID, branches, optio
     EventEmitter.emit('branches-deleted', foundBranchIDs);
 
     return foundBranchIDs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

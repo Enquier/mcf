@@ -22,7 +22,7 @@ const http = require('axios/lib/adapters/http');
 const FormData = require('form-data');
 
 // Node modules
-const fs = require('fs');     // Access the filesystem
+const fs = require('fs'); // Access the filesystem
 const path = require('path'); // Find directory paths
 
 // MBEE modules
@@ -32,7 +32,7 @@ const jmi = M.require('lib.jmi-conversions');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const test = M.config.test;
+const { test } = M.config;
 let adminUser = null;
 let org = null;
 let orgID = null;
@@ -64,8 +64,7 @@ describe(M.getModuleName(module.filename), () => {
       proj = await testUtils.createTestProject(adminUser, orgID);
       projID = utils.parseID(proj._id).pop();
       branchID = testData.branches[0].id;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -81,8 +80,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -118,7 +116,7 @@ async function postArtifact() {
       method: 'post',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts/${artData.id}`,
       headers: testUtils.getHeaders(),
-      data: artData
+      data: artData,
     };
 
     // Make an API request
@@ -148,10 +146,13 @@ async function postArtifact() {
     chai.expect(createdArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(createdArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -168,13 +169,13 @@ async function postArtifacts() {
     // Define artifact metadata
     const artData = [
       testData.artifacts[1],
-      testData.artifacts[2]
+      testData.artifacts[2],
     ];
     const options = {
       method: 'post',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts`,
       headers: testUtils.getHeaders(),
-      data: artData
+      data: artData,
     };
 
     // Make an API request
@@ -216,11 +217,14 @@ async function postArtifacts() {
       chai.expect(createdArtifact.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdArtifact).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -238,7 +242,7 @@ async function getArtifact() {
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts/${artData.id}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -269,10 +273,13 @@ async function getArtifact() {
     chai.expect(foundArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(foundArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -289,19 +296,19 @@ async function getArtifacts() {
     // Define artifact metadata
     const artData = [
       testData.artifacts[1],
-      testData.artifacts[2]
+      testData.artifacts[2],
     ];
     const artIDs = [
       testData.artifacts[1].id,
-      testData.artifacts[2].id
+      testData.artifacts[2].id,
     ];
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts`,
       headers: testUtils.getHeaders(),
       params: {
-        ids: artIDs.toString()
-      }
+        ids: artIDs.toString(),
+      },
     };
 
     // Make an API request
@@ -344,11 +351,14 @@ async function getArtifacts() {
       chai.expect(foundArtifact.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundArtifact).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -365,9 +375,7 @@ async function postBlob() {
     const artData = testData.artifacts[0];
     artData.project = projID;
 
-    const artifactPath = path.join(
-      M.root, artData.location, artData.filename
-    );
+    const artifactPath = path.join(M.root, artData.location, artData.filename);
 
     // Create form data
     const formData = new FormData();
@@ -377,15 +385,17 @@ async function postBlob() {
     formData.append('location', artData.location);
     formData.append('filename', artData.filename);
 
-    const header = Object.assign(formData.getHeaders(),
-      { authorization: testUtils.getHeaders().authorization });
+    const header = Object.assign(
+      formData.getHeaders(),
+      { authorization: testUtils.getHeaders().authorization },
+    );
 
     const options = {
       method: 'post',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/artifacts/blob`,
       data: formData,
       headers: header,
-      adapter: http
+      adapter: http,
     };
 
     // Post Blob
@@ -401,8 +411,7 @@ async function postBlob() {
     chai.expect(postedBlob.project).to.equal(projID);
     chai.expect(postedBlob.location).to.equal(artData.location);
     chai.expect(postedBlob.filename).to.equal(artData.filename);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -422,14 +431,14 @@ async function getBlob() {
 
     const queryParams = {
       location: artData.location,
-      filename: artData.filename
+      filename: artData.filename,
     };
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/artifacts/blob`,
       params: queryParams,
       headers: testUtils.getHeaders(),
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     };
 
     // Make an API request
@@ -450,8 +459,7 @@ async function getBlob() {
 
     // Deep compare both binaries
     chai.expect(resFile).to.deep.equal(fileData);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -468,7 +476,7 @@ async function listBlobs() {
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/artifacts/list`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -481,8 +489,7 @@ async function listBlobs() {
     const blobList = res.data;
     chai.expect(blobList[0].location).to.equal(testData.artifacts[0].location);
     chai.expect(blobList[0].filename).to.equal(testData.artifacts[0].filename);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -499,7 +506,7 @@ async function getBlobById() {
       method: 'get',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts/${artData.id}/blob`,
       headers: testUtils.getHeaders(),
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     };
 
     // Make an API request
@@ -520,8 +527,7 @@ async function getBlobById() {
 
     // Deep compare both binaries
     chai.expect(resFile).to.deep.equal(fileData);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -539,13 +545,13 @@ async function deleteBlob() {
     artData.project = projID;
     const query = {
       location: artData.location,
-      filename: artData.filename
+      filename: artData.filename,
     };
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/artifacts/blob`,
       headers: testUtils.getHeaders(),
-      params: query
+      params: query,
     };
 
     // Make an API request
@@ -560,8 +566,7 @@ async function deleteBlob() {
     chai.expect(deletedBlob.project).to.equal(projID);
     chai.expect(deletedBlob.location).to.equal(artData.location);
     chai.expect(deletedBlob.filename).to.equal(artData.filename);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -579,13 +584,13 @@ async function patchArtifact() {
     const artData = testData.artifacts[0];
     const reqBody = {
       id: artData.id,
-      description: 'edited_description'
+      description: 'edited_description',
     };
     const options = {
       method: 'patch',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts/${artData.id}`,
       headers: testUtils.getHeaders(),
-      data: reqBody
+      data: reqBody,
     };
 
     // Make an API request
@@ -616,10 +621,13 @@ async function patchArtifact() {
     chai.expect(patchedArtifact.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(patchedArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(patchedArtifact).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -636,17 +644,17 @@ async function patchArtifacts() {
     // Define artifact metadata
     const artData = [
       testData.artifacts[1],
-      testData.artifacts[2]
+      testData.artifacts[2],
     ];
-    const updateObj = artData.map(a => ({
+    const updateObj = artData.map((a) => ({
       id: a.id,
-      description: `${a.description}_edit`
+      description: `${a.description}_edit`,
     }));
     const options = {
       method: 'patch',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts`,
       headers: testUtils.getHeaders(),
-      data: updateObj
+      data: updateObj,
     };
 
     // Make an API request
@@ -688,11 +696,14 @@ async function patchArtifacts() {
       chai.expect(patchedArtifact.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(patchedArtifact).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(patchedArtifact).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -712,7 +723,7 @@ async function deleteArtifact() {
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts/${artData.id}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -724,8 +735,7 @@ async function deleteArtifact() {
     const deletedArtifact = res.data[0];
     // Verify artifact created properly
     chai.expect(deletedArtifact).to.equal(artData.id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -742,13 +752,13 @@ async function deleteArtifacts() {
     // Define artifact metadata
     const artIDs = [
       testData.artifacts[1].id,
-      testData.artifacts[2].id
+      testData.artifacts[2].id,
     ];
     const ids = artIDs.join(',');
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs/${orgID}/projects/${projID}/branches/${branchID}/artifacts?ids=${ids}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -761,8 +771,7 @@ async function deleteArtifacts() {
     const deletedArtifactIDs = res.data;
 
     chai.expect(deletedArtifactIDs).to.have.members(artIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

@@ -32,7 +32,7 @@ const utils = M.require('lib.utils');
  * @param {object} [projID=''] - An optional parameter for the project ID.
  * @param {object} [branchID=''] - An optional parameter for the branch ID.
  */
-module.exports.checkParams = function(requestingUser, options, orgID = '', projID = '', branchID = '') {
+module.exports.checkParams = function (requestingUser, options, orgID = '', projID = '', branchID = '') {
   try {
     assert.ok(typeof requestingUser === 'object', 'Requesting user is not an object.');
     assert.ok(requestingUser !== null, 'Requesting user cannot be null.');
@@ -45,8 +45,7 @@ module.exports.checkParams = function(requestingUser, options, orgID = '', projI
     const optionsTypes = ['undefined', 'object'];
     assert.ok(optionsTypes.includes(typeof options), 'Options parameter cannot be of'
       + ` type ${typeof options}.`);
-  }
-  catch (err) {
+  } catch (err) {
     throw new M.DataFormatError(err.message, 'warn');
   }
 };
@@ -63,7 +62,7 @@ module.exports.checkParams = function(requestingUser, options, orgID = '', projI
  * 'branch', 'project', etc) to be used in error messages.
  *
  */
-module.exports.checkParamsDataType = function(dataTypes, data, dataName) {
+module.exports.checkParamsDataType = function (dataTypes, data, dataName) {
   try {
     assert.ok(dataTypes.includes(typeof data), `${dataName} parameter cannot be of type`
       + ` ${typeof data}.`);
@@ -76,19 +75,18 @@ module.exports.checkParamsDataType = function(dataTypes, data, dataName) {
         // Ensure it's an array
         assert.ok(Array.isArray(data), `${dataName} is an object, but not an array.`);
         // Ensure it's an array of strings
-        assert.ok(data.every(o => typeof o === 'string'), `${dataName} is not an array of`
+        assert.ok(data.every((o) => typeof o === 'string'), `${dataName} is not an array of`
           + ' strings.');
       }
       // Else if it's an array and only objects are allowed:
       else if (Array.isArray(data)) {
         // Ensure it's an array of objects
-        assert.ok(data.every(o => typeof o === 'object'), `Not every item in ${dataName} is`
+        assert.ok(data.every((o) => typeof o === 'object'), `Not every item in ${dataName} is`
           + ' an object.');
-        assert.ok(data.every(o => o !== null), `One or more items in ${dataName} is null.`);
+        assert.ok(data.every((o) => o !== null), `One or more items in ${dataName} is null.`);
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 };
@@ -105,7 +103,7 @@ module.exports.checkParamsDataType = function(dataTypes, data, dataName) {
  *
  * @returns {object} An object containing the sanitized input parameters.
  */
-module.exports.findAndValidate = async function(model, id, archived = false) {
+module.exports.findAndValidate = async function (model, id, archived = false) {
   // Perform the find operation on the model
   const query = { _id: id };
   const result = await model.findOne(query, null);

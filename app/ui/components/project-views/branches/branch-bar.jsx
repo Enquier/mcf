@@ -21,7 +21,7 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import {
   Input,
   InputGroup,
@@ -29,7 +29,7 @@ import {
   DropdownToggle,
   UncontrolledButtonDropdown,
   DropdownMenu,
-  Label
+  Label,
 } from 'reactstrap';
 
 // MBEE modules
@@ -67,30 +67,30 @@ function BranchBar(props) {
   useEffect(() => {
     // Get all branches
     const options = {
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
     branchService.get(props.project.org, props.project.id, options)
-    .then(([err, data]) => {
-      if (err) {
-        setError(err);
-      }
-      else if (data) {
+      .then(([err, data]) => {
+        if (err) {
+          setError(err);
+        } else if (data) {
         // Store the branches in state
-        setBranches(data);
+          setBranches(data);
 
-        // Grab the current branch
-        data.forEach((branch) => {
-          if (branch.id === props.branchid) {
-            setCurrentBranch(branch);
-          }
-        });
-      }
-    });
+          // Grab the current branch
+          data.forEach((branch) => {
+            if (branch.id === props.branchid) {
+              setCurrentBranch(branch);
+            }
+          });
+        }
+      });
   }, []);
 
-
   if (redirect && redirect !== window.location.pathname) {
-    return <Redirect to={redirect}/>;
+    return <Navigate to={redirect}/>;
   }
 
   // Initialize variables
@@ -119,10 +119,9 @@ function BranchBar(props) {
               // Display id
               : branch.id
             }
-          </option>
+          </option>,
         );
-      }
-      else {
+      } else {
         // Push to tag options
         tagOptions.push(
           <option className='branch-opts'
@@ -134,7 +133,7 @@ function BranchBar(props) {
               ? `${branch.name} [${branch.id}]`
               // Display id
               : branch.id}
-          </option>
+          </option>,
         );
       }
     });

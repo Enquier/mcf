@@ -26,7 +26,7 @@ module.exports = {
   create,
   update,
   createOrReplace,
-  remove
+  remove,
 };
 
 // Node modules
@@ -58,7 +58,7 @@ const ArtifactStrategy = M.require(`artifact.${M.config.artifact.strategy}`);
  * or all orgs in the system. Only organizations which a user has read access to
  * will be returned.
  *
- * @param {User} requestingUser - The object containing the requesting user.
+ * @param {object} req - The request containing the requesting user.
  * @param {(string|string[])} [orgs] - The organizations to find. Can either be
  * an array of org ids, a single org id, or not provided, which defaults to
  * every org being found.
@@ -102,7 +102,8 @@ const ArtifactStrategy = M.require(`artifact.${M.config.artifact.strategy}`);
  *   M.log.error(error);
  * });
  */
-async function find(requestingUser, orgs, options) {
+async function find(req, orgs, options) {
+  const requestingUser = req.user;
   try {
     // Set options if no orgs were provided, but options were
     if (typeof orgs === 'object' && orgs !== null && !Array.isArray(orgs)) {
@@ -165,28 +166,30 @@ async function find(requestingUser, orgs, options) {
     }
 
     // Check the type of the orgs parameter
-    if (Array.isArray(orgs) && orgs.every(o => typeof o === 'string')) {
+    if (Array.isArray(orgs) && orgs.every((o) => typeof o === 'string')) {
       // An array of org ids, find all
       searchQuery._id = { $in: saniOrgs };
-    }
-    else if (typeof orgs === 'string') {
+    } else if (typeof orgs === 'string') {
       // A single org id
       searchQuery._id = saniOrgs;
-    }
-    else if (!((typeof orgs === 'object' && orgs !== null) || orgs === undefined)) {
+    } else if (!((typeof orgs === 'object' && orgs !== null) || orgs === undefined)) {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for finding organizations.', 'warn');
     }
 
     // Find the orgs
-    return await Organization.find(searchQuery, validatedOptions.fieldsString,
-      { limit: validatedOptions.limit,
+    return await Organization.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        limit: validatedOptions.limit,
         skip: validatedOptions.skip,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
-  }
-  catch (error) {
+        populate: validatedOptions.populateString,
+      },
+      req.session.token,
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -197,7 +200,7 @@ async function find(requestingUser, orgs, options) {
  * for any existing orgs with duplicate IDs before creating and returning the
  * given orgs.
  *
- * @param {User} requestingUser - The object containing the requesting user.
+ * @param {object} req - The object containing the requesting user.
  * @param {(object|object[])} orgs - Either an array of objects containing org
  * data or a single object containing org data to create.
  * @param {string} orgs.id - The ID of the org being created.
@@ -225,7 +228,8 @@ async function find(requestingUser, orgs, options) {
  *   M.log.error(error);
  * });
  */
-async function create(requestingUser, orgs, options) {
+async function create(req, orgs, options) {
+  const requestingUser = req.user;
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options);
@@ -248,12 +252,10 @@ async function create(requestingUser, orgs, options) {
     if (Array.isArray(saniOrgs)) {
       // orgs is an array, create many orgs
       orgsToCreate = saniOrgs;
-    }
-    else if (typeof saniOrgs === 'object') {
+    } else if (typeof saniOrgs === 'object') {
       // orgs is an object, create a single org
       orgsToCreate = [saniOrgs];
-    }
-    else {
+    } else {
       // orgs is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating organizations.', 'warn');
     }
@@ -277,8 +279,7 @@ async function create(requestingUser, orgs, options) {
         // Check if org with same ID is already being created
         assert.ok(!arrIDs.includes(org.id), 'Multiple orgs with the same ID '
           + `[${org.id}] cannot be created.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       arrIDs.push(org.id);
@@ -299,13 +300,12 @@ async function create(requestingUser, orgs, options) {
     // Create searchQuery to search for any existing, conflicting orgs
     const searchQuery = { _id: { $in: arrIDs } };
 
-
     // Find any existing, conflicting orgs
     const foundOrgs = await Organization.find(searchQuery, '_id');
     // If there are any foundOrgs, there is a conflict
     if (foundOrgs.length > 0) {
       // Get arrays of the foundOrg's ids and names
-      const foundOrgIDs = foundOrgs.map(o => o._id);
+      const foundOrgIDs = foundOrgs.map((o) => o._id);
 
       // There are one or more orgs with conflicting IDs
       throw new M.OperationError('Orgs with the following IDs already exist'
@@ -316,7 +316,7 @@ async function create(requestingUser, orgs, options) {
     const foundUsers = await User.find({}, null);
 
     // Create array of usernames
-    const foundUsernames = foundUsers.map(u => u._id);
+    const foundUsernames = foundUsers.map((u) => u._id);
     // For each object of org data, create the org object
     const orgObjects = orgsToCreate.map((o) => {
       // Set permissions
@@ -357,11 +357,12 @@ async function create(requestingUser, orgs, options) {
     // Emit the event orgs-created
     EventEmitter.emit('orgs-created', orgObjects);
 
-    return await Organization.find({ _id: { $in: arrIDs } },
+    return await Organization.find(
+      { _id: { $in: arrIDs } },
       validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
-  }
-  catch (error) {
+      { populate: validatedOptions.populateString },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -379,7 +380,7 @@ async function create(requestingUser, orgs, options) {
  * must first be unarchived before any other updates occur. This function is
  * restricted to admins of orgs and system-wide admins ONLY.
  *
- * @param {User} requestingUser - The object containing the requesting user.
+ * @param {object} req - The object containing the requesting user.
  * @param {(object|object[])} orgs - Either an array of objects containing
  * updates to organizations, or a single object containing updates.
  * @param {string} orgs.id - The ID of the org being updated. Field cannot be
@@ -411,7 +412,8 @@ async function create(requestingUser, orgs, options) {
  *   M.log.error(error);
  * });
  */
-async function update(requestingUser, orgs, options) {
+async function update(req, orgs, options) {
+  const requestingUser = req.user;
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options);
@@ -433,12 +435,10 @@ async function update(requestingUser, orgs, options) {
     if (Array.isArray(saniOrgs)) {
       // orgs is an array, update many orgs
       orgsToUpdate = saniOrgs;
-    }
-    else if (typeof saniOrgs === 'object') {
+    } else if (typeof saniOrgs === 'object') {
       // orgs is an object, update a single org
       orgsToUpdate = [saniOrgs];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating organizations.', 'warn');
     }
 
@@ -454,8 +454,7 @@ async function update(requestingUser, orgs, options) {
         if (duplicateCheck[org.id]) {
           throw new M.OperationError('Multiple objects with the same ID '
             + `[${org.id}] exist in the update.`, 'warn');
-        }
-        else {
+        } else {
           duplicateCheck[org.id] = org.id;
         }
         arrIDs.push(org.id);
@@ -469,8 +468,7 @@ async function update(requestingUser, orgs, options) {
 
         index++;
       });
-    }
-    catch (err) {
+    } catch (err) {
       throw new M.DataFormatError(err.message, 'warn');
     }
 
@@ -480,8 +478,7 @@ async function update(requestingUser, orgs, options) {
     try {
       // Find the orgs to update
       foundOrgs = await Organization.find(searchQuery, null, { populate: 'projects' });
-    }
-    catch (error) {
+    } catch (error) {
       throw new M.DatabaseError(error.message, 'warn');
     }
 
@@ -492,11 +489,9 @@ async function update(requestingUser, orgs, options) {
 
     // Verify the same number of orgs are found as desired
     if (foundOrgs.length !== arrIDs.length) {
-      const foundIDs = foundOrgs.map(o => o._id);
-      const notFound = arrIDs.filter(o => !foundIDs.includes(o));
-      throw new M.NotFoundError(
-        `The following orgs were not found: [${notFound.toString()}].`, 'warn'
-      );
+      const foundIDs = foundOrgs.map((o) => o._id);
+      const notFound = arrIDs.filter((o) => !foundIDs.includes(o));
+      throw new M.NotFoundError(`The following orgs were not found: [${notFound.toString()}].`, 'warn');
     }
 
     let foundUsers = [];
@@ -504,14 +499,13 @@ async function update(requestingUser, orgs, options) {
     if (updatingPermissions) {
       try {
         foundUsers = await User.find({});
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DatabaseError(error.message, 'warn');
       }
     }
 
     // Set existing users
-    existingUsers = foundUsers.map(u => u._id);
+    existingUsers = foundUsers.map((u) => u._id);
 
     // Convert orgsToUpdate to JMI type 2
     const jmiType2 = jmi.convertJMI(1, 2, orgsToUpdate);
@@ -553,17 +547,13 @@ async function update(requestingUser, orgs, options) {
           if (typeof validators.org[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.org[key]).test(updateOrg[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateOrg[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateOrg[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.org[key] === 'function') {
             if (!validators.org[key](updateOrg[key]) && key !== 'permissions') {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateOrg[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateOrg[key]}]`, 'warn');
             }
           }
           // Improperly formatted validator
@@ -620,9 +610,7 @@ async function update(requestingUser, orgs, options) {
                 break;
               // Default case, invalid permission
               default:
-                throw new M.DataFormatError(
-                  `${permValue} is not a valid permission`, 'warn'
-                );
+                throw new M.DataFormatError(`${permValue} is not a valid permission`, 'warn');
             }
           });
 
@@ -652,23 +640,25 @@ async function update(requestingUser, orgs, options) {
       bulkArray.push({
         updateOne: {
           filter: { _id: org._id },
-          update: updateOrg
-        }
+          update: updateOrg,
+        },
       });
     });
 
     // Update all orgs through a bulk write to the database
     await Organization.bulkWrite(bulkArray);
 
-    const foundUpdatedOrgs = await Organization.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+    const foundUpdatedOrgs = await Organization.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event orgs-updated
     EventEmitter.emit('orgs-updated', foundUpdatedOrgs);
 
     return foundUpdatedOrgs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -677,7 +667,7 @@ async function update(requestingUser, orgs, options) {
  * @description This function creates one or many orgs. If orgs with matching
  * ids already exist, this function updates those orgs.
  *
- * @param {User} requestingUser - The object containing the requesting user.
+ * @param {object} req - The object containing the requesting user.
  * @param {(object|object[])} orgs - Either an array of objects containing
  * updates/new data for organizations, or a single object containing updates.
  * @param {string} orgs.id - The ID of the org being updated/created. Field
@@ -709,7 +699,8 @@ async function update(requestingUser, orgs, options) {
  *   M.log.error(error);
  * });
  */
-async function createOrReplace(requestingUser, orgs, options) {
+async function createOrReplace(req, orgs, options) {
+  const requestingUser = req.user;
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options);
@@ -728,12 +719,10 @@ async function createOrReplace(requestingUser, orgs, options) {
     if (Array.isArray(saniOrgs)) {
       // orgs is an array, update many orgs
       orgsToLookup = saniOrgs;
-    }
-    else if (typeof saniOrgs === 'object') {
+    } else if (typeof saniOrgs === 'object') {
       // orgs is an object, update a single org
       orgsToLookup = [saniOrgs];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for creating/replacing '
         + 'organizations.', 'warn');
     }
@@ -747,16 +736,14 @@ async function createOrReplace(requestingUser, orgs, options) {
         // Ensure each org has an id and that its a string
         assert.ok(org.hasOwnProperty('id'), `Org #${index} does not have an id.`);
         assert.ok(typeof org.id === 'string', `Org #${index}'s id is not a string.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       // If a duplicate ID, throw an error
       if (duplicateCheck[org.id]) {
         throw new M.DataFormatError(`Multiple objects with the same ID [${org.id}]`
           + ' exist in the orgs array.', 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[org.id] = org.id;
       }
       arrIDs.push(org.id);
@@ -787,16 +774,19 @@ async function createOrReplace(requestingUser, orgs, options) {
     }
 
     // Write contents to temporary file
-    await new Promise(async function(res) {
-      await fs.writeFile(path.join(M.root, 'data', `PUT-backup-orgs-${ts}.json`),
-        JSON.stringify(foundOrgs), function(err) {
+    await new Promise(async (res) => {
+      await fs.writeFile(
+        path.join(M.root, 'data', `PUT-backup-orgs-${ts}.json`),
+        JSON.stringify(foundOrgs),
+        (err) => {
           if (err) throw errors.captureError(err);
           else res();
-        });
+        },
+      );
     });
 
     // Delete orgs from database
-    await Organization.deleteMany({ _id: { $in: foundOrgs.map(o => o._id) } });
+    await Organization.deleteMany({ _id: { $in: foundOrgs.map((o) => o._id) } });
 
     // Emit the event orgs-deleted
     EventEmitter.emit('orgs-deleted', foundOrgs);
@@ -806,19 +796,20 @@ async function createOrReplace(requestingUser, orgs, options) {
     try {
       // Create the new orgs
       createdOrgs = await create(reqUser, orgsToLookup, options);
-    }
-    catch (error) {
+    } catch (error) {
       throw await new Promise(async (res) => {
         // Reinsert original data
         try {
           await Organization.insertMany(foundOrgs);
-          fs.unlinkSync(path.join(M.root, 'data',
-            `PUT-backup-orgs-${ts}.json`));
+          fs.unlinkSync(path.join(
+            M.root,
+            'data',
+            `PUT-backup-orgs-${ts}.json`,
+          ));
 
           // Restoration succeeded; pass the original error
           res(error);
-        }
-        catch (restoreErr) {
+        } catch (restoreErr) {
           // Pass the new error that occurred while trying to restore orgs
           res(restoreErr);
         }
@@ -832,8 +823,7 @@ async function createOrReplace(requestingUser, orgs, options) {
     }
 
     return createdOrgs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -843,7 +833,7 @@ async function createOrReplace(requestingUser, orgs, options) {
  * projects, branches, and elements that belong to them. This function can be used by
  * system-wide admins ONLY. NOTE: Cannot delete the default org.
  *
- * @param {User} requestingUser - The object containing the requesting user.
+ * @param {object} req - The object containing the requesting user.
  * @param {(string|string[])} orgs - The organizations to remove. Can either be
  * an array of org ids or a single org id.
  * @param {object} [options] - A parameter that provides supported options.
@@ -860,7 +850,8 @@ async function createOrReplace(requestingUser, orgs, options) {
  *   M.log.error(error);
  * });
  */
-async function remove(requestingUser, orgs, options) {
+async function remove(req, orgs, options) {
+  const requestingUser = req.user;
   try {
     // Ensure input parameters are correct type
     helper.checkParams(requestingUser, options);
@@ -878,13 +869,11 @@ async function remove(requestingUser, orgs, options) {
       // An array of org ids, remove all
       searchedIDs = saniOrgs;
       searchQuery._id = { $in: searchedIDs };
-    }
-    else if (typeof saniOrgs === 'string') {
+    } else if (typeof saniOrgs === 'string') {
       // A single org id
       searchedIDs = [saniOrgs];
       searchQuery._id = { $in: searchedIDs };
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing organizations.', 'warn');
     }
@@ -893,7 +882,7 @@ async function remove(requestingUser, orgs, options) {
     const foundOrgs = await Organization.find(searchQuery, null);
 
     // Check that user can remove each org
-    foundOrgs.forEach(org => {
+    foundOrgs.forEach((org) => {
       // Ensure user has permissions to delete each org
       permissions.deleteOrg(requestingUser, org);
 
@@ -903,10 +892,10 @@ async function remove(requestingUser, orgs, options) {
       }
     });
 
-    const foundOrgIDs = foundOrgs.map(o => o._id);
+    const foundOrgIDs = foundOrgs.map((o) => o._id);
 
     // Check if all orgs were found
-    const notFoundIDs = searchedIDs.filter(o => !foundOrgIDs.includes(o));
+    const notFoundIDs = searchedIDs.filter((o) => !foundOrgIDs.includes(o));
     // Some orgs not found, throw an error
     if (notFoundIDs.length > 0) {
       throw new M.NotFoundError('The following orgs were not found: '
@@ -916,7 +905,7 @@ async function remove(requestingUser, orgs, options) {
     // Find all projects to delete
     const projectsToDelete = await Project.find({ org: { $in: searchedIDs } }, null);
 
-    const projectIDs = projectsToDelete.map(p => p._id);
+    const projectIDs = projectsToDelete.map((p) => p._id);
 
     // Delete any elements in the found projects
     await Element.deleteMany({ project: { $in: projectIDs } });
@@ -928,7 +917,6 @@ async function remove(requestingUser, orgs, options) {
     // Remove all blobs under org
     foundOrgIDs.forEach((orgID) => promises.push(ArtifactStrategy.clear(orgID)));
     await Promise.all(promises);
-
 
     // Delete any branches in the found projects
     await Branch.deleteMany({ project: { $in: projectIDs } });
@@ -950,8 +938,7 @@ async function remove(requestingUser, orgs, options) {
     }
 
     return foundOrgIDs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

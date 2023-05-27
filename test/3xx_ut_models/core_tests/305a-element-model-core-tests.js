@@ -63,14 +63,14 @@ async function createElement() {
     name: testData.elements[0].name,
     project: utils.createID(org.id, project.id),
     parent: null,
-    branch: utils.createID(org.id, project.id, branch.id)
+    branch: utils.createID(org.id, project.id, branch.id),
   };
 
   // Save element object to database
   const createdElement = (await Element.insertMany(newElement))[0];
   // Check element object saved correctly
   createdElement._id.should.equal(
-    utils.createID(org.id, project.id, branch.id, testData.elements[0].id)
+    utils.createID(org.id, project.id, branch.id, testData.elements[0].id),
   );
   createdElement.name.should.equal(testData.elements[0].name);
   createdElement.project.should.equal(utils.createID(org.id, project.id));
@@ -84,7 +84,7 @@ async function createElement() {
 async function findElement() {
   // Find the element
   const element = await Element.findOne(
-    { _id: utils.createID(org.id, project.id, branch.id, testData.elements[0].id) }
+    { _id: utils.createID(org.id, project.id, branch.id, testData.elements[0].id) },
   );
   // Verify found element is correct
   chai.expect(element.name).to.equal(testData.elements[0].name);
@@ -105,8 +105,7 @@ async function updateElement() {
     // Verify element is updated correctly
     foundElement._id.should.equal(elemID);
     foundElement.name.should.equal('Updated Name');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -128,8 +127,7 @@ async function deleteElement() {
 
     // foundElement should be null
     should.not.exist(foundElement);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

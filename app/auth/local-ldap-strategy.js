@@ -21,7 +21,7 @@ module.exports = {
   handleBasicAuth,
   handleTokenAuth,
   doLogin,
-  validatePassword
+  validatePassword,
 };
 
 // MBEE modules
@@ -55,15 +55,13 @@ async function handleBasicAuth(req, res, username, password) {
 
     // User is not found locally or is found and provider is LDAP
     // try LDAP authentication
-    else if (users.length === 0 || (users.length === 1 && users[0].provider === 'ldap')) {
+    if (users.length === 0 || (users.length === 1 && users[0].provider === 'ldap')) {
       return await LDAPStrategy.handleBasicAuth(req, res, username, password);
     }
-    else {
-      // More than 1 user found or provider not set to ldap/local
-      throw new M.ServerError('More than one user found or invalid provider.', 'error');
-    }
-  }
-  catch (error) {
+
+    // More than 1 user found or provider not set to ldap/local
+    throw new M.ServerError('More than one user found or invalid provider.', 'error');
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

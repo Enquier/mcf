@@ -22,7 +22,7 @@ const chai = require('chai');
 const axios = require('axios');
 
 // MBEE modules
-const test = M.config.test;
+const { test } = M.config;
 
 /* --------------------( Main )-------------------- */
 /**
@@ -45,7 +45,7 @@ async function upTest() {
   try {
     const options = {
       method: 'get',
-      url: `${test.url}/api/test`
+      url: `${test.url}/api/test`,
     };
 
     // Make an API request
@@ -55,8 +55,7 @@ async function upTest() {
     chai.expect(res.status).to.equal(200);
     // Expect body to be an empty string
     chai.expect(res.data).to.equal('');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -71,7 +70,7 @@ async function swaggerJSONTest() {
   try {
     const options = {
       method: 'get',
-      url: `${test.url}/api/doc/swagger.json`
+      url: `${test.url}/api/doc/swagger.json`,
     };
 
     // Make an API request
@@ -82,8 +81,7 @@ async function swaggerJSONTest() {
 
     // Expect body is valid JSON
     chai.expect(res.data).to.be.an('object');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

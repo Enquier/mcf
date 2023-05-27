@@ -29,7 +29,6 @@ import List from '../../general/list/list.jsx';
 /* eslint-enable no-unused-vars */
 
 class MembersPage extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -39,7 +38,7 @@ class MembersPage extends Component {
       admin: false,
       modal: false,
       selectedUser: null,
-      error: null
+      error: null,
     };
 
     // Bind component functions
@@ -51,9 +50,8 @@ class MembersPage extends Component {
     // Verify username provided
     if (typeof username === 'string') {
       // Set selected user state
-      this.setState({ selectedUser: { username: username, perm: perm } });
-    }
-    else {
+      this.setState({ selectedUser: { username, perm } });
+    } else {
       this.setState({ selectedUser: null });
     }
   }
@@ -68,15 +66,14 @@ class MembersPage extends Component {
       userperm = this.props.org.permissions;
       users = Object.keys(this.props.org.permissions);
       title = this.props.org.name;
-    }
-    else {
+    } else {
       userperm = this.props.project.permissions;
       users = Object.keys(this.props.project.permissions);
       title = this.props.project.name;
     }
 
     // Loop through project members
-    const listItems = users.map(user => {
+    const listItems = users.map((user) => {
       const perm = userperm[user];
       return (
         <div className='user-info' key={`user-info-${user}`}>
@@ -122,9 +119,11 @@ class MembersPage extends Component {
               <div className='template-header' key='user-info-template'>
                 <UserListItem className='head-info'
                               label={true}
-                              user={{ fname: 'Name',
+                              user={{
+                                fname: 'Name',
                                 lname: '',
-                                username: 'Username' }}
+                                username: 'Username',
+                              }}
                               permission={'admin'}
                               _key='user-template'/>
               </div>
@@ -135,7 +134,6 @@ class MembersPage extends Component {
       </div>
     );
   }
-
 }
 
 export default MembersPage;

@@ -26,7 +26,7 @@ module.exports = {
   create,
   update,
   createOrReplace,
-  remove
+  remove,
 };
 
 // Node modules
@@ -117,8 +117,7 @@ async function find(requestingUser, organizationID, projects, options) {
     // If organizationID is null, the user is searching for all projects and it is valid input
     if (organizationID === null) {
       helper.checkParams(requestingUser, options, '');
-    }
-    else {
+    } else {
       helper.checkParams(requestingUser, options, organizationID);
     }
     helper.checkParamsDataType(['undefined', 'object', 'string'], projects, 'Projects');
@@ -171,15 +170,13 @@ async function find(requestingUser, organizationID, projects, options) {
     }
 
     // Check the type of the projects parameter
-    if (Array.isArray(projects) && projects.every(p => typeof p === 'string')) {
+    if (Array.isArray(projects) && projects.every((p) => typeof p === 'string')) {
       // An array of project ids, find all
-      searchQuery._id = { $in: saniProjects.map(p => utils.createID(orgID, p)) };
-    }
-    else if (typeof projects === 'string') {
+      searchQuery._id = { $in: saniProjects.map((p) => utils.createID(orgID, p)) };
+    } else if (typeof projects === 'string') {
       // A single project id
       searchQuery._id = utils.createID(orgID, saniProjects);
-    }
-    else if (!((typeof projects === 'object' && projects !== null) || projects === undefined)) {
+    } else if (!((typeof projects === 'object' && projects !== null) || projects === undefined)) {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for finding projects.', 'warn');
     }
@@ -190,14 +187,17 @@ async function find(requestingUser, organizationID, projects, options) {
       limit: validatedOptions.limit,
       skip: validatedOptions.skip,
       sort: validatedOptions.sort,
-      populate: validatedOptions.populateString
+      populate: validatedOptions.populateString,
     };
 
     // If the user specifies an organization
     if (orgID !== null) {
       // Find the organization, validate that it exists and is not archived (unless specified)
-      foundOrg = await helper.findAndValidate(Organization, orgID,
-        ((options && options.archived) || validatedOptions.includeArchived));
+      foundOrg = await helper.findAndValidate(
+        Organization,
+        orgID,
+        ((options && options.archived) || validatedOptions.includeArchived),
+      );
 
       // Find all projects on the provided org, parse after
       searchQuery.org = orgID;
@@ -209,30 +209,36 @@ async function find(requestingUser, organizationID, projects, options) {
       const orgQuery = {};
       orgQuery[`permissions.${reqUser._id}`] = { $all: ['read'] };
       const readOrgs = await Organization.find(orgQuery);
-      const orgIDs = readOrgs.map(o => o._id);
+      const orgIDs = readOrgs.map((o) => o._id);
 
       // Project must be internal and in an org the user has access to
       // Use JSON.parse, JSON.stringify to remove any undefined values
       const internalQuery = JSON.parse(JSON.stringify({
         archived: searchQuery.archived,
         visibility: 'internal',
-        org: { $in: orgIDs }
+        org: { $in: orgIDs },
       }));
       // Find all internal projects
-      const internalProjects = await Project.find(internalQuery,
-        validatedOptions.fieldsString, opts);
+      const internalProjects = await Project.find(
+        internalQuery,
+        validatedOptions.fieldsString,
+        opts,
+      );
 
       // Find all projects the user has read access to
       // Use JSON parse/stringify to remove undefined values
       const permissionsQuery = JSON.parse(JSON.stringify({ archived: searchQuery.archived }));
       permissionsQuery[`permissions.${reqUser._id}`] = { $all: ['read'] };
-      const permissionProjects = await Project.find(permissionsQuery,
-        validatedOptions.fieldsString, opts);
+      const permissionProjects = await Project.find(
+        permissionsQuery,
+        validatedOptions.fieldsString,
+        opts,
+      );
 
       // Return only unique projects
-      const internalProjectIDs = internalProjects.map(p => p._id);
+      const internalProjectIDs = internalProjects.map((p) => p._id);
       const projectsNotInInternal = permissionProjects
-      .filter(p => !internalProjectIDs.includes(p._id));
+        .filter((p) => !internalProjectIDs.includes(p._id));
       foundProjects = internalProjects.concat(projectsNotInInternal);
     }
 
@@ -240,11 +246,11 @@ async function find(requestingUser, organizationID, projects, options) {
     if (saniProjects) {
       // Searched for single project
       if (typeof saniProjects === 'string') {
-        foundProjects = foundProjects.filter(p => p._id === searchQuery._id);
+        foundProjects = foundProjects.filter((p) => p._id === searchQuery._id);
       }
       // Searched for multiple projects
       else {
-        foundProjects = foundProjects.filter(p => searchQuery._id.$in.includes(p._id));
+        foundProjects = foundProjects.filter((p) => searchQuery._id.$in.includes(p._id));
       }
     }
 
@@ -257,8 +263,7 @@ async function find(requestingUser, organizationID, projects, options) {
     }
 
     return foundProjects;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -324,12 +329,10 @@ async function create(requestingUser, organizationID, projects, options) {
     if (Array.isArray(saniProjects)) {
       // projects is an array, create many projects
       projectsToCreate = saniProjects;
-    }
-    else if (typeof saniProjects === 'object') {
+    } else if (typeof saniProjects === 'object') {
       // projects is an object, create a single project
       projectsToCreate = [saniProjects];
-    }
-    else {
+    } else {
       // projects is not an object or array, throw an error
       throw new M.DataFormatError('Invalid input for creating projects.', 'warn');
     }
@@ -355,8 +358,7 @@ async function create(requestingUser, organizationID, projects, options) {
         // Check if project with same ID is already being created
         assert.ok(!arrIDs.includes(proj.id), 'Multiple projects with the same '
           + `ID [${utils.parseID(proj.id).pop()}] cannot be created.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       arrIDs.push(proj.id);
@@ -387,7 +389,7 @@ async function create(requestingUser, organizationID, projects, options) {
     // If there are any foundProjects, there is a conflict
     if (foundProjects.length > 0) {
       // Get arrays of the foundProjects's ids and names
-      const foundProjectIDs = foundProjects.map(p => utils.parseID(p._id).pop());
+      const foundProjectIDs = foundProjects.map((p) => utils.parseID(p._id).pop());
 
       // There are one or more projects with conflicting IDs
       throw new M.OperationError('Projects with the following IDs already exist'
@@ -402,9 +404,7 @@ async function create(requestingUser, organizationID, projects, options) {
       // Check that this project id hasn't been used yet
       projectsToCreate.forEach((p) => {
         if (projectIDs.includes(utils.parseID(p._id).pop())) {
-          throw new M.OperationError(
-            `Project id [${utils.parseID(p._id).pop()}] is already in use.`, 'warn'
-          );
+          throw new M.OperationError(`Project id [${utils.parseID(p._id).pop()}] is already in use.`, 'warn');
         }
       });
     }
@@ -413,7 +413,7 @@ async function create(requestingUser, organizationID, projects, options) {
     const foundUsers = await User.find({}, '_id');
 
     // Create array of usernames
-    const foundUsernames = foundUsers.map(u => u._id);
+    const foundUsernames = foundUsers.map((u) => u._id);
     const promises = [];
     // For each object of project data, create the project object
     const projObjects = projectsToCreate.map((p) => {
@@ -479,7 +479,7 @@ async function create(requestingUser, organizationID, projects, options) {
       createdOn: Date.now(),
       updatedOn: Date.now(),
       archived: p.archived,
-      archivedBy: (p.archived) ? reqUser._id : null
+      archivedBy: (p.archived) ? reqUser._id : null,
     }));
 
     // Create the branch
@@ -497,7 +497,7 @@ async function create(requestingUser, organizationID, projects, options) {
       createdOn: Date.now(),
       updatedOn: Date.now(),
       archived: p.archived,
-      archivedBy: (p.archived) ? reqUser._id : null
+      archivedBy: (p.archived) ? reqUser._id : null,
     }));
 
     // Create a __MBEE__ element for each project
@@ -512,7 +512,7 @@ async function create(requestingUser, organizationID, projects, options) {
       createdOn: Date.now(),
       updatedOn: Date.now(),
       archived: p.archived,
-      archivedBy: (p.archived) ? reqUser._id : null
+      archivedBy: (p.archived) ? reqUser._id : null,
     }));
 
     // Create a holding bin element for each project
@@ -527,7 +527,7 @@ async function create(requestingUser, organizationID, projects, options) {
       createdOn: Date.now(),
       updatedOn: Date.now(),
       archived: p.archived,
-      archivedBy: (p.archived) ? reqUser._id : null
+      archivedBy: (p.archived) ? reqUser._id : null,
     }));
 
     // Create an undefined element for each project
@@ -542,7 +542,7 @@ async function create(requestingUser, organizationID, projects, options) {
       createdOn: Date.now(),
       updatedOn: Date.now(),
       archived: p.archived,
-      archivedBy: (p.archived) ? reqUser._id : null
+      archivedBy: (p.archived) ? reqUser._id : null,
     }));
 
     // Concatenate all element arrays
@@ -552,11 +552,12 @@ async function create(requestingUser, organizationID, projects, options) {
     // Create the elements
     await Element.insertMany(conCatElemObj);
 
-    return await Project.find({ _id: { $in: arrIDs } },
+    return await Project.find(
+      { _id: { $in: arrIDs } },
       validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
-  }
-  catch (error) {
+      { populate: validatedOptions.populateString },
+    );
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -631,12 +632,10 @@ async function update(requestingUser, organizationID, projects, options) {
     if (Array.isArray(saniProjects)) {
       // projects is an array, update many projects
       projectsToUpdate = saniProjects;
-    }
-    else if (typeof saniProjects === 'object') {
+    } else if (typeof saniProjects === 'object') {
       // projects is an object, update a single project
       projectsToUpdate = [saniProjects];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating projects.', 'warn');
     }
 
@@ -649,8 +648,7 @@ async function update(requestingUser, organizationID, projects, options) {
         // Ensure each project has an id and that its a string
         assert.ok(proj.hasOwnProperty('id'), `Project #${index} does not have an id.`);
         assert.ok(typeof proj.id === 'string', `Project #${index}'s id is not a string.`);
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
       proj.id = utils.createID(orgID, proj.id);
@@ -658,8 +656,7 @@ async function update(requestingUser, organizationID, projects, options) {
       if (duplicateCheck[proj.id]) {
         throw new M.DataFormatError('Multiple objects with the same ID '
           + `[${utils.parseID(proj.id).pop()}] exist in the update.`, 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[proj.id] = proj.id;
       }
       arrIDs.push(proj.id);
@@ -689,12 +686,10 @@ async function update(requestingUser, organizationID, projects, options) {
 
     // Verify the same number of projects are found as desired
     if (foundProjects.length !== arrIDs.length) {
-      const foundIDs = foundProjects.map(p => p._id);
-      const notFound = arrIDs.filter(p => !foundIDs.includes(p)).map(p => utils.parseID(p).pop());
-      throw new M.NotFoundError(
-        `The following projects [${notFound.toString()}] were not found in `
-        + `the org [${orgID}].`, 'warn'
-      );
+      const foundIDs = foundProjects.map((p) => p._id);
+      const notFound = arrIDs.filter((p) => !foundIDs.includes(p)).map((p) => utils.parseID(p).pop());
+      throw new M.NotFoundError(`The following projects [${notFound.toString()}] were not found in `
+        + `the org [${orgID}].`, 'warn');
     }
 
     let foundUsers = [];
@@ -704,7 +699,7 @@ async function update(requestingUser, organizationID, projects, options) {
     }
 
     // Set existing users
-    existingUsers = foundUsers.map(u => u._id);
+    existingUsers = foundUsers.map((u) => u._id);
 
     // Convert projectsToUpdate to JMI type 2
     const jmiType2 = jmi.convertJMI(1, 2, projectsToUpdate);
@@ -741,17 +736,13 @@ async function update(requestingUser, organizationID, projects, options) {
           if (typeof validators.project[key] === 'string') {
             // If validation fails, throw error
             if (!RegExp(validators.project[key]).test(updateProj[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateProj[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateProj[key]}]`, 'warn');
             }
           }
           // If the validator is a function
           else if (typeof validators.project[key] === 'function') {
             if (!validators.project[key](updateProj[key])) {
-              throw new M.DataFormatError(
-                `Invalid ${key}: [${updateProj[key]}]`, 'warn'
-              );
+              throw new M.DataFormatError(`Invalid ${key}: [${updateProj[key]}]`, 'warn');
             }
           }
           // Improperly formatted validator
@@ -789,9 +780,7 @@ async function update(requestingUser, organizationID, projects, options) {
 
             // Value must be valid permission
             if (!validPermissions.includes(permValue)) {
-              throw new M.DataFormatError(
-                `${permValue} is not a valid permission`, 'warn'
-              );
+              throw new M.DataFormatError(`${permValue} is not a valid permission`, 'warn');
             }
 
             // Set stored permissions value based on provided permValue
@@ -810,9 +799,7 @@ async function update(requestingUser, organizationID, projects, options) {
                 break;
               // Default case, unknown permission, throw an error
               default:
-                throw new M.DataFormatError(
-                  `${permValue} is not a valid permission`, 'warn'
-                );
+                throw new M.DataFormatError(`${permValue} is not a valid permission`, 'warn');
             }
 
             // If not removing a user, check if they have been added to the org
@@ -856,8 +843,8 @@ async function update(requestingUser, organizationID, projects, options) {
       bulkArray.push({
         updateOne: {
           filter: { _id: proj._id },
-          update: updateProj
-        }
+          update: updateProj,
+        },
       });
     });
 
@@ -875,7 +862,9 @@ async function update(requestingUser, organizationID, projects, options) {
     while (length === 50000) {
       // Find all elements on the modified projects
       const elemsOnModifed = await Element.find({ project: { $in: loweredVisibility } }, // eslint-disable-line
-        null, { populate: 'sourceOf targetOf', limit: length, skip: iteration });
+        null,
+        { populate: 'sourceOf targetOf', limit: length, skip: iteration },
+      );
 
       // For each of the found elements
       elemsOnModifed.forEach((e) => {
@@ -902,11 +891,14 @@ async function update(requestingUser, organizationID, projects, options) {
     }
 
     // Find the elements, and populate the source and target
-    const relQuery = { _id: { $in: elemsToFind.map(e => e._id) } };
+    const relQuery = { _id: { $in: elemsToFind.map((e) => e._id) } };
 
     // Find broken relationships
-    const foundElements = await Element.find(relQuery, null,
-      { populate: 'source target' });
+    const foundElements = await Element.find(
+      relQuery,
+      null,
+      { populate: 'source target' },
+    );
 
     const bulkArray2 = [];
     // For each broken relationship
@@ -918,7 +910,9 @@ async function update(requestingUser, organizationID, projects, options) {
         if (!elem.custom.mbee) elem.custom.mbee = {};
         if (!elem.custom.mbee.broken_relationships) elem.custom.mbee.broken_relationships = [];
         elem.custom.mbee.broken_relationships.push(
-          { date: Date.now(), type: 'source', element: elem.source, reason: 'Project Visibility' }
+          {
+            date: Date.now(), type: 'source', element: elem.source, reason: 'Project Visibility',
+          },
         );
 
         // Reset source to the undefined element
@@ -932,7 +926,9 @@ async function update(requestingUser, organizationID, projects, options) {
         if (!elem.custom.mbee) elem.custom.mbee = {};
         if (!elem.custom.mbee.broken_relationships) elem.custom.mbee.broken_relationships = [];
         elem.custom.mbee.broken_relationships.push(
-          { date: Date.now(), type: 'target', element: elem.target, reason: 'Project Visibility' }
+          {
+            date: Date.now(), type: 'target', element: elem.target, reason: 'Project Visibility',
+          },
         );
 
         // Reset target to the undefined element
@@ -942,8 +938,8 @@ async function update(requestingUser, organizationID, projects, options) {
       bulkArray2.push({
         updateOne: {
           filter: { _id: elem._id },
-          update: elem
-        }
+          update: elem,
+        },
       });
     });
 
@@ -952,15 +948,17 @@ async function update(requestingUser, organizationID, projects, options) {
       await Element.bulkWrite(bulkArray2);
     }
 
-    const foundUpdatedProjects = await Project.find(searchQuery, validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+    const foundUpdatedProjects = await Project.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event projects-updated
     EventEmitter.emit('projects-updated', foundUpdatedProjects);
 
     return foundUpdatedProjects;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1024,12 +1022,10 @@ async function createOrReplace(requestingUser, organizationID, projects, options
     if (Array.isArray(saniProjects)) {
       // projects is an array, replace/create many projects
       projectsToLookUp = saniProjects;
-    }
-    else if (typeof saniProjects === 'object') {
+    } else if (typeof saniProjects === 'object') {
       // projects is an object, replace/create a single project
       projectsToLookUp = [saniProjects];
-    }
-    else {
+    } else {
       throw new M.DataFormatError('Invalid input for updating projects.', 'warn');
     }
 
@@ -1041,8 +1037,7 @@ async function createOrReplace(requestingUser, organizationID, projects, options
         // Ensure each project has an id and that its a string
         assert.ok(proj.hasOwnProperty('id'), `Project #${index} does not have an id.`);
         assert.ok(typeof proj.id === 'string', `Project #${index}'s id is not a string.`);
-      }
-      catch (err) {
+      } catch (err) {
         throw new M.DataFormatError(err.message, 'warn');
       }
       const tmpID = utils.createID(orgID, proj.id);
@@ -1050,8 +1045,7 @@ async function createOrReplace(requestingUser, organizationID, projects, options
       if (duplicateCheck[tmpID]) {
         throw new M.DataFormatError(`Multiple objects with the same ID [${proj.id}] exist in the`
           + ' update.', 'warn');
-      }
-      else {
+      } else {
         duplicateCheck[tmpID] = tmpID;
       }
       arrIDs.push(tmpID);
@@ -1089,17 +1083,20 @@ async function createOrReplace(requestingUser, organizationID, projects, options
     }
 
     // Write contents to temporary file
-    await new Promise(function(res, rej) {
-      fs.writeFile(path.join(M.root, 'data', orgID, `PUT-backup-projects-${ts}.json`),
-        JSON.stringify(foundProjects), function(err) {
+    await new Promise((res, rej) => {
+      fs.writeFile(
+        path.join(M.root, 'data', orgID, `PUT-backup-projects-${ts}.json`),
+        JSON.stringify(foundProjects),
+        (err) => {
           if (err) rej(err);
           else res();
-        });
+        },
+      );
     });
 
     // Delete root elements from database
     const elemDelObj = [];
-    foundProjects.forEach(p => {
+    foundProjects.forEach((p) => {
       elemDelObj.push(utils.createID(p._id, 'master', 'model'));
       elemDelObj.push(utils.createID(p._id, 'master', '__mbee__'));
       elemDelObj.push(utils.createID(p._id, 'master', 'holding_bin'));
@@ -1109,36 +1106,37 @@ async function createOrReplace(requestingUser, organizationID, projects, options
 
     // Delete branches from database
     const branchDelObj = [];
-    foundProjects.forEach(p => {
+    foundProjects.forEach((p) => {
       branchDelObj.push(utils.createID(p._id, 'master'));
     });
     await Branch.deleteMany({ _id: { $in: branchDelObj } });
 
     // Delete projects from database
-    await Project.deleteMany({ _id: { $in: foundProjects.map(p => p._id) } });
+    await Project.deleteMany({ _id: { $in: foundProjects.map((p) => p._id) } });
 
     // Emit the event projects-deleted
     EventEmitter.emit('projects-deleted', foundProjects);
-
 
     // Try block after former project has been deleted but not yet replaced
     // If creation of new projects fails, the old projects will be restored
     try {
       // Create the new/replaced projects
       createdProjects = await create(reqUser, orgID, projectsToLookUp, options);
-    }
-    catch (error) {
+    } catch (error) {
       throw await new Promise(async (res) => {
         // Reinsert original data
         try {
           await Project.insertMany(foundProjects);
-          fs.unlinkSync(path.join(M.root, 'data', orgID,
-            `PUT-backup-projects-${ts}.json`));
+          fs.unlinkSync(path.join(
+            M.root,
+            'data',
+            orgID,
+            `PUT-backup-projects-${ts}.json`,
+          ));
 
           // Restoration succeeded; pass the original error
           res(error);
-        }
-        catch (restoreErr) {
+        } catch (restoreErr) {
           // Pass a new error that occurred while trying to restore projects
           res(restoreErr);
         }
@@ -1146,8 +1144,12 @@ async function createOrReplace(requestingUser, organizationID, projects, options
     }
 
     // Code block after former project has been deleted and replaced
-    const filePath = path.join(M.root, 'data',
-      orgID, `PUT-backup-projects-${ts}.json`);
+    const filePath = path.join(
+      M.root,
+      'data',
+      orgID,
+      `PUT-backup-projects-${ts}.json`,
+    );
     // Delete the temporary file.
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -1163,8 +1165,7 @@ async function createOrReplace(requestingUser, organizationID, projects, options
 
     // Return the newly created projects
     return createdProjects;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -1210,15 +1211,13 @@ async function remove(requestingUser, organizationID, projects, options) {
     // Check the type of the projects parameter
     if (Array.isArray(saniProjects)) {
       // An array of project ids, remove all
-      searchedIDs = saniProjects.map(p => utils.createID(orgID, p));
+      searchedIDs = saniProjects.map((p) => utils.createID(orgID, p));
       searchQuery._id = { $in: searchedIDs };
-    }
-    else if (typeof saniProjects === 'string') {
+    } else if (typeof saniProjects === 'string') {
       // A single project id, remove one
       searchedIDs = [utils.createID(orgID, saniProjects)];
       searchQuery._id = utils.createID(orgID, saniProjects);
-    }
-    else {
+    } else {
       // Invalid parameter, throw an error
       throw new M.DataFormatError('Invalid input for removing projects.', 'warn');
     }
@@ -1230,19 +1229,19 @@ async function remove(requestingUser, organizationID, projects, options) {
     const foundProjects = await Project.find(searchQuery, null);
 
     // Ensure user has permission to delete each project
-    foundProjects.forEach(project => {
+    foundProjects.forEach((project) => {
       permissions.deleteProject(requestingUser, foundOrg, project);
     });
 
-    const foundProjectIDs = foundProjects.map(p => p._id);
+    const foundProjectIDs = foundProjects.map((p) => p._id);
     ownedQuery.project = { $in: foundProjectIDs };
 
     // Check if all projects were found
-    const notFoundIDs = searchedIDs.filter(p => !foundProjectIDs.includes(p));
+    const notFoundIDs = searchedIDs.filter((p) => !foundProjectIDs.includes(p));
     // Some projects not found, throw an error
     if (notFoundIDs.length > 0) {
       throw new M.NotFoundError('The following projects were not found: '
-        + `[${notFoundIDs.map(p => utils.parseID(p).pop())}].`, 'warn');
+        + `[${notFoundIDs.map((p) => utils.parseID(p).pop())}].`, 'warn');
     }
 
     // Delete any elements in the projects
@@ -1276,8 +1275,7 @@ async function remove(requestingUser, organizationID, projects, options) {
         + `deleted [${saniProjects.toString()}].`);
     }
     return foundProjectIDs;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }

@@ -55,7 +55,7 @@ describe(M.getModuleName(module.filename), () => {
  */
 async function idTooShort() {
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
 
     // Change id to be too short.
     orgData._id = '0';
@@ -65,8 +65,7 @@ async function idTooShort() {
     await Org.insertMany(orgData).should.eventually.be.rejectedWith('Organization '
       + `validation failed: _id: Org ID length [${orgData._id.length}] must not`
       + ' be less than 2 characters.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -78,7 +77,7 @@ async function idTooShort() {
  */
 async function idTooLong() {
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
 
     // Change id to be too long (64 characters max)
     orgData._id = '01234567890123456789012345678901234567890123456789012345678912345';
@@ -88,8 +87,7 @@ async function idTooLong() {
     await Org.insertMany(orgData).should.eventually.be.rejectedWith('Organization'
       + ` validation failed: _id: Org ID length [${orgData._id.length}] must `
       + `not be more than ${validators.org.idLength} characters.`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -106,7 +104,7 @@ async function invalidID() {
     this.skip();
   }
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
 
     // Change id to be invalid
     orgData._id = '!!';
@@ -115,8 +113,7 @@ async function invalidID() {
     // Expect insertMany() to fail with specific error message
     await Org.insertMany(orgData).should.eventually.be.rejectedWith('Organization'
       + ` validation failed: _id: Invalid org ID [${orgData._id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -128,14 +125,13 @@ async function invalidID() {
  */
 async function idNotProvided() {
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
     delete orgData.id;
 
     // Expect insertMany() to fail with specific error message
     await Org.insertMany(orgData).should.eventually.be.rejectedWith('Organization'
       + ' validation failed: _id: Path `_id` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -147,7 +143,7 @@ async function idNotProvided() {
  */
 async function nameNotProvided() {
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
     orgData._id = orgData.id;
 
     // Delete org name
@@ -157,8 +153,7 @@ async function nameNotProvided() {
     // Expect insertMany() to fail with specific error message
     await Org.insertMany(orgData).should.eventually.be.rejectedWith('Organization'
       + ' validation failed: name: Path `name` is required.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -170,22 +165,21 @@ async function nameNotProvided() {
  */
 async function permissionsInvalid() {
   try {
-    const orgData = Object.assign({}, testData.orgs[0]);
+    const orgData = { ...testData.orgs[0] };
     orgData._id = orgData.id;
 
     // Set invalid permissions
     orgData.permissions = {
-      invalid: 'permissions'
+      invalid: 'permissions',
     };
     delete orgData.id;
 
     // Expect insertMany() to fail with specific error message
     await Org.insertMany(orgData).should.eventually.be.rejectedWith(
       'Organization validation failed: permissions: The organization '
-      + 'permissions object is not properly formatted.'
+      + 'permissions object is not properly formatted.',
     );
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

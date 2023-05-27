@@ -22,39 +22,39 @@ module.exports = function extensionPlugin(schema) {
     archivedBy: {
       type: 'String',
       ref: 'User',
-      default: null
+      default: null,
     },
     createdBy: {
       type: 'String',
       ref: 'User',
       default: null,
-      immutable: true
+      immutable: true,
     },
     lastModifiedBy: {
       type: 'String',
       ref: 'User',
-      default: null
+      default: null,
     },
     createdOn: {
       type: 'Date',
       default: Date.now,
-      immutable: true
+      immutable: true,
     },
     archivedOn: {
       type: 'Date',
-      default: null
+      default: null,
     },
     updatedOn: {
       type: 'Date',
-      default: null
+      default: null,
     },
     archived: {
       type: 'Boolean',
-      default: false
+      default: false,
     },
     custom: {
       type: 'Object',
-      default: {}
-    }
+      default: {},
+    },
   });
 };

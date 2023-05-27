@@ -24,7 +24,7 @@ const colors = {
   magenta: '\u001b[35m',
   cyan: '\u001b[36m',
   light_grey: '\u001b[37m',
-  esc: '\u001b[39m'
+  esc: '\u001b[39m',
 };
 
 // Define the primary and secondary colors
@@ -78,15 +78,15 @@ image['14'] = '\u001b[39m';
  * @description Print the logo to the console.
  */
 function printLogo() {
-  console.log(image['1']);  // eslint-disable-line no-console
-  console.log(image['2']);  // eslint-disable-line no-console
-  console.log(image['3']);  // eslint-disable-line no-console
-  console.log(image['4']);  // eslint-disable-line no-console
-  console.log(image['5']);  // eslint-disable-line no-console
-  console.log(image['6']);  // eslint-disable-line no-console
-  console.log(image['7']);  // eslint-disable-line no-console
-  console.log(image['8']);  // eslint-disable-line no-console
-  console.log(image['9']);  // eslint-disable-line no-console
+  console.log(image['1']); // eslint-disable-line no-console
+  console.log(image['2']); // eslint-disable-line no-console
+  console.log(image['3']); // eslint-disable-line no-console
+  console.log(image['4']); // eslint-disable-line no-console
+  console.log(image['5']); // eslint-disable-line no-console
+  console.log(image['6']); // eslint-disable-line no-console
+  console.log(image['7']); // eslint-disable-line no-console
+  console.log(image['8']); // eslint-disable-line no-console
+  console.log(image['9']); // eslint-disable-line no-console
   console.log(image['10']); // eslint-disable-line no-console
   console.log(image['11']); // eslint-disable-line no-console
   console.log(image['12']); // eslint-disable-line no-console

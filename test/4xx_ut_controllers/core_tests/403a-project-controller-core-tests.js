@@ -51,8 +51,7 @@ describe(M.getModuleName(module.filename), () => {
       adminUser = await testUtils.createTestAdmin();
       // Set global organization
       org = await testUtils.createTestOrg(adminUser);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -68,8 +67,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       // Remove the admin user
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -106,67 +104,15 @@ function createProject(done) {
 
   // Create project via controller
   ProjController.create(adminUser, org._id, projData)
-  .then((createdProjects) => {
+    .then((createdProjects) => {
     // Expect createdProjects array to contain 1 project
-    chai.expect(createdProjects.length).to.equal(1);
-    const createdProj = createdProjects[0];
-
-    // Verify project created properly
-    chai.expect(createdProj._id).to.equal(utils.createID(org._id, projData.id));
-    chai.expect(createdProj.name).to.equal(projData.name);
-    chai.expect(createdProj.custom).to.deep.equal(projData.custom);
-    chai.expect(createdProj.permissions[adminUser._id]).to.include('read');
-    chai.expect(createdProj.permissions[adminUser._id]).to.include('write');
-    chai.expect(createdProj.permissions[adminUser._id]).to.include('admin');
-    chai.expect(createdProj.org).to.equal(org._id);
-
-    // Verify additional properties
-    chai.expect(createdProj.createdBy).to.equal(adminUser._id);
-    chai.expect(createdProj.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(createdProj.archivedBy).to.equal(null);
-    chai.expect(createdProj.createdOn).to.not.equal(null);
-    chai.expect(createdProj.updatedOn).to.not.equal(null);
-    chai.expect(createdProj.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
-}
-
-/**
- * @description Validates that the Project Controller can create multiple projects.
- *
- * @param {Function} done - The Mocha callback.
- */
-function createProjects(done) {
-  const projDataObjects = [
-    testData.projects[1],
-    testData.projects[2],
-    testData.projects[3],
-    testData.projects[4]
-  ];
-
-  // Create projects via controller
-  ProjController.create(adminUser, org._id, projDataObjects)
-  .then((createdProjects) => {
-    // Expect createdProjects not to be empty
-    chai.expect(createdProjects.length).to.equal(projDataObjects.length);
-
-    // Convert createdProjects to JMI type 2 for easier lookup
-    const jmi2Projects = jmi.convertJMI(1, 2, createdProjects);
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
-      const createdProj = jmi2Projects[projectID];
+      chai.expect(createdProjects.length).to.equal(1);
+      const createdProj = createdProjects[0];
 
       // Verify project created properly
-      chai.expect(createdProj._id).to.equal(projectID);
-      chai.expect(createdProj.name).to.equal(projDataObject.name);
-      chai.expect(createdProj.custom).to.deep.equal(projDataObject.custom);
+      chai.expect(createdProj._id).to.equal(utils.createID(org._id, projData.id));
+      chai.expect(createdProj.name).to.equal(projData.name);
+      chai.expect(createdProj.custom).to.deep.equal(projData.custom);
       chai.expect(createdProj.permissions[adminUser._id]).to.include('read');
       chai.expect(createdProj.permissions[adminUser._id]).to.include('write');
       chai.expect(createdProj.permissions[adminUser._id]).to.include('admin');
@@ -179,15 +125,67 @@ function createProjects(done) {
       chai.expect(createdProj.createdOn).to.not.equal(null);
       chai.expect(createdProj.updatedOn).to.not.equal(null);
       chai.expect(createdProj.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+}
+
+/**
+ * @description Validates that the Project Controller can create multiple projects.
+ *
+ * @param {Function} done - The Mocha callback.
+ */
+function createProjects(done) {
+  const projDataObjects = [
+    testData.projects[1],
+    testData.projects[2],
+    testData.projects[3],
+    testData.projects[4],
+  ];
+
+  // Create projects via controller
+  ProjController.create(adminUser, org._id, projDataObjects)
+    .then((createdProjects) => {
+    // Expect createdProjects not to be empty
+      chai.expect(createdProjects.length).to.equal(projDataObjects.length);
+
+      // Convert createdProjects to JMI type 2 for easier lookup
+      const jmi2Projects = jmi.convertJMI(1, 2, createdProjects);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
+        const createdProj = jmi2Projects[projectID];
+
+        // Verify project created properly
+        chai.expect(createdProj._id).to.equal(projectID);
+        chai.expect(createdProj.name).to.equal(projDataObject.name);
+        chai.expect(createdProj.custom).to.deep.equal(projDataObject.custom);
+        chai.expect(createdProj.permissions[adminUser._id]).to.include('read');
+        chai.expect(createdProj.permissions[adminUser._id]).to.include('write');
+        chai.expect(createdProj.permissions[adminUser._id]).to.include('admin');
+        chai.expect(createdProj.org).to.equal(org._id);
+
+        // Verify additional properties
+        chai.expect(createdProj.createdBy).to.equal(adminUser._id);
+        chai.expect(createdProj.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(createdProj.archivedBy).to.equal(null);
+        chai.expect(createdProj.createdOn).to.not.equal(null);
+        chai.expect(createdProj.updatedOn).to.not.equal(null);
+        chai.expect(createdProj.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -200,67 +198,15 @@ function createOrReplaceProject(done) {
 
   // Create project via controller
   ProjController.createOrReplace(adminUser, org._id, projData)
-  .then((replacedProjects) => {
+    .then((replacedProjects) => {
     // Expect replacedProjects array to contain 1 project
-    chai.expect(replacedProjects.length).to.equal(1);
-    const replacedProj = replacedProjects[0];
-
-    // Verify project created/replaced properly
-    chai.expect(replacedProj._id).to.equal(utils.createID(org._id, projData.id));
-    chai.expect(replacedProj.name).to.equal(projData.name);
-    chai.expect(replacedProj.custom).to.deep.equal(projData.custom);
-    chai.expect(replacedProj.permissions[adminUser._id]).to.include('read');
-    chai.expect(replacedProj.permissions[adminUser._id]).to.include('write');
-    chai.expect(replacedProj.permissions[adminUser._id]).to.include('admin');
-    chai.expect(replacedProj.org).to.equal(org._id);
-
-    // Verify additional properties
-    chai.expect(replacedProj.createdBy).to.equal(adminUser._id);
-    chai.expect(replacedProj.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(replacedProj.archivedBy).to.equal(null);
-    chai.expect(replacedProj.createdOn).to.not.equal(null);
-    chai.expect(replacedProj.updatedOn).to.not.equal(null);
-    chai.expect(replacedProj.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
-}
-
-/**
- * @description Validates that the Project Controller can create or replace multiple projects.
- *
- * @param {Function} done - The Mocha callback.
- */
-function createOrReplaceProjects(done) {
-  const projDataObjects = [
-    testData.projects[1],
-    testData.projects[2],
-    testData.projects[3],
-    testData.projects[4]
-  ];
-
-  // Create projects via controller
-  ProjController.createOrReplace(adminUser, org._id, projDataObjects)
-  .then((replacedProjects) => {
-    // Expect replacedProjects not to be empty
-    chai.expect(replacedProjects.length).to.equal(projDataObjects.length);
-
-    // Convert replacedProjects to JMI type 2 for easier lookup
-    const jmi2Projects = jmi.convertJMI(1, 2, replacedProjects);
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
-      const replacedProj = jmi2Projects[projectID];
+      chai.expect(replacedProjects.length).to.equal(1);
+      const replacedProj = replacedProjects[0];
 
       // Verify project created/replaced properly
-      chai.expect(replacedProj._id).to.equal(projectID);
-      chai.expect(replacedProj.name).to.equal(projDataObject.name);
-      chai.expect(replacedProj.custom).to.deep.equal(projDataObject.custom);
+      chai.expect(replacedProj._id).to.equal(utils.createID(org._id, projData.id));
+      chai.expect(replacedProj.name).to.equal(projData.name);
+      chai.expect(replacedProj.custom).to.deep.equal(projData.custom);
       chai.expect(replacedProj.permissions[adminUser._id]).to.include('read');
       chai.expect(replacedProj.permissions[adminUser._id]).to.include('write');
       chai.expect(replacedProj.permissions[adminUser._id]).to.include('admin');
@@ -273,15 +219,67 @@ function createOrReplaceProjects(done) {
       chai.expect(replacedProj.createdOn).to.not.equal(null);
       chai.expect(replacedProj.updatedOn).to.not.equal(null);
       chai.expect(replacedProj.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+}
+
+/**
+ * @description Validates that the Project Controller can create or replace multiple projects.
+ *
+ * @param {Function} done - The Mocha callback.
+ */
+function createOrReplaceProjects(done) {
+  const projDataObjects = [
+    testData.projects[1],
+    testData.projects[2],
+    testData.projects[3],
+    testData.projects[4],
+  ];
+
+  // Create projects via controller
+  ProjController.createOrReplace(adminUser, org._id, projDataObjects)
+    .then((replacedProjects) => {
+    // Expect replacedProjects not to be empty
+      chai.expect(replacedProjects.length).to.equal(projDataObjects.length);
+
+      // Convert replacedProjects to JMI type 2 for easier lookup
+      const jmi2Projects = jmi.convertJMI(1, 2, replacedProjects);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
+        const replacedProj = jmi2Projects[projectID];
+
+        // Verify project created/replaced properly
+        chai.expect(replacedProj._id).to.equal(projectID);
+        chai.expect(replacedProj.name).to.equal(projDataObject.name);
+        chai.expect(replacedProj.custom).to.deep.equal(projDataObject.custom);
+        chai.expect(replacedProj.permissions[adminUser._id]).to.include('read');
+        chai.expect(replacedProj.permissions[adminUser._id]).to.include('write');
+        chai.expect(replacedProj.permissions[adminUser._id]).to.include('admin');
+        chai.expect(replacedProj.org).to.equal(org._id);
+
+        // Verify additional properties
+        chai.expect(replacedProj.createdBy).to.equal(adminUser._id);
+        chai.expect(replacedProj.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(replacedProj.archivedBy).to.equal(null);
+        chai.expect(replacedProj.createdOn).to.not.equal(null);
+        chai.expect(replacedProj.updatedOn).to.not.equal(null);
+        chai.expect(replacedProj.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -294,70 +292,15 @@ function findProject(done) {
 
   // Find project via controller
   ProjController.find(adminUser, org._id, projData.id)
-  .then((foundProjects) => {
+    .then((foundProjects) => {
     // Expect foundProjects array to contain 1 project
-    chai.expect(foundProjects.length).to.equal(1);
-    const foundProj = foundProjects[0];
-
-    // Verify correct project found
-    chai.expect(foundProj._id).to.equal(utils.createID(org._id, projData.id));
-    chai.expect(foundProj.name).to.equal(projData.name);
-    chai.expect(foundProj.custom).to.deep.equal(projData.custom);
-    chai.expect(foundProj.permissions[adminUser._id]).to.include('read');
-    chai.expect(foundProj.permissions[adminUser._id]).to.include('write');
-    chai.expect(foundProj.permissions[adminUser._id]).to.include('admin');
-    chai.expect(foundProj.org).to.equal(org._id);
-
-    // Verify additional properties
-    chai.expect(foundProj.createdBy).to.equal(adminUser._id);
-    chai.expect(foundProj.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(foundProj.archivedBy).to.equal(null);
-    chai.expect(foundProj.createdOn).to.not.equal(null);
-    chai.expect(foundProj.updatedOn).to.not.equal(null);
-    chai.expect(foundProj.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
-}
-
-/**
- * @description Validates that the Project Controller can find multiple projects.
- *
- * @param {Function} done - The Mocha callback.
- */
-function findProjects(done) {
-  const projDataObjects = [
-    testData.projects[1],
-    testData.projects[2],
-    testData.projects[3],
-    testData.projects[4]
-  ];
-
-  // Create list of project ids to find
-  const projIDs = projDataObjects.map(p => p.id);
-
-  // Find projects via controller
-  ProjController.find(adminUser, org._id, projIDs)
-  .then((foundProjects) => {
-    // Expect foundProjects not to be empty
-    chai.expect(foundProjects.length).to.equal(projDataObjects.length);
-
-    // Convert foundProjects to JMI type 2 for easier lookup
-    const jmi2Projects = jmi.convertJMI(1, 2, foundProjects);
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
-      const foundProj = jmi2Projects[projectID];
+      chai.expect(foundProjects.length).to.equal(1);
+      const foundProj = foundProjects[0];
 
       // Verify correct project found
-      chai.expect(foundProj._id).to.equal(projectID);
-      chai.expect(foundProj.name).to.equal(projDataObject.name);
-      chai.expect(foundProj.custom).to.deep.equal(projDataObject.custom);
+      chai.expect(foundProj._id).to.equal(utils.createID(org._id, projData.id));
+      chai.expect(foundProj.name).to.equal(projData.name);
+      chai.expect(foundProj.custom).to.deep.equal(projData.custom);
       chai.expect(foundProj.permissions[adminUser._id]).to.include('read');
       chai.expect(foundProj.permissions[adminUser._id]).to.include('write');
       chai.expect(foundProj.permissions[adminUser._id]).to.include('admin');
@@ -370,15 +313,70 @@ function findProjects(done) {
       chai.expect(foundProj.createdOn).to.not.equal(null);
       chai.expect(foundProj.updatedOn).to.not.equal(null);
       chai.expect(foundProj.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+}
+
+/**
+ * @description Validates that the Project Controller can find multiple projects.
+ *
+ * @param {Function} done - The Mocha callback.
+ */
+function findProjects(done) {
+  const projDataObjects = [
+    testData.projects[1],
+    testData.projects[2],
+    testData.projects[3],
+    testData.projects[4],
+  ];
+
+  // Create list of project ids to find
+  const projIDs = projDataObjects.map((p) => p.id);
+
+  // Find projects via controller
+  ProjController.find(adminUser, org._id, projIDs)
+    .then((foundProjects) => {
+    // Expect foundProjects not to be empty
+      chai.expect(foundProjects.length).to.equal(projDataObjects.length);
+
+      // Convert foundProjects to JMI type 2 for easier lookup
+      const jmi2Projects = jmi.convertJMI(1, 2, foundProjects);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
+        const foundProj = jmi2Projects[projectID];
+
+        // Verify correct project found
+        chai.expect(foundProj._id).to.equal(projectID);
+        chai.expect(foundProj.name).to.equal(projDataObject.name);
+        chai.expect(foundProj.custom).to.deep.equal(projDataObject.custom);
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('read');
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('write');
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('admin');
+        chai.expect(foundProj.org).to.equal(org._id);
+
+        // Verify additional properties
+        chai.expect(foundProj.createdBy).to.equal(adminUser._id);
+        chai.expect(foundProj.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(foundProj.archivedBy).to.equal(null);
+        chai.expect(foundProj.createdOn).to.not.equal(null);
+        chai.expect(foundProj.updatedOn).to.not.equal(null);
+        chai.expect(foundProj.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -392,47 +390,47 @@ function findAllProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
 
   // Find projects via controller
   ProjController.find(adminUser, org._id)
-  .then((foundProjects) => {
+    .then((foundProjects) => {
     // Expect foundProjects not to be empty. Cannot know exact number in db
-    chai.expect(foundProjects.length).to.not.equal(0);
+      chai.expect(foundProjects.length).to.not.equal(0);
 
-    // Convert foundProjects to JMI type 2 for easier lookup
-    const jmi2Projects = jmi.convertJMI(1, 2, foundProjects);
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
-      const foundProj = jmi2Projects[projectID];
+      // Convert foundProjects to JMI type 2 for easier lookup
+      const jmi2Projects = jmi.convertJMI(1, 2, foundProjects);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
+        const foundProj = jmi2Projects[projectID];
 
-      // Verify correct project found
-      chai.expect(foundProj._id).to.equal(projectID);
-      chai.expect(foundProj.name).to.equal(projDataObject.name);
-      chai.expect(foundProj.custom).to.deep.equal(projDataObject.custom);
-      chai.expect(foundProj.permissions[adminUser._id]).to.include('read');
-      chai.expect(foundProj.permissions[adminUser._id]).to.include('write');
-      chai.expect(foundProj.permissions[adminUser._id]).to.include('admin');
-      chai.expect(foundProj.org).to.equal(org._id);
+        // Verify correct project found
+        chai.expect(foundProj._id).to.equal(projectID);
+        chai.expect(foundProj.name).to.equal(projDataObject.name);
+        chai.expect(foundProj.custom).to.deep.equal(projDataObject.custom);
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('read');
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('write');
+        chai.expect(foundProj.permissions[adminUser._id]).to.include('admin');
+        chai.expect(foundProj.org).to.equal(org._id);
 
-      // Verify additional properties
-      chai.expect(foundProj.createdBy).to.equal(adminUser._id);
-      chai.expect(foundProj.lastModifiedBy).to.equal(adminUser._id);
-      chai.expect(foundProj.archivedBy).to.equal(null);
-      chai.expect(foundProj.createdOn).to.not.equal(null);
-      chai.expect(foundProj.updatedOn).to.not.equal(null);
-      chai.expect(foundProj.archivedOn).to.equal(null);
+        // Verify additional properties
+        chai.expect(foundProj.createdBy).to.equal(adminUser._id);
+        chai.expect(foundProj.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(foundProj.archivedBy).to.equal(null);
+        chai.expect(foundProj.createdOn).to.not.equal(null);
+        chai.expect(foundProj.updatedOn).to.not.equal(null);
+        chai.expect(foundProj.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
 }
 
 /**
@@ -446,78 +444,20 @@ function updateProject(done) {
   // Create the object to update project
   const updateObj = {
     name: `${projData.name}_edit`,
-    id: projData.id
+    id: projData.id,
   };
 
   // Update project via controller
   ProjController.update(adminUser, org._id, updateObj)
-  .then((updatedProjects) => {
+    .then((updatedProjects) => {
     // Expect updatedProjects array to contain 1 project
-    chai.expect(updatedProjects.length).to.equal(1);
-    const updatedProj = updatedProjects[0];
-
-    // Verify correct project updated
-    chai.expect(updatedProj._id).to.equal(utils.createID(org._id, projData.id));
-    chai.expect(updatedProj.name).to.equal(`${projData.name}_edit`);
-    chai.expect(updatedProj.custom).to.deep.equal(projData.custom);
-    chai.expect(updatedProj.org).to.equal(org._id);
-    chai.expect(updatedProj.permissions[adminUser._id]).to.include('read');
-    chai.expect(updatedProj.permissions[adminUser._id]).to.include('write');
-    chai.expect(updatedProj.permissions[adminUser._id]).to.include('admin');
-
-    // Verify additional properties
-    chai.expect(updatedProj.createdBy).to.equal(adminUser._id);
-    chai.expect(updatedProj.lastModifiedBy).to.equal(adminUser._id);
-    chai.expect(updatedProj.archivedBy).to.equal(null);
-    chai.expect(updatedProj.createdOn).to.not.equal(null);
-    chai.expect(updatedProj.updatedOn).to.not.equal(null);
-    chai.expect(updatedProj.archivedOn).to.equal(null);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
-}
-
-/**
- * @description Validates that the Project Controller can update multiple projects.
- *
- * @param {Function} done - The Mocha callback.
- */
-function updateProjects(done) {
-  const projDataObjects = [
-    testData.projects[1],
-    testData.projects[2],
-    testData.projects[3],
-    testData.projects[4]
-  ];
-
-  // Create objects to update projects
-  const updateObjects = projDataObjects.map(p => ({
-    name: `${p.name}_edit`,
-    id: p.id
-  }));
-
-  // Update projects via controller
-  ProjController.update(adminUser, org._id, updateObjects)
-  .then((updatedProjects) => {
-    // Expect updatedProjects not to be empty
-    chai.expect(updatedProjects.length).to.equal(projDataObjects.length);
-
-    // Convert updatedProjects to JMI type 2 for easier lookup
-    const jmi2Projects = jmi.convertJMI(1, 2, updatedProjects);
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
-      const updatedProj = jmi2Projects[projectID];
+      chai.expect(updatedProjects.length).to.equal(1);
+      const updatedProj = updatedProjects[0];
 
       // Verify correct project updated
-      chai.expect(updatedProj._id).to.equal(projectID);
-      chai.expect(updatedProj.name).to.equal(`${projDataObject.name}_edit`);
-      chai.expect(updatedProj.custom).to.deep.equal(projDataObject.custom);
+      chai.expect(updatedProj._id).to.equal(utils.createID(org._id, projData.id));
+      chai.expect(updatedProj.name).to.equal(`${projData.name}_edit`);
+      chai.expect(updatedProj.custom).to.deep.equal(projData.custom);
       chai.expect(updatedProj.org).to.equal(org._id);
       chai.expect(updatedProj.permissions[adminUser._id]).to.include('read');
       chai.expect(updatedProj.permissions[adminUser._id]).to.include('write');
@@ -530,15 +470,73 @@ function updateProjects(done) {
       chai.expect(updatedProj.createdOn).to.not.equal(null);
       chai.expect(updatedProj.updatedOn).to.not.equal(null);
       chai.expect(updatedProj.archivedOn).to.equal(null);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
     });
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+}
+
+/**
+ * @description Validates that the Project Controller can update multiple projects.
+ *
+ * @param {Function} done - The Mocha callback.
+ */
+function updateProjects(done) {
+  const projDataObjects = [
+    testData.projects[1],
+    testData.projects[2],
+    testData.projects[3],
+    testData.projects[4],
+  ];
+
+  // Create objects to update projects
+  const updateObjects = projDataObjects.map((p) => ({
+    name: `${p.name}_edit`,
+    id: p.id,
+  }));
+
+  // Update projects via controller
+  ProjController.update(adminUser, org._id, updateObjects)
+    .then((updatedProjects) => {
+    // Expect updatedProjects not to be empty
+      chai.expect(updatedProjects.length).to.equal(projDataObjects.length);
+
+      // Convert updatedProjects to JMI type 2 for easier lookup
+      const jmi2Projects = jmi.convertJMI(1, 2, updatedProjects);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
+        const updatedProj = jmi2Projects[projectID];
+
+        // Verify correct project updated
+        chai.expect(updatedProj._id).to.equal(projectID);
+        chai.expect(updatedProj.name).to.equal(`${projDataObject.name}_edit`);
+        chai.expect(updatedProj.custom).to.deep.equal(projDataObject.custom);
+        chai.expect(updatedProj.org).to.equal(org._id);
+        chai.expect(updatedProj.permissions[adminUser._id]).to.include('read');
+        chai.expect(updatedProj.permissions[adminUser._id]).to.include('write');
+        chai.expect(updatedProj.permissions[adminUser._id]).to.include('admin');
+
+        // Verify additional properties
+        chai.expect(updatedProj.createdBy).to.equal(adminUser._id);
+        chai.expect(updatedProj.lastModifiedBy).to.equal(adminUser._id);
+        chai.expect(updatedProj.archivedBy).to.equal(null);
+        chai.expect(updatedProj.createdOn).to.not.equal(null);
+        chai.expect(updatedProj.updatedOn).to.not.equal(null);
+        chai.expect(updatedProj.archivedOn).to.equal(null);
+      });
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -551,26 +549,26 @@ function deleteProject(done) {
 
   // Delete project via controller
   ProjController.remove(adminUser, org._id, projData.id)
-  .then((deletedProjects) => {
+    .then((deletedProjects) => {
     // Expect deletedProjects array to contain 1 project
-    chai.expect(deletedProjects.length).to.equal(1);
-    // Verify correct project deleted
-    chai.expect(deletedProjects).to.include(utils.createID(org._id, projData.id));
+      chai.expect(deletedProjects.length).to.equal(1);
+      // Verify correct project deleted
+      chai.expect(deletedProjects).to.include(utils.createID(org._id, projData.id));
 
-    // Attempt to find the deleted project
-    return ProjController.find(adminUser, org._id, projData.id, { archived: true });
-  })
-  .then((foundProjects) => {
+      // Attempt to find the deleted project
+      return ProjController.find(adminUser, org._id, projData.id, { archived: true });
+    })
+    .then((foundProjects) => {
     // Expect foundProjects array to be empty
-    chai.expect(foundProjects.length).to.equal(0);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      chai.expect(foundProjects.length).to.equal(0);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }
 
 /**
@@ -583,38 +581,38 @@ function deleteProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
 
   // Create list of project ids to delete
-  const projIDs = projDataObjects.map(p => p.id);
+  const projIDs = projDataObjects.map((p) => p.id);
 
   // Delete projects via controller
   ProjController.remove(adminUser, org._id, projIDs)
-  .then((deletedProjects) => {
+    .then((deletedProjects) => {
     // Expect deletedProjects not to be empty
-    chai.expect(deletedProjects.length).to.equal(projDataObjects.length);
+      chai.expect(deletedProjects.length).to.equal(projDataObjects.length);
 
-    // Loop through each project data object
-    projDataObjects.forEach((projDataObject) => {
-      const projectID = utils.createID(org._id, projDataObject.id);
+      // Loop through each project data object
+      projDataObjects.forEach((projDataObject) => {
+        const projectID = utils.createID(org._id, projDataObject.id);
 
-      // Verify correct project deleted
-      chai.expect(deletedProjects).to.include(projectID);
-    });
+        // Verify correct project deleted
+        chai.expect(deletedProjects).to.include(projectID);
+      });
 
-    // Attempt to find the deleted projects
-    return ProjController.find(adminUser, org._id, projIDs, { archived: true });
-  })
-  .then((foundProjects) => {
+      // Attempt to find the deleted projects
+      return ProjController.find(adminUser, org._id, projIDs, { archived: true });
+    })
+    .then((foundProjects) => {
     // Expect foundProjects array to be empty
-    chai.expect(foundProjects.length).to.equal(0);
-    done();
-  })
-  .catch((error) => {
-    M.log.error(error);
-    // Expect no error
-    chai.expect(error.message).to.equal(null);
-    done();
-  });
+      chai.expect(foundProjects.length).to.equal(0);
+      done();
+    })
+    .catch((error) => {
+      M.log.error(error);
+      // Expect no error
+      chai.expect(error.message).to.equal(null);
+      done();
+    });
 }

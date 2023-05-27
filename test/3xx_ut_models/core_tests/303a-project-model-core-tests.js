@@ -34,7 +34,7 @@ const utils = M.require('lib.utils');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const adminUser = testData.adminUser;
+const { adminUser } = testData;
 const org = testData.orgs[0];
 
 /* --------------------( Main )-------------------- */
@@ -64,7 +64,7 @@ async function createProject() {
     name: testData.projects[0].name,
     org: org.id,
     permissions: {},
-    visibility: 'private'
+    visibility: 'private',
   };
 
   // Add the admin user to the permissions
@@ -73,8 +73,7 @@ async function createProject() {
   try {
     // Save project model object to database
     await Project.insertMany(newProject);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -89,8 +88,7 @@ async function findProject() {
   try {
     // Find the project
     proj = await Project.findOne({ _id: utils.createID(org.id, testData.projects[0].id) });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -115,8 +113,7 @@ async function updateProject() {
     // Verify project is updated correctly
     foundProject._id.should.equal(projID);
     foundProject.name.should.equal('Updated Name');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -138,8 +135,7 @@ async function deleteProject() {
 
     // foundProject should be null
     should.not.exist(foundProject);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

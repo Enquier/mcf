@@ -28,7 +28,7 @@ import {
   Input,
   FormFeedback,
   Button,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
@@ -50,14 +50,12 @@ function EditPage(props) {
     _name = props.org.name;
     _archived = props.org.archived;
     _custom = props.org.custom;
-  }
-  else if (props.project) {
+  } else if (props.project) {
     _name = props.project.name;
     _archived = props.project.archived;
     _custom = props.project.custom;
     _visibility = props.project.visibility;
-  }
-  else if (props.branch) {
+  } else if (props.branch) {
     _name = props.branch.name;
     _archived = props.branch.archived;
     _custom = props.branch.custom;
@@ -99,8 +97,7 @@ function EditPage(props) {
         // Parse custom data input values
         try {
           value = JSON.parse(row.value);
-        }
-        catch (e) {
+        } catch (e) {
           // Treat input as string
           value = row.value;
         }
@@ -120,21 +117,19 @@ function EditPage(props) {
     // Initialize variables
     let patch;
     const data = {
-      name: name,
-      archived: archived,
-      custom: JSON.parse(custom)
+      name,
+      archived,
+      custom: JSON.parse(custom),
     };
 
     if (props.org) {
       patch = (d, o) => orgService.patch(d, o);
       data.id = props.org.id;
-    }
-    else if (props.project) {
+    } else if (props.project) {
       patch = (d, o) => projectService.patch(props.project.org, d, o);
       data.id = props.project.id;
       data.visibility = visibility;
-    }
-    else if (props.branch) {
+    } else if (props.branch) {
       patch = (d, o) => branchService.patch(props.branch.org, props.branch.project, d, o);
       data.id = props.branch.id;
     }
@@ -148,13 +143,11 @@ function EditPage(props) {
 
     if (err) {
       setError(err);
-    }
-    else if (response) {
+    } else if (response) {
       props.refresh();
       props.toggle();
     }
   };
-
 
   // Initialize variables
   let disableSubmit = (message.length > 0);
@@ -162,19 +155,16 @@ function EditPage(props) {
 
   if (props.org) {
     title = 'Organization';
-  }
-  else if (props.branch) {
+  } else if (props.branch) {
     title = `[${props.branch.id}] Branch`;
-  }
-  else {
+  } else {
     title = 'Project';
   }
 
   // Verify if custom data is correct JSON format
   try {
     JSON.parse(custom);
-  }
-  catch (err) {
+  } catch (err) {
     // Set invalid fields
     disableSubmit = true;
   }

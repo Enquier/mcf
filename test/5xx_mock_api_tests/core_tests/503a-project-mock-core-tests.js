@@ -28,7 +28,7 @@ const utils = M.require('lib.utils');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org = null;
 
@@ -47,8 +47,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       adminUser = await testUtils.createTestAdmin();
       org = await testUtils.createTestOrg(adminUser);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -62,8 +61,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -96,7 +94,7 @@ function postProject(done) {
   const projData = testData.projects[0];
   const params = {
     orgid: org._id,
-    projectid: testData.projects[0].id
+    projectid: testData.projects[0].id,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, projData, method);
@@ -128,8 +126,12 @@ function postProject(done) {
     chai.expect(createdProj.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(createdProj).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -151,10 +153,10 @@ function postProjects(done) {
   const projData = [
     testData.projects[1],
     testData.projects[2],
-    testData.projects[3]
+    testData.projects[3],
   ];
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, projData, method);
@@ -193,8 +195,12 @@ function postProjects(done) {
       chai.expect(createdProj.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdProj).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -217,7 +223,7 @@ function putProject(done) {
   const projData = testData.projects[0];
   const params = {
     orgid: org._id,
-    projectid: testData.projects[0].id
+    projectid: testData.projects[0].id,
   };
   const method = 'PUT';
   const req = testUtils.createRequest(adminUser, params, projData, method);
@@ -249,8 +255,12 @@ function putProject(done) {
     chai.expect(replacedProj.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(replacedProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(replacedProj).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -273,10 +283,10 @@ function putProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const method = 'PUT';
   const req = testUtils.createRequest(adminUser, params, projData, method);
@@ -315,8 +325,12 @@ function putProjects(done) {
       chai.expect(replacedProj.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(replacedProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(replacedProj).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -339,7 +353,7 @@ function getProject(done) {
   const projData = testData.projects[0];
   const params = {
     orgid: org._id,
-    projectid: testData.projects[0].id
+    projectid: testData.projects[0].id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, {}, method);
@@ -371,8 +385,12 @@ function getProject(done) {
     chai.expect(foundProj.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundProj).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -395,13 +413,13 @@ function getProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const method = 'GET';
-  const req = testUtils.createRequest(adminUser, params, projData.map(p => p.id), method);
+  const req = testUtils.createRequest(adminUser, params, projData.map((p) => p.id), method);
 
   // Set response as empty object
   const res = {};
@@ -438,8 +456,12 @@ function getProjects(done) {
       chai.expect(foundProj.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundProj).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -464,10 +486,10 @@ function getAllProjectsOnOrg(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, {}, method);
@@ -507,8 +529,12 @@ function getAllProjectsOnOrg(done) {
       chai.expect(foundProj.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundProj).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -534,7 +560,7 @@ function getAllProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, {}, {}, method);
@@ -585,8 +611,12 @@ function getAllProjects(done) {
         chai.expect(foundProj.archived).to.equal(false);
 
         // Verify specific fields not returned
-        chai.expect(foundProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-          '__v', '_id');
+        chai.expect(foundProj).to.not.have.any.keys(
+          'archivedOn',
+          'archivedBy',
+          '__v',
+          '_id',
+        );
       }
     });
 
@@ -610,12 +640,12 @@ function patchProject(done) {
   const projData = testData.projects[0];
   const params = {
     orgid: org._id,
-    projectid: testData.projects[0].id
+    projectid: testData.projects[0].id,
   };
   const method = 'PATCH';
   const updateObj = {
     id: projData.id,
-    name: 'Updated Name'
+    name: 'Updated Name',
   };
   const req = testUtils.createRequest(adminUser, params, updateObj, method);
 
@@ -646,8 +676,12 @@ function patchProject(done) {
     chai.expect(updatedProj.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(updatedProj).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -670,15 +704,15 @@ function patchProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const method = 'PATCH';
   const updateObj = projData.map((p) => ({
     id: p.id,
-    name: 'Updated Name'
+    name: 'Updated Name',
   }));
   const req = testUtils.createRequest(adminUser, params, updateObj, method);
 
@@ -717,8 +751,12 @@ function patchProjects(done) {
       chai.expect(updatedProj.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedProj).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(updatedProj).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -741,7 +779,7 @@ function deleteProject(done) {
   const projData = testData.projects[0];
   const params = {
     orgid: org._id,
-    projectid: testData.projects[0].id
+    projectid: testData.projects[0].id,
   };
   const method = 'PATCH';
   const req = testUtils.createRequest(adminUser, params, {}, method);
@@ -781,14 +819,14 @@ function deleteProjects(done) {
     testData.projects[1],
     testData.projects[2],
     testData.projects[3],
-    testData.projects[4]
+    testData.projects[4],
   ];
 
-  const projIDs = projData.map(p => p.id);
+  const projIDs = projData.map((p) => p.id);
   const ids = projIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
   const params = { orgid: org._id };
   const method = 'PATCH';
 

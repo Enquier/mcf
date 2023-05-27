@@ -51,7 +51,6 @@ const validators = M.require('lib.validators');
 const utils = M.require('lib.utils');
 const extensions = M.require('models.plugin.extensions');
 
-
 /* ----------------------------( Branch Model )----------------------------- */
 /**
  * @namespace
@@ -71,23 +70,23 @@ const BranchSchema = new db.Schema({
     required: true,
     validate: [{
       validator: validators.branch._id.reserved,
-      message: props => 'Branch ID cannot include the following words: '
-        + `[${validators.reserved}].`
+      message: (props) => 'Branch ID cannot include the following words: '
+        + `[${validators.reserved}].`,
     }, {
       validator: validators.branch._id.match,
-      message: props => `Invalid branch ID [${utils.parseID(props.value).pop()}].`
+      message: (props) => `Invalid branch ID [${utils.parseID(props.value).pop()}].`,
     }, {
       validator: validators.branch._id.maxLength,
       // Return a message, with calculated length of branch ID (branch.max - project.max - :)
-      message: props => `Branch ID length [${props.value.length - validators.project.idLength - 1}]`
+      message: (props) => `Branch ID length [${props.value.length - validators.project.idLength - 1}]`
         + ` must not be more than ${validators.branch.idLength - validators.project.idLength - 1}`
-        + ' characters.'
+        + ' characters.',
     }, {
       validator: validators.branch._id.minLength,
       // Return a message, with calculated length of branch ID (branch.min - project.min - :)
-      message: props => `Branch ID length [${props.value.length - 6}] must not`
-        + ' be less than 2 characters.'
-    }]
+      message: (props) => `Branch ID length [${props.value.length - 6}] must not`
+        + ' be less than 2 characters.',
+    }],
   },
   project: {
     type: 'String',
@@ -96,13 +95,13 @@ const BranchSchema = new db.Schema({
     index: true,
     validate: [{
       validator: validators.branch.project,
-      message: props => `${props.value} is not a valid project ID.`
+      message: (props) => `${props.value} is not a valid project ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   name: {
     type: 'String',
-    default: ''
+    default: '',
   },
   source: {
     type: 'String',
@@ -110,15 +109,15 @@ const BranchSchema = new db.Schema({
     default: null,
     validate: [{
       validator: validators.branch.source,
-      message: props => `${props.value} is not a valid source ID.`
+      message: (props) => `${props.value} is not a valid source ID.`,
     }],
-    immutable: true
+    immutable: true,
   },
   tag: {
     type: 'Boolean',
     default: false,
-    immutable: true
-  }
+    immutable: true,
+  },
 });
 
 /* ---------------------------( Model Plugin )---------------------------- */
@@ -130,26 +129,19 @@ BranchSchema.plugin(extensions);
  * @description Returns branch fields that can be changed
  * @memberOf BranchSchema
  */
-BranchSchema.static('getValidUpdateFields', function() {
-  return ['name', 'custom', 'archived'];
-});
+BranchSchema.static('getValidUpdateFields', () => ['name', 'custom', 'archived']);
 
 /**
  * @description Returns a list of valid root source fields
  * @memberOf BranchSchema
  */
-BranchSchema.static('getValidRootSource', function() {
-  return ['master'];
-});
+BranchSchema.static('getValidRootSource', () => ['master']);
 
 /**
  * @description Returns a list of fields a requesting user can populate
  * @memberOf BranchSchema
  */
-BranchSchema.static('getValidPopulateFields', function() {
-  return ['archivedBy', 'lastModifiedBy', 'createdBy', 'project', 'source'];
-});
-
+BranchSchema.static('getValidPopulateFields', () => ['archivedBy', 'lastModifiedBy', 'createdBy', 'project', 'source']);
 
 /* ------------------------( Branch Schema Export )------------------------- */
 

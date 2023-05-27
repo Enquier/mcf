@@ -20,17 +20,18 @@
 
 // React modules
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // MBEE modules
 import ProfileHome from '../profile-views/profile-home.jsx';
 
-
 export default function PasswordRedirect(props) {
   return (
     <React.Fragment>
-      <Route path={'/profile'} component={ProfileHome}/>
-      <Route path={'/'} component={() => <Redirect to={'/profile'}/>}/>
+      <Routes>
+        <Route path={'/profile'} component={ProfileHome}/>
+        <Route path={'/'} render={() => <Navigate to={'/profile'}/>}/>
+      </Routes>
     </React.Fragment>
   );
 }

@@ -19,23 +19,29 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 // React modules
+// eslint-disable-next-line import/no-extraneous-dependencies
 import React, { useState, createContext, useContext } from 'react';
+
+// MBEE modules
+import uiConfig from '../../../../build/json/uiConfig.json';
 
 const authContext = createContext({});
 
+const tokenName = (uiConfig.apiServer && uiConfig.apiServer.tokenName) ? uiConfig.apiServer.tokenName : 'mbee-token';
+
 export function AuthProvider(props) {
-  const [auth, setAuth] = useState(Boolean(window.sessionStorage.getItem('mbee-user')));
+  const [auth, setAuth] = useState(window.localStorage.getItem(tokenName));
 
   const value = {
     auth,
-    setAuth
+    setAuth,
   };
 
   return <authContext.Provider value={value} {...props}/>;
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(authContext);
   if (context === undefined) throw new Error('Auth context is not defined outside of AuthProvider');
   return context;
-}
+};

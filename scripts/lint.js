@@ -39,20 +39,20 @@ function lint(_args) {
     `${M.root}/app/**/*.jsx`,
     `${M.root}/plugins/*.js`,
     `${M.root}/scripts/**/*.js`,
-    `${M.root}/test/**/*.js`
+    `${M.root}/test/**/*.js`,
   ].concat(_args);
 
   // Run linter with specified args
   spawn(`${M.root}/node_modules/.bin/eslint`, args, { stdio: 'inherit' })
-  .on('data', (data) => {
+    .on('data', (data) => {
     // eslint-disable-next-line no-console
-    console.log(data.toString());
-  })
-  .on('exit', (code) => {
-    if (code !== 0) {
-      process.exit(code);
-    }
-  });
+      console.log(data.toString());
+    })
+    .on('exit', (code) => {
+      if (code !== 0) {
+        process.exit(code);
+      }
+    });
 }
 
 module.exports = lint;

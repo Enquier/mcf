@@ -44,8 +44,7 @@ async function validUID() {
   try {
     const uid = utils.createID('org', 'project', 'branch', 'element');
     chai.expect(uid).to.equal('org:project:branch:element');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -59,8 +58,7 @@ async function invalidUID() {
   try {
     utils.createID('org', 'project', 'master', 9);
     chai.expect(true).to.equal(false);
-  }
-  catch (error) {
+  } catch (error) {
     chai.expect(error.message).to.equal('Argument is not a string.');
   }
 }
@@ -74,8 +72,7 @@ async function parseValidUID() {
     chai.expect(uid).to.include('org');
     chai.expect(uid).to.include('project');
     chai.expect(uid).to.include('element');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -89,8 +86,7 @@ async function parseValidUIDSecondElement() {
   try {
     const project = utils.parseID('org:project:element')[2];
     chai.expect(project).to.equal('element');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

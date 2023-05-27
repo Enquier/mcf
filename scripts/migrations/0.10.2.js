@@ -29,7 +29,7 @@ const Element = M.require('models.element');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await artifactHelper();
   await elementHelper();
 };
@@ -64,8 +64,8 @@ async function artifactHelper() {
       bulkWrite.push({
         replaceOne: {
           filter: { _id: artifact._id },
-          replacement: artifact
-        }
+          replacement: artifact,
+        },
       });
     });
 
@@ -114,8 +114,8 @@ async function elementHelper() {
         bulkWrite.push({
           updateOne: {
             filter: { _id: element._id },
-            update: { artifact: null }
-          }
+            update: { artifact: null },
+          },
         });
       });
 

@@ -25,50 +25,50 @@ const can = M.require('lib.permissions');
 // Simulated test objects used across test functions
 const users = [{
   _id: 'test1',
-  admin: true
+  admin: true,
 }, {
   _id: 'test2',
-  admin: false
+  admin: false,
 }, {
   _id: 'test3',
-  admin: false
+  admin: false,
 }];
 
 const orgs = [{
   _id: 'org1',
   permissions: {
-    test1: ['read', 'write', 'admin']
-  }
+    test1: ['read', 'write', 'admin'],
+  },
 }, {
   _id: 'org2',
   permissions: {
     test1: ['read', 'write', 'admin'],
     test2: ['read', 'write', 'admin'],
-    test3: ['read']
-  }
+    test3: ['read'],
+  },
 }];
 
 const projects = [{
   _id: 'project1',
   permissions: {
-    test1: ['read', 'write', 'admin']
+    test1: ['read', 'write', 'admin'],
   },
-  visibility: 'private'
+  visibility: 'private',
 }, {
   _id: 'project2',
   permissions: {
     test1: ['read', 'write', 'admin'],
     test2: ['read', 'write', 'admin'],
-    test3: ['read']
+    test3: ['read'],
   },
-  visibility: 'private'
+  visibility: 'private',
 }, {
   _id: 'project3',
   permissions: {
     test1: ['read', 'write', 'admin'],
-    test2: ['read', 'write', 'admin']
+    test2: ['read', 'write', 'admin'],
   },
-  visibility: 'internal'
+  visibility: 'internal',
 }];
 
 /* --------------------( Main )-------------------- */

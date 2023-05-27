@@ -27,7 +27,7 @@ const Webhook = M.require('models.webhook');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let webhookID;
 
@@ -50,8 +50,7 @@ describe(M.getModuleName(module.filename), () => {
       const webhookData = testData.webhooks[1];
       const webhooks = await WebhookController.create(adminUser, webhookData);
       webhookID = webhooks[0]._id;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -65,8 +64,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await Webhook.deleteMany({ _id: webhookID });
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -108,7 +106,7 @@ function noReqUser(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method);
 
@@ -146,7 +144,7 @@ function invalidOptions(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
     req.query = { invalid: 'invalid option' };
@@ -185,7 +183,7 @@ function conflictingIDs(endpoint) {
   const params = { webhookid: 'testwebhook01' };
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -223,14 +221,14 @@ function notFound(endpoint) {
   const method = testUtils.parseMethod(endpoint);
   // Body must be an array of ids for get and delete; key-value pair for anything else
   const body = (endpoint === 'deleteWebhooks' || endpoint === 'getWebhooks')
-    ? [id] : { id: id };
+    ? [id] : { id };
   // Add in a params field for singular endpoints
   let params = {};
   if (!endpoint.includes('Webhooks') && endpoint.includes('Webhook')) {
     params = { webhookid: id };
   }
 
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 

@@ -20,13 +20,13 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 // MBEE modules
 import Sidebar from '../general/sidebar/sidebar.jsx';
 import SidebarLink from '../general/sidebar/sidebar-link.jsx';
-import Profile from '../profile-views/profile.jsx';
-import { useApiClient } from '../context/ApiClientProvider.js';
+import Profile from './profile.jsx';
+import { useApiClient } from '../context/ApiClientProvider';
 
 // Define component
 function ProfileHome(props) {
@@ -40,7 +40,7 @@ function ProfileHome(props) {
     const [err, data] = await userService.whoami();
 
     // Set the state
-    if (err) setError(err);
+      if (err) setError(err);
     else if (data) setUser(data);
 
     return data;
@@ -49,8 +49,10 @@ function ProfileHome(props) {
   const refreshOtherUser = async () => {
     // Initialize options for request
     const options = {
-      usernames: props.match.params.username,
-      includeArchived: true
+      ids: props.match.params.username,
+      params: {
+        includeArchived: true,
+      },
     };
 
     // Get the user data
@@ -65,7 +67,7 @@ function ProfileHome(props) {
     const data = await refreshUser();
 
     if (props.match && props.match.params) {
-      const username = props.match.params.username;
+      const { username } = props.match.params;
       if (username && username !== data.username) refreshOtherUser();
     }
   };
@@ -75,7 +77,6 @@ function ProfileHome(props) {
     mount();
   }, []);
 
-
   let title = 'Loading ...';
   let routerLink = '/profile';
 
@@ -83,21 +84,16 @@ function ProfileHome(props) {
     routerLink = `/profile/${otherUser.username}`;
     if (otherUser.preferredName) {
       title = `${otherUser.preferredName}'s Profile`;
-    }
-    else if (otherUser.fname) {
+    } else if (otherUser.fname) {
       title = `${otherUser.fname}'s Profile`;
-    }
-    else {
+    } else {
       title = `${user.username}'s Profile`;
     }
-  }
-  else if (user && user.preferredName) {
+  } else if (user && user.preferredName) {
     title = `${user.preferredName}'s Profile`;
-  }
-  else if (user && user.fname) {
+  } else if (user && user.fname) {
     title = `${user.fname}'s Profile`;
-  }
-  else if (user) {
+  } else if (user) {
     title = `${user.username}'s Profile`;
   }
 
@@ -116,7 +112,7 @@ function ProfileHome(props) {
         (!user)
           ? <div id='view' className="loading"> {error || 'Loading information...'}</div>
           : (
-            <Switch>
+            <Routes>
                 <Route exact path="/profile"
                        render={(renderProps) => <Profile {...renderProps}
                                                    admin={true}
@@ -128,7 +124,7 @@ function ProfileHome(props) {
                                                    viewingUser={user}
                                                    user={otherUser || user}
                                                    refreshUsers={refreshOtherUser}/>}/>
-            </Switch>
+            </Routes>
           )
       }
     </div>

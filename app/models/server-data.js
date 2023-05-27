@@ -37,12 +37,12 @@ const db = M.require('db');
 const ServerDataSchema = new db.Schema({
   _id: {
     type: 'String',
-    required: true
+    required: true,
   },
   version: {
     type: 'String',
-    required: true
-  }
+    required: true,
+  },
 });
 
 /* ---------------------( Server Data Schema Export )------------------------ */

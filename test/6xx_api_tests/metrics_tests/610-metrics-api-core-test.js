@@ -23,7 +23,7 @@ const utils = M.require('lib.utils');
 
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
-const test = M.config.test;
+const { test } = M.config;
 let org = null;
 let adminUser = null;
 let projID = null;
@@ -48,8 +48,7 @@ describe(M.getModuleName(module.filename), () => {
       // Create project
       const retProj = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(retProj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error.message).to.equal(null);
@@ -65,8 +64,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       // Delete admin user
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -86,7 +84,7 @@ async function runMetrics() {
     const options = {
       method: 'post',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches/master/metrics`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -104,8 +102,7 @@ async function runMetrics() {
     chai.expect(metricsData.hasOwnProperty('LastModifiedDaysAgo')).to.equal(true);
     chai.expect(metricsData.LastModifiedDaysAgo).to.equal('0');
     chai.expect(metricsData.hasOwnProperty('Types')).to.equal(true);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

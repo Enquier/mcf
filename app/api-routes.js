@@ -25,13 +25,13 @@
 
 // NPM modules
 const express = require('express');
+
 const api = express.Router();
 
 // MBEE modules
 const APIController = M.require('controllers.api-controller');
 const AuthController = M.require('lib.auth');
 const Middleware = M.require('lib.middleware');
-
 
 /**
  * @swagger
@@ -57,9 +57,8 @@ api.get(
     next();
   },
   Middleware.logResponse,
-  Middleware.respond
+  Middleware.respond,
 );
-
 
 /**
  * @swagger
@@ -74,12 +73,13 @@ api.get(
  *       200:
  *         description: OK, Succeeded to get the swagger doc.
  */
-api.get('/doc/swagger.json',
+api.get(
+  '/doc/swagger.json',
   Middleware.logRoute,
   APIController.swaggerJSON,
   Middleware.logResponse,
-  Middleware.respond);
-
+  Middleware.respond,
+);
 
 /**
  * @swagger
@@ -103,18 +103,17 @@ api.get('/doc/swagger.json',
  *                      side issue.
  */
 api.route('/login')
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  AuthController.doLogin,
-  APIController.login,
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    AuthController.doLogin,
+    APIController.login,
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -132,16 +131,15 @@ api.route('/login')
  *         description: Internal Server Error, Failed to due to a server side issue.
  */
 api.route('/logout')
-.post(
-  AuthController.authenticate,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  APIController.logout,
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .post(
+    AuthController.authenticate,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    APIController.logout,
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -163,14 +161,14 @@ api.route('/logout')
  *                      server side issue.
  */
 api.route('/version')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  APIController.version,
-  Middleware.logResponse,
-  Middleware.respond
-);
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    APIController.version,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -220,18 +218,18 @@ api.route('/version')
  *                      server side issue, or the log file not existing.
  */
 api.route('/logs')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('getLogs'),
-  APIController.getLogs,
-  Middleware.pluginPost('getLogs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('getLogs'),
+    APIController.getLogs,
+    Middleware.pluginPost('getLogs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -603,63 +601,62 @@ api.route('/logs')
  *                      server side issue.
  */
 api.route('/orgs')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getOrgs'),
-  APIController.getOrgs,
-  Middleware.pluginPost('getOrgs'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('postOrgs'),
-  APIController.postOrgs,
-  Middleware.pluginPost('postOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('putOrgs'),
-  APIController.putOrgs,
-  Middleware.pluginPost('putOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchOrgs'),
-  APIController.patchOrgs,
-  Middleware.pluginPost('patchOrgs'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteOrgs'),
-  APIController.deleteOrgs,
-  Middleware.pluginPost('deleteOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getOrgs'),
+    APIController.getOrgs,
+    Middleware.pluginPost('getOrgs'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('postOrgs'),
+    APIController.postOrgs,
+    Middleware.pluginPost('postOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('putOrgs'),
+    APIController.putOrgs,
+    Middleware.pluginPost('putOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchOrgs'),
+    APIController.patchOrgs,
+    Middleware.pluginPost('patchOrgs'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteOrgs'),
+    APIController.deleteOrgs,
+    Middleware.pluginPost('deleteOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -976,63 +973,62 @@ api.route('/orgs')
  *                      server side issue.
  */
 api.route('/orgs/:orgid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getOrgs'),
-  APIController.getOrgs,
-  Middleware.pluginPost('getOrgs'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('postOrgs'),
-  APIController.postOrgs,
-  Middleware.pluginPost('postOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('putOrgs'),
-  APIController.putOrgs,
-  Middleware.pluginPost('putOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchOrgs'),
-  APIController.patchOrgs,
-  Middleware.pluginPost('patchOrgs'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteOrgs'),
-  APIController.deleteOrgs,
-  Middleware.pluginPost('deleteOrgs'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getOrgs'),
+    APIController.getOrgs,
+    Middleware.pluginPost('getOrgs'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('postOrgs'),
+    APIController.postOrgs,
+    Middleware.pluginPost('postOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('putOrgs'),
+    APIController.putOrgs,
+    Middleware.pluginPost('putOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchOrgs'),
+    APIController.patchOrgs,
+    Middleware.pluginPost('patchOrgs'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteOrgs'),
+    APIController.deleteOrgs,
+    Middleware.pluginPost('deleteOrgs'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -1137,17 +1133,16 @@ api.route('/orgs/:orgid')
  *                      server side issue.
  */
 api.route('/projects')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getAllProjects'),
-  APIController.getAllProjects,
-  Middleware.pluginPost('getAllProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getAllProjects'),
+    APIController.getAllProjects,
+    Middleware.pluginPost('getAllProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -1577,59 +1572,58 @@ api.route('/projects')
  *                      server side issue
  */
 api.route('/orgs/:orgid/projects')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getProjects'),
-  APIController.getProjects,
-  Middleware.pluginPost('getProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postProjects'),
-  APIController.postProjects,
-  Middleware.pluginPost('postProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('putProjects'),
-  APIController.putProjects,
-  Middleware.pluginPost('putProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchProjects'),
-  APIController.patchProjects,
-  Middleware.pluginPost('patchProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteProjects'),
-  APIController.deleteProjects,
-  Middleware.pluginPost('deleteProjects'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getProjects'),
+    APIController.getProjects,
+    Middleware.pluginPost('getProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postProjects'),
+    APIController.postProjects,
+    Middleware.pluginPost('postProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('putProjects'),
+    APIController.putProjects,
+    Middleware.pluginPost('putProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchProjects'),
+    APIController.patchProjects,
+    Middleware.pluginPost('patchProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteProjects'),
+    APIController.deleteProjects,
+    Middleware.pluginPost('deleteProjects'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -1999,59 +1993,58 @@ api.route('/orgs/:orgid/projects')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getProjects'),
-  APIController.getProjects,
-  Middleware.pluginPost('getProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postProjects'),
-  APIController.postProjects,
-  Middleware.pluginPost('postProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('putProjects'),
-  APIController.putProjects,
-  Middleware.pluginPost('putProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchProjects'),
-  APIController.patchProjects,
-  Middleware.pluginPost('patchProjects'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteProjects'),
-  APIController.deleteProjects,
-  Middleware.pluginPost('deleteProjects'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getProjects'),
+    APIController.getProjects,
+    Middleware.pluginPost('getProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postProjects'),
+    APIController.postProjects,
+    Middleware.pluginPost('postProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('putProjects'),
+    APIController.putProjects,
+    Middleware.pluginPost('putProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchProjects'),
+    APIController.patchProjects,
+    Middleware.pluginPost('patchProjects'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteProjects'),
+    APIController.deleteProjects,
+    Middleware.pluginPost('deleteProjects'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -2428,47 +2421,46 @@ api.route('/orgs/:orgid/projects/:projectid')
  *                      server side issue
  */
 api.route('/orgs/:orgid/projects/:projectid/branches')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getBranches'),
-  APIController.getBranches,
-  Middleware.pluginPost('getBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postBranches'),
-  APIController.postBranches,
-  Middleware.pluginPost('postBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchBranches'),
-  APIController.patchBranches,
-  Middleware.pluginPost('patchBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteBranches'),
-  APIController.deleteBranches,
-  Middleware.pluginPost('deleteBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getBranches'),
+    APIController.getBranches,
+    Middleware.pluginPost('getBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postBranches'),
+    APIController.postBranches,
+    Middleware.pluginPost('postBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchBranches'),
+    APIController.patchBranches,
+    Middleware.pluginPost('patchBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteBranches'),
+    APIController.deleteBranches,
+    Middleware.pluginPost('deleteBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -2774,47 +2766,46 @@ api.route('/orgs/:orgid/projects/:projectid/branches')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getBranches'),
-  APIController.getBranches,
-  Middleware.pluginPost('getBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postBranches'),
-  APIController.postBranches,
-  Middleware.pluginPost('postBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchBranches'),
-  APIController.patchBranches,
-  Middleware.pluginPost('patchBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteBranches'),
-  APIController.deleteBranches,
-  Middleware.pluginPost('deleteBranches'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getBranches'),
+    APIController.getBranches,
+    Middleware.pluginPost('getBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postBranches'),
+    APIController.postBranches,
+    Middleware.pluginPost('postBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchBranches'),
+    APIController.patchBranches,
+    Middleware.pluginPost('patchBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteBranches'),
+    APIController.deleteBranches,
+    Middleware.pluginPost('deleteBranches'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -2964,17 +2955,16 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements/search')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('searchElements'),
-  APIController.searchElements,
-  Middleware.pluginPost('searchElements'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('searchElements'),
+    APIController.searchElements,
+    Middleware.pluginPost('searchElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -3602,57 +3592,56 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements/search')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getElements'),
-  APIController.getElements,
-  Middleware.pluginPost('getElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postElements'),
-  APIController.postElements,
-  Middleware.pluginPost('postElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('putElements'),
-  APIController.putElements,
-  Middleware.pluginPost('putElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchElements'),
-  APIController.patchElements,
-  Middleware.pluginPost('patchElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteElements'),
-  APIController.deleteElements,
-  Middleware.pluginPost('deleteElements'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getElements'),
+    APIController.getElements,
+    Middleware.pluginPost('getElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postElements'),
+    APIController.postElements,
+    Middleware.pluginPost('postElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('putElements'),
+    APIController.putElements,
+    Middleware.pluginPost('putElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchElements'),
+    APIController.patchElements,
+    Middleware.pluginPost('patchElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteElements'),
+    APIController.deleteElements,
+    Middleware.pluginPost('deleteElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -4203,57 +4192,56 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements/:elementid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getElements'),
-  APIController.getElements,
-  Middleware.pluginPost('getElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postElements'),
-  APIController.postElements,
-  Middleware.pluginPost('postElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('putElements'),
-  APIController.putElements,
-  Middleware.pluginPost('putElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchElements'),
-  APIController.patchElements,
-  Middleware.pluginPost('patchElements'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteElements'),
-  APIController.deleteElements,
-  Middleware.pluginPost('deleteElements'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getElements'),
+    APIController.getElements,
+    Middleware.pluginPost('getElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postElements'),
+    APIController.postElements,
+    Middleware.pluginPost('postElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('putElements'),
+    APIController.putElements,
+    Middleware.pluginPost('putElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchElements'),
+    APIController.patchElements,
+    Middleware.pluginPost('patchElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteElements'),
+    APIController.deleteElements,
+    Middleware.pluginPost('deleteElements'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -4296,16 +4284,16 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/elements/:element
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/artifacts/list')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('listBlobs'),
-  APIController.listBlobs,
-  Middleware.pluginPost('listBlobs'),
-  Middleware.logResponse,
-  Middleware.respond
-);
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('listBlobs'),
+    APIController.listBlobs,
+    Middleware.pluginPost('listBlobs'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -4475,37 +4463,36 @@ api.route('/orgs/:orgid/projects/:projectid/artifacts/list')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/artifacts/blob')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getBlob'),
-  APIController.getBlob,
-  Middleware.pluginPost('getBlob'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postBlob'),
-  APIController.postBlob,
-  Middleware.pluginPost('postBlob'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteBlob'),
-  APIController.deleteBlob,
-  Middleware.pluginPost('deleteBlob'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getBlob'),
+    APIController.getBlob,
+    Middleware.pluginPost('getBlob'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postBlob'),
+    APIController.postBlob,
+    Middleware.pluginPost('postBlob'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteBlob'),
+    APIController.deleteBlob,
+    Middleware.pluginPost('deleteBlob'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -4923,47 +4910,46 @@ api.route('/orgs/:orgid/projects/:projectid/artifacts/blob')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getArtifacts'),
-  APIController.getArtifacts,
-  Middleware.pluginPost('getArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postArtifacts'),
-  APIController.postArtifacts,
-  Middleware.pluginPost('postArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchArtifacts'),
-  APIController.patchArtifacts,
-  Middleware.pluginPost('patchArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteArtifacts'),
-  APIController.deleteArtifacts,
-  Middleware.pluginPost('deleteArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getArtifacts'),
+    APIController.getArtifacts,
+    Middleware.pluginPost('getArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postArtifacts'),
+    APIController.postArtifacts,
+    Middleware.pluginPost('postArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchArtifacts'),
+    APIController.patchArtifacts,
+    Middleware.pluginPost('patchArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteArtifacts'),
+    APIController.deleteArtifacts,
+    Middleware.pluginPost('deleteArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -5303,47 +5289,46 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts/:artifactid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getArtifacts'),
-  APIController.getArtifacts,
-  Middleware.pluginPost('getArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('postArtifacts'),
-  APIController.postArtifacts,
-  Middleware.pluginPost('postArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchArtifacts'),
-  APIController.patchArtifacts,
-  Middleware.pluginPost('patchArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteArtifacts'),
-  APIController.deleteArtifacts,
-  Middleware.pluginPost('deleteArtifacts'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getArtifacts'),
+    APIController.getArtifacts,
+    Middleware.pluginPost('getArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('postArtifacts'),
+    APIController.postArtifacts,
+    Middleware.pluginPost('postArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchArtifacts'),
+    APIController.patchArtifacts,
+    Middleware.pluginPost('patchArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteArtifacts'),
+    APIController.deleteArtifacts,
+    Middleware.pluginPost('deleteArtifacts'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -5401,17 +5386,16 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts/:artifa
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts/:artifactid/blob')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.pluginPre('getBlobById'),
-  APIController.getBlobById,
-  Middleware.pluginPost('getBlobById'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.pluginPre('getBlobById'),
+    APIController.getBlobById,
+    Middleware.pluginPost('getBlobById'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -5837,68 +5821,67 @@ api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/artifacts/:artifa
  *                      server side issue.
  */
 api.route('/users')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('getUsers'),
-  APIController.getUsers,
-  Middleware.pluginPost('getUsers'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('postUsers'),
-  APIController.postUsers,
-  Middleware.pluginPost('postUsers'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('putUsers'),
-  APIController.putUsers,
-  Middleware.pluginPost('putUsers'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('patchUsers'),
-  APIController.patchUsers,
-  Middleware.pluginPost('patchUsers'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('deleteUsers'),
-  APIController.deleteUsers,
-  Middleware.pluginPost('deleteUsers'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('getUsers'),
+    APIController.getUsers,
+    Middleware.pluginPost('getUsers'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('postUsers'),
+    APIController.postUsers,
+    Middleware.pluginPost('postUsers'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('putUsers'),
+    APIController.putUsers,
+    Middleware.pluginPost('putUsers'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('patchUsers'),
+    APIController.patchUsers,
+    Middleware.pluginPost('patchUsers'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('deleteUsers'),
+    APIController.deleteUsers,
+    Middleware.pluginPost('deleteUsers'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -5935,16 +5918,15 @@ api.route('/users')
  *                      server side issue.
  */
 api.route('/users/whoami')
-.get(
-  AuthController.authenticate,
-  Middleware.logRoute,
-  Middleware.pluginPre('whoami'),
-  APIController.whoami,
-  Middleware.pluginPost('whoami'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.logRoute,
+    Middleware.pluginPre('whoami'),
+    APIController.whoami,
+    Middleware.pluginPost('whoami'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -6017,18 +5999,17 @@ api.route('/users/whoami')
  *                      server side issue.
  */
 api.route('/users/search')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('searchUsers'),
-  APIController.searchUsers,
-  Middleware.pluginPost('searchUsers'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('searchUsers'),
+    APIController.searchUsers,
+    Middleware.pluginPost('searchUsers'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -6375,68 +6356,67 @@ api.route('/users/search')
  *                      server side issues.
  */
 api.route('/users/:username')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('getUsers'),
-  APIController.getUsers,
-  Middleware.pluginPost('getUsers'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('postUsers'),
-  APIController.postUsers,
-  Middleware.pluginPost('postUsers'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.put(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('putUser'),
-  APIController.putUsers,
-  Middleware.pluginPost('putUser'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('patchUsers'),
-  APIController.patchUsers,
-  Middleware.pluginPost('patchUsers'),
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserAPI,
-  Middleware.pluginPre('deleteUsers'),
-  APIController.deleteUsers,
-  Middleware.pluginPost('deleteUsers'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('getUsers'),
+    APIController.getUsers,
+    Middleware.pluginPost('getUsers'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('postUsers'),
+    APIController.postUsers,
+    Middleware.pluginPost('postUsers'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .put(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('putUser'),
+    APIController.putUsers,
+    Middleware.pluginPost('putUser'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('patchUsers'),
+    APIController.patchUsers,
+    Middleware.pluginPost('patchUsers'),
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserAPI,
+    Middleware.pluginPre('deleteUsers'),
+    APIController.deleteUsers,
+    Middleware.pluginPost('deleteUsers'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -6498,17 +6478,16 @@ api.route('/users/:username')
  *                      server side issues.
  */
 api.route('/users/:username/password')
-.patch(
-  AuthController.authenticate,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.disableUserPatchPassword,
-  APIController.patchPassword,
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .patch(
+    AuthController.authenticate,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.disableUserPatchPassword,
+    APIController.patchPassword,
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -6883,55 +6862,54 @@ api.route('/users/:username/password')
  *                      server side issue.
  */
 api.route('/webhooks')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('getWebhooks'),
-  APIController.getWebhooks,
-  Middleware.pluginPost('getWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.post(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('postWebhooks'),
-  APIController.postWebhooks,
-  Middleware.pluginPost('postWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchWebhooks'),
-  APIController.patchWebhooks,
-  Middleware.pluginPost('patchWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteWebhooks'),
-  APIController.deleteWebhooks,
-  Middleware.pluginPost('deleteWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('getWebhooks'),
+    APIController.getWebhooks,
+    Middleware.pluginPost('getWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .post(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('postWebhooks'),
+    APIController.postWebhooks,
+    Middleware.pluginPost('postWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchWebhooks'),
+    APIController.patchWebhooks,
+    Middleware.pluginPost('patchWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteWebhooks'),
+    APIController.deleteWebhooks,
+    Middleware.pluginPost('deleteWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -6963,15 +6941,14 @@ api.route('/webhooks')
  *                      side issue.
  */
 api.route('/webhooks/trigger/:encodedid')
-.post(
-  Middleware.logRoute,
-  Middleware.pluginPre('triggerWebhook'),
-  APIController.triggerWebhook,
-  Middleware.pluginPost('triggerWebhook'),
-  Middleware.logResponse,
-  Middleware.respond
-);
-
+  .post(
+    Middleware.logRoute,
+    Middleware.pluginPre('triggerWebhook'),
+    APIController.triggerWebhook,
+    Middleware.pluginPost('triggerWebhook'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -7162,42 +7139,42 @@ api.route('/webhooks/trigger/:encodedid')
  *                      server side issue.
  */
 api.route('/webhooks/:webhookid')
-.get(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('getWebhooks'),
-  APIController.getWebhooks,
-  Middleware.pluginPost('getWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.patch(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('patchWebhooks'),
-  APIController.patchWebhooks,
-  Middleware.pluginPost('patchWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-)
-.delete(
-  AuthController.authenticate,
-  Middleware.expiredPassword,
-  Middleware.logSecurityRoute,
-  Middleware.logRoute,
-  Middleware.pluginPre('deleteWebhooks'),
-  APIController.deleteWebhooks,
-  Middleware.pluginPost('deleteWebhooks'),
-  Middleware.logSecurityResponse,
-  Middleware.logResponse,
-  Middleware.respond
-);
+  .get(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('getWebhooks'),
+    APIController.getWebhooks,
+    Middleware.pluginPost('getWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .patch(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('patchWebhooks'),
+    APIController.patchWebhooks,
+    Middleware.pluginPost('patchWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  )
+  .delete(
+    AuthController.authenticate,
+    Middleware.expiredPassword,
+    Middleware.logSecurityRoute,
+    Middleware.logRoute,
+    Middleware.pluginPre('deleteWebhooks'),
+    APIController.deleteWebhooks,
+    Middleware.pluginPost('deleteWebhooks'),
+    Middleware.logSecurityResponse,
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 /**
  * @swagger
@@ -7255,16 +7232,16 @@ api.route('/webhooks/:webhookid')
  *                      server side issue.
  */
 api.route('/orgs/:orgid/projects/:projectid/branches/:branchid/metrics')
-.post(
-  AuthController.authenticate,
-  Middleware.logRoute,
-  Middleware.expiredPassword,
-  Middleware.pluginPre('getMetrics'),
-  APIController.getMetrics,
-  Middleware.pluginPost('getMetrics'),
-  Middleware.logResponse,
-  Middleware.respond
-);
+  .post(
+    AuthController.authenticate,
+    Middleware.logRoute,
+    Middleware.expiredPassword,
+    Middleware.pluginPre('getMetrics'),
+    APIController.getMetrics,
+    Middleware.pluginPost('getMetrics'),
+    Middleware.logResponse,
+    Middleware.respond,
+  );
 
 // Catches any invalid api route not defined above.
 api.use('*', APIController.invalidRoute, Middleware.respond);

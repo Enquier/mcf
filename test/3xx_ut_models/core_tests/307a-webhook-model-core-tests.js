@@ -50,8 +50,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       // Remove the webhook
       await Webhook.deleteMany({ _id: { $in: webhookIDs } });
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       should.not.exist(error);
@@ -82,8 +81,7 @@ async function createOutgoingWebhook() {
 
     // Save the Webhook model object to the database
     await Webhook.insertMany(webhookData);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -104,8 +102,7 @@ async function createIncomingWebhook() {
 
     // Save the webhook model object to the database
     await Webhook.insertMany(webhookData);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -127,8 +124,7 @@ async function findWebhook() {
     webhook.description.should.equal(testData.webhooks[0].description);
     webhook.triggers.should.deep.equal(testData.webhooks[0].triggers);
     webhook.url.should.equal(testData.webhooks[0].url);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -149,8 +145,7 @@ async function updateWebhook() {
     // Verify webhook is updated correctly
     foundWebhook._id.should.equal(webhookID);
     foundWebhook.name.should.equal('Updated Name');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -170,8 +165,7 @@ async function deleteWebhook() {
 
     // foundWebhook should be null
     should.not.exist(foundWebhook);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -189,15 +183,14 @@ async function verifyToken() {
     webhookData._id = webhookID;
 
     // Get the token
-    const token = webhookData.token;
+    const { token } = webhookData;
 
     // Save the Webhook model object to the database
     const webhooks = await Webhook.insertMany(webhookData);
 
     // Run the webhook test for tokens; it will throw an error if they don't match
     Webhook.verifyAuthority(webhooks[0], token);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -220,8 +213,7 @@ async function validUpdateFields() {
 
     // Expect the array returned from the model function to have the values listed above
     (modelUpdateFields).should.have.members(updateFields);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -243,8 +235,7 @@ async function validPopulateFields() {
 
     // Expect the array returned from the model function to have the values listed above
     chai.expect(modelPopulateFields).to.have.members(populateFields);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -259,7 +250,7 @@ async function sendRequest() {
   // First check that the api is up
   const res = await axios({
     method: 'get',
-    url: `${M.config.test.url}/api/test`
+    url: `${M.config.test.url}/api/test`,
   });
 
   let isApiUp = false;
@@ -275,13 +266,12 @@ async function sendRequest() {
     const webhook = {
       type: 'Outgoing',
       url: `${M.config.test.url}/api/test`,
-      method: 'GET'
+      method: 'GET',
     };
 
     // Test the sendRequest function with no data
     Webhook.sendRequest(webhook, null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

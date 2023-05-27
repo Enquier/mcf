@@ -48,7 +48,9 @@ function UserListItem(props) {
         // Set options for request
         const options = {
           usernames: user,
-          includeArchived: true
+          params: {
+            includeArchived: true,
+          },
         };
         // Get user data
         const [err, users] = await userService.get(options);
@@ -56,8 +58,7 @@ function UserListItem(props) {
         // Set the state
         if (err) setError(err);
         if (users) setUser(users[0]);
-      }
-      else if (user !== props.user) {
+      } else if (user !== props.user) {
         setUser(props.user);
       }
     }
@@ -75,7 +76,6 @@ function UserListItem(props) {
   useEffect(() => {
     populateUserData();
   }, [props.user]);
-
 
   // Initialize variables
   const perm = props.permission;
@@ -98,8 +98,7 @@ function UserListItem(props) {
                     label={props.label}
                     _key={props._key}/>
              </StatsList>);
-  }
-  else if (perm) {
+  } else if (perm) {
     if (!props.label) {
       minimizeClass = 'spacing minimize';
     }
@@ -128,10 +127,9 @@ function UserListItem(props) {
               label={props.label}
               noToolTip={true}
               key={`admin-${user.username}`}
-              _key={`admin-${user.username}`}/>
+              _key={`admin-${user.username}`}/>,
       ];
-    }
-    else if (perm === 'write') {
+    } else if (perm === 'write') {
       permChecks = [
         <Stat title='Read'
               icon='fas fa-check'
@@ -153,10 +151,9 @@ function UserListItem(props) {
               label={props.label}
               noToolTip={true}
               key={`admin-${user.username}`}
-              _key={`admin-${user.username}`}/>
+              _key={`admin-${user.username}`}/>,
       ];
-    }
-    else if (perm === 'read') {
+    } else if (perm === 'read') {
       // Add admin permission check
       permChecks = [
         <Stat title='Read'
@@ -179,7 +176,7 @@ function UserListItem(props) {
               label={props.label}
               noToolTip={true}
               key={`admin-${user.username}`}
-              _key={`admin-${user.username}`}/>
+              _key={`admin-${user.username}`}/>,
       ];
     }
 

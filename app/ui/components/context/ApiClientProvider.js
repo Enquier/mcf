@@ -1,7 +1,7 @@
 /**
  * @classification UNCLASSIFIED
  *
- * @module ui.components.api-client.ApiClientProvider
+ * @module ui.components.mms-api-client.ApiClientProvider
  *
  * @copyright Copyright (C) 2018, Lockheed Martin Corporation
  *
@@ -18,31 +18,35 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsdoc/require-jsdoc */
 
+// Other modules
+import axios from 'axios';
+
 // React modules
 import React, { createContext, useContext } from 'react';
 
 // MBEE modules
-import AuthService from '../api-client/AuthService.js';
-import UserService from '../api-client/UserService.js';
-import OrgService from '../api-client/OrgService.js';
-import ProjectService from '../api-client/ProjectService.js';
-import BranchService from '../api-client/BranchService.js';
-import ArtifactService from '../api-client/ArtifactService.js';
-import ElementService from '../api-client/ElementService.js';
-import { useAuth } from './AuthProvider.js';
-
+import AuthService from '../../api/mms-api-client/AuthService';
+import UserService from '../../api/mms-api-client/UserService';
+import OrgService from '../../api/mms-api-client/OrgService';
+import ProjectService from '../../api/mms-api-client/ProjectService';
+import BranchService from '../../api/mms-api-client/BranchService';
+import ArtifactService from '../../api/mms-api-client/ArtifactService';
+import ElementService from '../../api/mms-api-client/ElementService';
+import { useAuth } from './AuthProvider';
+import HttpProvider from './HttpProvider';
 
 const apiClientContext = createContext();
 
 export function ApiClientProvider(props) {
   const authContext = useAuth();
-  const authService = new AuthService(authContext);
-  const userService = new UserService(authContext);
-  const orgService = new OrgService(authContext);
-  const projectService = new ProjectService(authContext);
-  const branchService = new BranchService(authContext);
-  const artifactService = new ArtifactService(authContext);
-  const elementService = new ElementService(authContext);
+  const httpContext = new HttpProvider();
+  const authService = new AuthService(authContext, httpContext);
+  const userService = new UserService(authContext, httpContext);
+  const orgService = new OrgService(authContext, httpContext);
+  const projectService = new ProjectService(authContext, httpContext);
+  const branchService = new BranchService(authContext, httpContext);
+  const artifactService = new ArtifactService(authContext, httpContext);
+  const elementService = new ElementService(authContext, httpContext);
 
   const value = {
     authService,
@@ -51,7 +55,7 @@ export function ApiClientProvider(props) {
     projectService,
     branchService,
     artifactService,
-    elementService
+    elementService,
   };
   return <apiClientContext.Provider value={value} {...props}/>;
 }

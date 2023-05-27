@@ -44,7 +44,7 @@ export default function ProjectElements(props) {
     archived: false,
     displayIds: true,
     expand: false,
-    collapse: false
+    collapse: false,
   });
   const [refreshFunctions, setRefreshFunction] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
@@ -55,7 +55,7 @@ export default function ProjectElements(props) {
   const setRefreshFunctions = (id, refreshFunction) => {
     setRefreshFunction((prevState) => ({
       ...prevState,
-      [id]: refreshFunction
+      [id]: refreshFunction,
     }));
   };
 
@@ -107,7 +107,7 @@ export default function ProjectElements(props) {
 
     setState((prevState) => {
       const newState = {
-        ...prevState
+        ...prevState,
       };
       // Set new state to opposite of previous value
       newState[checkbox] = !prevState[checkbox];
@@ -115,8 +115,7 @@ export default function ProjectElements(props) {
       // Set collapse to false if expand is checked and vice versa
       if (checkbox === 'expand') {
         newState.collapse = false;
-      }
-      else if (checkbox === 'collapse') {
+      } else if (checkbox === 'collapse') {
         newState.expand = false;
       }
       return newState;
@@ -141,7 +140,6 @@ export default function ProjectElements(props) {
       openElementInfo(elementid);
     }
   }, []);
-
 
   let isButtonDisplayed = false;
   let btnDisClassName = 'workspace-title workspace-title-padding';

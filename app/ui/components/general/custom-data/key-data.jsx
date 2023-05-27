@@ -19,10 +19,10 @@
 
 // React modules
 import React, { Component } from 'react';
+import { decodeHTML } from '../../../js/mbee';
 /* eslint-enable no-unused-vars */
 
 class KeyData extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -31,7 +31,7 @@ class KeyData extends Component {
     this.state = {
       keyName: this.props.keyName,
       data: this.props.data,
-      keyDataDisplay: false
+      keyDataDisplay: false,
     };
 
     // Bind component functions
@@ -62,8 +62,7 @@ class KeyData extends Component {
     // Verify if data is displayed
     if (!this.state.keyDataDisplay) {
       displayIcon = 'plus-square';
-    }
-    else {
+    } else {
       displayIcon = 'minus-square';
     }
 
@@ -78,11 +77,9 @@ class KeyData extends Component {
         if (typeof data === 'object' && data) {
           // Loop through data for recursive call
           nestedData = Object.keys(data).map((key) => nests.push(<KeyData key={`key-${key}`} keyName={key} data={data[key]}/>));
-        }
-        else if (!data) {
+        } else if (!data) {
           nests.push(<span className='last-element'>{'null'}</span>);
-        }
-        else {
+        } else {
           // Display the data
           /* eslint-disable-next-line no-undef */
           nests.push(<span className='last-element'>{decodeHTML(data)}</span>);
@@ -103,11 +100,9 @@ class KeyData extends Component {
       nestedData = (custom)
         ? (<span className='last-element'>true</span>)
         : (<span className='last-element'>false</span>);
-    }
-    else if (!custom) {
+    } else if (!custom) {
       nestedData = (<span className='last-element'>{'null'}</span>);
-    }
-    else {
+    } else {
       /* eslint-disable-next-line no-undef */
       nestedData = (<span className='last-element'>{decodeHTML(custom)}</span>);
     }
@@ -135,7 +130,6 @@ class KeyData extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 export default KeyData;

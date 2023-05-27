@@ -24,14 +24,13 @@ import React, { Component } from 'react';
 
 // Define component
 class StatsList extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      width: null
+      width: null,
     };
 
     // Create reference
@@ -77,7 +76,7 @@ class StatsList extends Component {
       let totalStatsWidth = 0;
 
       // Loop through each stats item
-      statsItems = React.Children.map(this.props.children, child => {
+      statsItems = React.Children.map(this.props.children, (child) => {
         // Initialize stat
         const statWidth = this.state[`stat-${child.props.title}`];
 
@@ -90,12 +89,11 @@ class StatsList extends Component {
           return React.cloneElement(child, { setChildWidth: this.setChildWidth });
         }
       });
-    }
-    else {
+    } else {
       // Loop through stat items
       statsItems = React.Children.map(
         this.props.children,
-        child => React.cloneElement(child, { setChildWidth: this.setChildWidth })
+        (child) => React.cloneElement(child, { setChildWidth: this.setChildWidth }),
       );
     }
 
@@ -109,7 +107,6 @@ class StatsList extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

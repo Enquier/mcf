@@ -30,11 +30,10 @@ const APIController = M.require('controllers.api-controller');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 const filepath = path.join(M.root, '/test/testzip.json');
 let adminUser = null;
 let org = null;
-
 
 /* --------------------( Main )-------------------- */
 /**
@@ -53,8 +52,7 @@ describe(M.getModuleName(module.filename), () => {
       adminUser = await testUtils.createTestAdmin();
       // Create organization
       org = await testUtils.createTestOrg(adminUser);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -72,8 +70,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
       await fs.unlinkSync(filepath);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -102,7 +99,7 @@ function postGzip(done) {
 
   // Initialize the request attributes
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const body = {};
   const method = 'POST';
@@ -110,8 +107,15 @@ function postGzip(done) {
   const headers = 'application/gzip';
 
   // Create a read stream of the zip file and give it request-like attributes
-  const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-    filepath, headers);
+  const req = testUtils.createReadStreamRequest(
+    adminUser,
+    params,
+    body,
+    method,
+    query,
+    filepath,
+    headers,
+  );
   req.headers['accept-encoding'] = 'gzip';
 
   // Set response as empty object
@@ -156,7 +160,7 @@ function putGzip(done) {
 
   // Initialize the request attributes
   const params = {
-    orgid: org._id
+    orgid: org._id,
   };
   const body = {};
   const method = 'PUT';
@@ -164,8 +168,15 @@ function putGzip(done) {
   const headers = 'application/gzip';
 
   // Create a read stream of the zip file and give it request-like attributes
-  const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-    filepath, headers);
+  const req = testUtils.createReadStreamRequest(
+    adminUser,
+    params,
+    body,
+    method,
+    query,
+    filepath,
+    headers,
+  );
   req.headers['accept-encoding'] = 'gzip';
 
   // Set response as empty object
@@ -206,51 +217,58 @@ function patchGzip(done) {
 
   // Create the project to be patched
   ProjectController.create(adminUser, org._id, projectData)
-  .then(() => {
-    projectData.name = 'updated';
+    .then(() => {
+      projectData.name = 'updated';
 
-    // Create a gzip file for testing
-    const zippedData = zlib.gzipSync(JSON.stringify(projectData));
-    fs.appendFileSync((filepath), zippedData);
+      // Create a gzip file for testing
+      const zippedData = zlib.gzipSync(JSON.stringify(projectData));
+      fs.appendFileSync((filepath), zippedData);
 
-    // Initialize the request attributes
-    const params = {
-      orgid: org._id
-    };
-    const body = {};
-    const method = 'PATCH';
-    const query = {};
-    const headers = 'application/gzip';
+      // Initialize the request attributes
+      const params = {
+        orgid: org._id,
+      };
+      const body = {};
+      const method = 'PATCH';
+      const query = {};
+      const headers = 'application/gzip';
 
-    // Create a read stream of the zip file and give it request-like attributes
-    const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-      filepath, headers);
-    req.headers['accept-encoding'] = 'gzip';
+      // Create a read stream of the zip file and give it request-like attributes
+      const req = testUtils.createReadStreamRequest(
+        adminUser,
+        params,
+        body,
+        method,
+        query,
+        filepath,
+        headers,
+      );
+      req.headers['accept-encoding'] = 'gzip';
 
-    // Set response as empty object
-    const res = {};
+      // Set response as empty object
+      const res = {};
 
-    // Verifies status code and headers
-    testUtils.createResponse(res);
+      // Verifies status code and headers
+      testUtils.createResponse(res);
 
-    // Verifies the response data
-    res.send = function send(_data) {
+      // Verifies the response data
+      res.send = function send(_data) {
       // Verify response body
-      const updatedProjects = JSON.parse(_data);
-      const updatedProject = updatedProjects[0];
+        const updatedProjects = JSON.parse(_data);
+        const updatedProject = updatedProjects[0];
 
-      // Verify project updated properly
-      chai.expect(updatedProject.id).to.equal(projectData.id);
-      chai.expect(updatedProject.name).to.equal(projectData.name);
-      chai.expect(updatedProject.custom || {}).to.deep.equal(projectData.custom);
+        // Verify project updated properly
+        chai.expect(updatedProject.id).to.equal(projectData.id);
+        chai.expect(updatedProject.name).to.equal(projectData.name);
+        chai.expect(updatedProject.custom || {}).to.deep.equal(projectData.custom);
 
-      // Clear the data used for testing
-      fs.truncateSync(filepath);
+        // Clear the data used for testing
+        fs.truncateSync(filepath);
 
-      done();
-    };
+        done();
+      };
 
-    // PATCH a project
-    APIController.patchProjects(req, res, next(req, res));
-  });
+      // PATCH a project
+      APIController.patchProjects(req, res, next(req, res));
+    });
 }

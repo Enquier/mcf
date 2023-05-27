@@ -37,7 +37,7 @@ function ElementProvider(props) {
     elementID,
     setElementID,
     providedElement,
-    setProvidedElement
+    setProvidedElement,
   };
 
   return <elementContext.Provider value={value} {...props}/>;

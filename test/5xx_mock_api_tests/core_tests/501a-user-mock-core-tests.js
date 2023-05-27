@@ -27,7 +27,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -44,8 +44,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -58,8 +57,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -177,7 +175,7 @@ function postUsers(done) {
   // Create request object
   const userData = [
     testData.users[1],
-    testData.users[2]
+    testData.users[2],
   ];
   const params = {};
   const method = 'POST';
@@ -288,7 +286,7 @@ function putUsers(done) {
   const userData = [
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
   const params = {};
   const method = 'PUT';
@@ -399,9 +397,9 @@ function getUsers(done) {
   const userData = [
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
-  const usernames = userData.map(u => u.username);
+  const usernames = userData.map((u) => u.username);
   const params = {};
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, usernames, method);
@@ -464,7 +462,7 @@ function getAllUsers(done) {
     testData.users[0],
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
   const params = {};
   const method = 'GET';
@@ -536,7 +534,7 @@ function searchUsers(done) {
     testData.users[0],
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
   const params = {};
   const body = [];
@@ -603,7 +601,7 @@ function patchUser(done) {
   const userData = testData.users[0];
   const updateObj = {
     username: userData.username,
-    fname: 'Updated First Name'
+    fname: 'Updated First Name',
   };
   const params = { username: userData.username };
   const method = 'PATCH';
@@ -656,11 +654,11 @@ function patchUsers(done) {
   const userData = [
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
-  const updateObj = userData.map(u => ({
+  const updateObj = userData.map((u) => ({
     username: u.username,
-    fname: 'Updated First Name'
+    fname: 'Updated First Name',
   }));
   const params = {};
   const method = 'PATCH';
@@ -724,7 +722,7 @@ function patchOwnPassword(done) {
   const body = {
     password: 'NewPass1234?',
     confirmPassword: 'NewPass1234?',
-    oldPassword: userData.password
+    oldPassword: userData.password,
   };
   const params = { username: userData.username };
   const method = 'PATCH';
@@ -814,14 +812,14 @@ function deleteUsers(done) {
   const userData = [
     testData.users[1],
     testData.users[2],
-    testData.users[3]
+    testData.users[3],
   ];
 
-  const userIDs = userData.map(u => u.username);
+  const userIDs = userData.map((u) => u.username);
   const ids = userIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
 
   const params = {};
   const method = 'DELETE';

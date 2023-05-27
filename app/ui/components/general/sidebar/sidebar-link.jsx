@@ -43,7 +43,8 @@ function SidebarLink(props) {
                                target={props.id}
                                delay={{
                                  show: 0,
-                                 hide: 0 }}
+                                 hide: 0,
+                               }}
                                boundariesElement='viewport'>
               {props.tooltip || props.title}
           </UncontrolledTooltip>

@@ -26,7 +26,7 @@ const jmi = M.require('lib.jmi-conversions');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org = null;
 let proj = null;
@@ -49,8 +49,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       proj = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -66,8 +65,7 @@ describe(M.getModuleName(module.filename), () => {
       // Note: Projects under organization will also be removed
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -99,7 +97,7 @@ function postBranch(done) {
   const params = {
     orgid: org._id,
     projectid: projID,
-    branchid: branchData.id
+    branchid: branchData.id,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -130,8 +128,12 @@ function postBranch(done) {
     chai.expect(createdBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(createdBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -155,12 +157,12 @@ function postBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   const params = {
     orgid: org._id,
-    projectid: projID
+    projectid: projID,
   };
   const method = 'POST';
   const req = testUtils.createRequest(adminUser, params, branchData, method);
@@ -199,8 +201,12 @@ function postBranches(done) {
       chai.expect(createdBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdBranch).to.not.have.any.keys('archivedOn',
-        'archivedBy', '__v', '_id');
+      chai.expect(createdBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -225,7 +231,7 @@ function getBranch(done) {
   const params = {
     orgid: org._id,
     projectid: projID,
-    branchid: branchData.id
+    branchid: branchData.id,
   };
   const method = 'GET';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -256,8 +262,12 @@ function getBranch(done) {
     chai.expect(foundBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(foundBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -280,7 +290,7 @@ function getBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create request object
@@ -323,8 +333,12 @@ function getBranches(done) {
       chai.expect(foundBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -350,7 +364,7 @@ function getAllBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create request object
@@ -395,8 +409,12 @@ function getAllBranches(done) {
       chai.expect(foundBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -419,13 +437,13 @@ function patchBranch(done) {
   // Create updated branch object
   const updateObj = {
     id: branchData.id,
-    name: `${branchData.name}_edit`
+    name: `${branchData.name}_edit`,
   };
 
   const params = {
     orgid: org._id,
     projectid: projID,
-    branchid: testData.branches[1].id
+    branchid: testData.branches[1].id,
   };
   const method = 'PATCH';
   const req = testUtils.createRequest(adminUser, params, updateObj, method);
@@ -456,8 +474,12 @@ function patchBranch(done) {
     chai.expect(updatedBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
+    chai.expect(updatedBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);
@@ -481,13 +503,13 @@ function patchBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
 
   // Create objects to update branches
-  const arrUpdateObjects = branchData.map(b => ({
+  const arrUpdateObjects = branchData.map((b) => ({
     name: `${b.name}_edit`,
-    id: b.id
+    id: b.id,
   }));
 
   const params = { orgid: org._id, projectid: projID };
@@ -529,8 +551,12 @@ function patchBranches(done) {
       chai.expect(updatedBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedBranch).to.not.have.any.keys('archivedOn',
-        'archivedBy', '__v', '_id');
+      chai.expect(updatedBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
 
     // Expect the statusCode to be 200
@@ -554,7 +580,7 @@ function deleteBranch(done) {
   const params = {
     orgid: org._id,
     projectid: projID,
-    branchid: testData.branches[1].id
+    branchid: testData.branches[1].id,
   };
   const method = 'DELETE';
   const req = testUtils.createRequest(adminUser, params, body, method);
@@ -592,13 +618,13 @@ function deleteBranches(done) {
     testData.branches[3],
     testData.branches[4],
     testData.branches[5],
-    testData.branches[6]
+    testData.branches[6],
   ];
-  const branchIDs = branchData.map(b => b.id);
+  const branchIDs = branchData.map((b) => b.id);
   const ids = branchIDs.join(',');
 
   const body = {};
-  const query = { ids: ids };
+  const query = { ids };
 
   const params = { orgid: org._id, projectid: projID };
   const method = 'DELETE';
@@ -613,7 +639,7 @@ function deleteBranches(done) {
   // Verifies the response data
   res.send = function send(_data) {
     const arrDeletedBranchIDs = JSON.parse(_data);
-    chai.expect(arrDeletedBranchIDs).to.have.members(branchData.map(b => b.id));
+    chai.expect(arrDeletedBranchIDs).to.have.members(branchData.map((b) => b.id));
 
     // Expect the statusCode to be 200
     chai.expect(res.statusCode).to.equal(200);

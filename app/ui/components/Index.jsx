@@ -18,6 +18,21 @@
 
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
+/* eslint-disable import/no-extraneous-dependencies */
+
+// CSS Import
+import '../sass/styles.scss';
+
+// Resource Files
+import '../img/logo.svg';
+import '../img/mbee-concept.png';
+
+// Other Dependent Resources
+
+import 'bootstrap';
+import 'jquery';
+import 'jquery-ui-dist/jquery-ui';
+import 'popper.js';
 
 // React modules
 import React from 'react';
@@ -25,9 +40,8 @@ import ReactDOM from 'react-dom';
 
 // MBEE modules
 import App from './app/App.jsx';
-import { AuthProvider } from './context/AuthProvider.js';
+import { AuthProvider } from './context/AuthProvider';
 import { ApiClientProvider } from './context/ApiClientProvider';
-
 
 ReactDOM.render(
   <AuthProvider>
@@ -35,5 +49,5 @@ ReactDOM.render(
       <App/>
     </ApiClientProvider>
   </AuthProvider>,
-  document.getElementById('main')
+  document.getElementById('main'),
 );

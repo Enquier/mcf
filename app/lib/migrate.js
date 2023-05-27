@@ -38,7 +38,7 @@ const db = M.require('db');
  *
  * @returns {Promise} Resolves an empty promise upon completion.
  */
-module.exports.migrate = async function(args) {
+module.exports.migrate = async function (args) {
   try {
     // Set fromVersion to earliest version
     let fromVersion = '0.6.0';
@@ -77,14 +77,12 @@ module.exports.migrate = async function(args) {
     // Run the migrations
     await runMigrations(knownVersions.slice(knownVersions.indexOf(fromVersion) + 1));
     M.log.info('DATABASE MIGRATION COMPLETE.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.debug(error);
     M.log.warn('Database migration failed. See debug log for more details.');
     throw error;
   }
 };
-
 
 /**
  * @description Prompts the user for approval to migrate the database.
@@ -126,8 +124,14 @@ async function runMigrations(versions) {
     // For each version to migrate
     for (let i = 0; i < versions.length; i++) {
       const migrationPath = path.join(M.root, 'scripts', 'migrations', `${versions[i]}.js`);
-      const strategyMigrationPath = path.join(M.root, 'app', 'db',
-        M.config.db.strategy, 'migrations', `${versions[i]}.js`);
+      const strategyMigrationPath = path.join(
+        M.root,
+        'app',
+        'db',
+        M.config.db.strategy,
+        'migrations',
+        `${versions[i]}.js`,
+      );
 
       // If a base migration exists
       if (fs.existsSync(migrationPath)) {
@@ -156,8 +160,7 @@ async function runMigrations(versions) {
       await ServerData.insertMany([{ _id: 'server_data', version: versions[i] }]); // eslint-disable-line
       M.log.info(`Upgraded to version ${versions[i]}.`);
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
 }
@@ -168,7 +171,7 @@ async function runMigrations(versions) {
  *
  * @returns {Promise} Resolves an empty promise upon completion.
  */
-module.exports.getVersion = async function() {
+module.exports.getVersion = async function () {
   try {
     // Get all documents from the server data
     const serverData = await ServerData.find({}, null);
@@ -196,26 +199,24 @@ module.exports.getVersion = async function() {
         return this.migrate([]);
       }
       // No documents in the database... Assume first time running.
-      else {
-        // Clear the database to ensure any old indexes are removed
-        await db.clear();
 
-        // Re-initialize models
-        await Promise.all([Artifact.init(), Branch.init(), Element.init(),
-          Organization.init(), Project.init(), ServerData.init(), User.init(),
-          Webhook.init()]);
+      // Clear the database to ensure any old indexes are removed
+      await db.clear();
 
-        // Insert server data document, with current schema version
-        await ServerData.insertMany({ _id: 'server_data', version: M.version });
-      }
+      // Re-initialize models
+      await Promise.all([Artifact.init(), Branch.init(), Element.init(),
+        Organization.init(), Project.init(), ServerData.init(), User.init(),
+        Webhook.init()]);
+
+      // Insert server data document, with current schema version
+      await ServerData.insertMany({ _id: 'server_data', version: M.version });
     }
     // One document exists, read and compare versions
     else if (serverData[0].version !== M.version) {
       throw new Error('Please run \'node mbee migrate\' to migrate the '
         + 'database.');
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
 };

@@ -18,7 +18,6 @@
 /* eslint-disable jsdoc/require-description-complete-sentence */
 // Disabled to allow lists in descriptions
 
-
 // Node modules
 const assert = require('assert');
 const fs = require('fs');
@@ -50,7 +49,7 @@ const mineTypeTable = {
   tar: 'application/x-tar',
   xml: 'application/xml',
   yaml: 'text/yaml',
-  zip: 'application/zip'
+  zip: 'application/zip',
 };
 
 /**
@@ -61,7 +60,7 @@ module.exports.timeConversions = {
   SECONDS: 1000,
   MINUTES: 60 * 1000,
   HOURS: 60 * 60 * 1000,
-  DAYS: 24 * 60 * 60 * 1000
+  DAYS: 24 * 60 * 60 * 1000,
 };
 
 /**
@@ -82,7 +81,7 @@ module.exports.ID_DELIMITER = ':';
  *
  * @returns {Function} Returns the response render function with the name and options.
  */
-module.exports.render = function(req, res, name, params) {
+module.exports.render = function (req, res, name, params) {
   const opts = params || {};
   opts.pluginNames = (M.config.server.plugins.enabled)
     ? require(path.join(M.root, 'plugins', 'routes.js')).loadedPlugins : []; // eslint-disable-line global-require
@@ -101,9 +100,9 @@ module.exports.render = function(req, res, name, params) {
  *
  * @returns {string} Concatenated args with uid delimiter.
  */
-module.exports.createID = function(...args) {
+module.exports.createID = function (...args) {
   // If passed in an array of strings, set equal to args
-  if (Array.isArray(args[0]) && args[0].every(e => typeof e === 'string')) {
+  if (Array.isArray(args[0]) && args[0].every((e) => typeof e === 'string')) {
     args = args[0]; // eslint-disable-line
   }
 
@@ -125,7 +124,7 @@ module.exports.createID = function(...args) {
  *
  * @returns {string[]} Split uid.
  */
-module.exports.parseID = function(uid) {
+module.exports.parseID = function (uid) {
   return uid.split(this.ID_DELIMITER);
 };
 
@@ -138,7 +137,7 @@ module.exports.parseID = function(uid) {
  *
  * @returns {string} The title-cased word.
  */
-module.exports.toTitleCase = function(s, keepUpper = false) {
+module.exports.toTitleCase = function (s, keepUpper = false) {
   // Check if s NOT string or contains whitespace
   if (typeof s !== 'string') {
     // Cannot be title-cased, return word
@@ -146,7 +145,7 @@ module.exports.toTitleCase = function(s, keepUpper = false) {
   }
 
   let words = s.split(' ');
-  words = words.map(word => {
+  words = words.map((word) => {
     // Define title-cased string
     let titleCasedString = '';
 
@@ -158,7 +157,6 @@ module.exports.toTitleCase = function(s, keepUpper = false) {
       // Lower-case ith character, append to titleCasedString
       titleCasedString += (keepUpper) ? word[i] : word[i].toLowerCase();
     }
-
 
     return titleCasedString;
   });
@@ -175,12 +173,11 @@ module.exports.toTitleCase = function(s, keepUpper = false) {
  *
  * @returns {boolean} Returns whether the parameters do or do not share deep equality.
  */
-module.exports.deepEqual = function(a, b) {
+module.exports.deepEqual = function (a, b) {
   try {
     assert.deepEqual(a, b, 'The objects are not equal');
     return true;
-  }
-  catch (error) {
+  } catch (error) {
     return false;
   }
 };
@@ -200,7 +197,7 @@ module.exports.deepEqual = function(a, b) {
  *
  * @returns {object} Returns the parsed options object.
  */
-module.exports.parseOptions = function(options, validOptions) {
+module.exports.parseOptions = function (options, validOptions) {
   // Check option is defined
   if (!options) {
     // No options, return empty object
@@ -208,7 +205,7 @@ module.exports.parseOptions = function(options, validOptions) {
   }
 
   // Loop through all options
-  Object.keys(options).forEach(function(key) {
+  Object.keys(options).forEach((key) => {
     // Check options are valid
     if (!validOptions.hasOwnProperty(key)) {
       // Invalid key, throw error
@@ -225,11 +222,9 @@ module.exports.parseOptions = function(options, validOptions) {
       // Check and convert string to boolean
       if (options[option] === 'true' || options[option] === true) {
         parsedOptions[option] = true;
-      }
-      else if (options[option] === 'false' || options[option] === false) {
+      } else if (options[option] === 'false' || options[option] === false) {
         parsedOptions[option] = false;
-      }
-      else if (!(typeof options[option] === 'boolean')) {
+      } else if (!(typeof options[option] === 'boolean')) {
         throw new M.DataFormatError(`Option ${option} is not a boolean`, 'warn');
       }
     }
@@ -238,21 +233,17 @@ module.exports.parseOptions = function(options, validOptions) {
       if (options[option].includes(',')) {
         // Multiple options, split into array
         parsedOptions[option] = options[option].split(',');
-      }
-      else {
+      } else {
         // Set single option within array
         parsedOptions[option] = [options[option]];
       }
-    }
-    else if (validOptions[option] === 'string') {
+    } else if (validOptions[option] === 'string') {
       parsedOptions[option] = options[option];
-    }
-    else if (validOptions[option] === 'number') {
+    } else if (validOptions[option] === 'number') {
       const number = parseInt(options[option], 10);
       if (isNaN(number)) { // eslint-disable-line no-restricted-globals
         throw new M.DataFormatError(`${options[option]} is not a number`, 'warn');
-      }
-      else {
+      } else {
         parsedOptions[option] = number;
       }
     }
@@ -274,7 +265,7 @@ module.exports.parseOptions = function(options, validOptions) {
  * @returns {object} An object with key/value pairs formatted for use by the
  * controllers.
  */
-module.exports.validateOptions = function(options, validOptions, model) {
+module.exports.validateOptions = function (options, validOptions, model) {
   // Initialize the object to be returned to the user
   const validatedOptions = { populateString: '' };
 
@@ -328,7 +319,7 @@ module.exports.validateOptions = function(options, validOptions, model) {
       return;
     }
     // If the option is not valid for the calling function
-    else if (!validOptions.includes(opt)) {
+    if (!validOptions.includes(opt)) {
       throw new M.DataFormatError(`Invalid option [${opt}].`, 'warn');
     }
 
@@ -339,10 +330,8 @@ module.exports.validateOptions = function(options, validOptions, model) {
         throw new M.DataFormatError('The option \'populate\' is not an array.', 'warn');
       }
       // Ensure every item in val is a string
-      if (!val.every(o => typeof o === 'string')) {
-        throw new M.DataFormatError(
-          'Every value in the populate array must be a string.', 'warn'
-        );
+      if (!val.every((o) => typeof o === 'string')) {
+        throw new M.DataFormatError('Every value in the populate array must be a string.', 'warn');
       }
 
       // Ensure each field is able to be populated
@@ -421,21 +410,19 @@ module.exports.validateOptions = function(options, validOptions, model) {
         throw new M.DataFormatError('The option \'fields\' is not an array.', 'warn');
       }
       // Ensure every item in the array is a string
-      if (!val.every(o => typeof o === 'string')) {
-        throw new M.DataFormatError(
-          'Every value in the fields array must be a string.', 'warn'
-        );
+      if (!val.every((o) => typeof o === 'string')) {
+        throw new M.DataFormatError('Every value in the fields array must be a string.', 'warn');
       }
 
       // If -_id in array remove it, that field MUST be returned
-      val = val.filter(field => field !== '-_id');
+      val = val.filter((field) => field !== '-_id');
 
       // Set the fieldsString option in the returnObject
       validatedOptions.fieldsString = val.join(' ');
 
       // Handle special case for element virtuals
       if (model.modelName === 'Element') {
-        const notSpecifiedVirtuals = requiredElementFields.filter(e => !val.includes(e));
+        const notSpecifiedVirtuals = requiredElementFields.filter((e) => !val.includes(e));
 
         // For each virtual not specified in fields
         notSpecifiedVirtuals.forEach((virt) => {
@@ -513,7 +500,7 @@ module.exports.validateOptions = function(options, validOptions, model) {
  *
  * @returns {Promise<Buffer>} A promise containing the unzipped data.
  */
-module.exports.handleGzip = function(dataStream) {
+module.exports.handleGzip = function (dataStream) {
   // Create the promise to return
   return new Promise((resolve, reject) => {
     // We receive the data in chunks so we want to collect the entire file before trying to unzip
@@ -546,7 +533,7 @@ module.exports.handleGzip = function(dataStream) {
  *
  * @returns {string} - The content type of the file.
  */
-module.exports.getContentType = function(filename) {
+module.exports.getContentType = function (filename) {
   // Initialize content type
   let contentType = 'application/octet-stream';
 
@@ -572,7 +559,7 @@ module.exports.getContentType = function(filename) {
  *
  * @returns {boolean} If the file is safe to read or not.
  */
-module.exports.readFileCheck = function(filePath) {
+module.exports.readFileCheck = function (filePath) {
   // Check that the file exists
   if (fs.existsSync(filePath)) {
     // Get the size of the file, in bytes
@@ -586,10 +573,9 @@ module.exports.readFileCheck = function(filePath) {
     // If within 95% of memory limit, file is NOT safe to read
     return !(totalHeapUsage / 1024 / 1024 >= M.memoryLimit * 0.95);
   }
-  else {
-    // File does not exist, not safe to read
-    return false;
-  }
+
+  // File does not exist, not safe to read
+  return false;
 };
 
 /**
@@ -604,13 +590,18 @@ module.exports.readFileCheck = function(filePath) {
  * @param {string} [contentType="application/json"] - The content type for
  * the response.
  */
-module.exports.formatResponse = function formatResponse(req, res, message, statusCode,
-  next = null, contentType = 'application/json') {
+module.exports.formatResponse = function formatResponse(
+  req,
+  res,
+  message,
+  statusCode,
+  next = null,
+  contentType = 'application/json',
+) {
   if (statusCode === 200) {
     // We send these headers for a success response
     res.header('Content-Type', contentType);
-  }
-  else {
+  } else {
     // We send these headers for an error response
     res.header('Content-Type', 'text/plain');
   }
@@ -647,12 +638,12 @@ module.exports.parseRequestIDs = function parseRequestIDs(req, options, users = 
     ids = options.ids;
   }
   // If req.body contains array of IDs
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     ids = req.body;
   }
   // If req.body contains objects, grab the IDs from the objects
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    ids = req.body.map(id => id[field]);
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    ids = req.body.map((id) => id[field]);
   }
 
   return ids;

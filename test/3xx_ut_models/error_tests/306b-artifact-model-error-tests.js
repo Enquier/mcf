@@ -61,7 +61,7 @@ describe(M.getModuleName(module.filename), () => {
  * @description Attempts to create an artifact with an id that is too short.
  */
 async function idTooShort() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -82,7 +82,7 @@ async function idTooShort() {
  * @description Attempts to create an artifact with an id that is too long.
  */
 async function idTooLong() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -107,7 +107,7 @@ async function idTooLong() {
  * @description Attempts to create an artifact with no id.
  */
 async function idNotProvided() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -128,7 +128,7 @@ async function invalidID() {
       + ' validator.');
     this.skip();
   }
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -147,7 +147,7 @@ async function invalidID() {
  * @description Attempts to create an artifact with no project.
  */
 async function projectNotProvided() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -169,7 +169,7 @@ async function projectInvalid() {
     this.skip();
   }
 
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.branch = 'org:proj:branch';
   artData.location = 'org:proj:branch:model';
@@ -182,7 +182,7 @@ async function projectInvalid() {
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
     `Artifact validation failed: project: ${artData.project} is not a valid `
-    + 'project ID.'
+    + 'project ID.',
   );
 }
 
@@ -190,7 +190,7 @@ async function projectInvalid() {
  * @description Attempts to create an artifact with no branch.
  */
 async function branchNotProvided() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.location = 'org:proj:branch:model';
@@ -212,7 +212,7 @@ async function branchInvalid() {
     this.skip();
   }
 
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.location = 'org:proj:branch:model';
@@ -225,7 +225,7 @@ async function branchInvalid() {
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
     `Artifact validation failed: branch: ${artData.branch} is not a valid `
-    + 'branch ID.'
+    + 'branch ID.',
   );
 }
 
@@ -233,7 +233,7 @@ async function branchInvalid() {
  * @description Attempts to create an artifact with an invalid location.
  */
 async function locationInvalid() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
@@ -246,7 +246,7 @@ async function locationInvalid() {
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
     'Artifact validation failed: location: Artifact location '
-    + `[${artData.location}] is improperly formatted.`
+    + `[${artData.location}] is improperly formatted.`,
   );
 }
 
@@ -254,7 +254,7 @@ async function locationInvalid() {
  * @description Attempts to create an artifact with an invalid filename.
  */
 async function filenameInvalid() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
@@ -268,7 +268,7 @@ async function filenameInvalid() {
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
     'Artifact validation failed: filename: Artifact filename'
-     + ` [${artData.filename}] is improperly formatted.`
+     + ` [${artData.filename}] is improperly formatted.`,
   );
 }
 
@@ -277,7 +277,7 @@ async function filenameInvalid() {
  * filename but no location.
  */
 async function filenameWithNoLocation() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
@@ -288,7 +288,7 @@ async function filenameWithNoLocation() {
 
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
-    'Artifact validation failed: location: Path `location` is required.'
+    'Artifact validation failed: location: Path `location` is required.',
   );
 }
 /**
@@ -296,7 +296,7 @@ async function filenameWithNoLocation() {
  * but no filename.
  */
 async function locationWithNofilename() {
-  const artData = Object.assign({}, testData.artifacts[0]);
+  const artData = { ...testData.artifacts[0] };
   artData._id = `org:proj:branch:${artData.id}`;
   artData.project = 'org:proj';
   artData.branch = 'org:proj:branch';
@@ -307,6 +307,6 @@ async function locationWithNofilename() {
 
   // Expect insertMany() to fail with specific error message
   await Artifact.insertMany(artData).should.eventually.be.rejectedWith(
-    'Artifact validation failed: filename: Path `filename` is required.'
+    'Artifact validation failed: filename: Path `filename` is required.',
   );
 }

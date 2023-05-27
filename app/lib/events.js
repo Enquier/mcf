@@ -17,6 +17,7 @@
 
 // Node modules
 const EventEmitter = require('events');
+
 const Webhook = M.require('models.webhook');
 
 /**
@@ -24,7 +25,6 @@ const Webhook = M.require('models.webhook');
  * emitter and overrides the built in emit() function.
  */
 class CustomEmitter extends EventEmitter {
-
   /**
    * @description Overrides the events 'emit' class. On emit, finds all webhooks
    * that contain that event, and calls Webhook.sendRequests().
@@ -42,8 +42,7 @@ class CustomEmitter extends EventEmitter {
         // Send the request with the provided arguments.
         Webhook.sendRequest(webhook, args);
       });
-    }
-    catch (error) {
+    } catch (error) {
       // Failed to find webhooks, no webhooks will be triggered
       M.log.error('Failed to find webhooks');
       M.log.error(error);
@@ -51,7 +50,6 @@ class CustomEmitter extends EventEmitter {
     // Run the normal EventEmitter.emit() function
     super.emit(event, args);
   }
-
 }
 
 // Create instance of CustomEmitter

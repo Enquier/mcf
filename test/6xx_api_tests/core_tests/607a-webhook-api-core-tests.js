@@ -29,7 +29,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const test = M.config.test;
+const { test } = M.config;
 let adminUser = null;
 const webhookIDs = [];
 
@@ -47,8 +47,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -63,8 +62,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await Webhook.deleteMany({ _id: { $in: webhookIDs } });
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -99,7 +97,7 @@ async function postWebhooks() {
       method: 'post',
       url: `${test.url}/api/webhooks`,
       headers: testUtils.getHeaders(),
-      data: webhookData
+      data: webhookData,
     };
 
     // Make an API request
@@ -125,8 +123,7 @@ async function postWebhooks() {
       chai.expect(createdWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (createdWebhook.type === 'Outgoing') {
         chai.expect(createdWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(createdWebhook.token).to.equal(token);
         chai.expect(createdWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -141,14 +138,17 @@ async function postWebhooks() {
       chai.expect(createdWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
 
       // Save webhook id for later use
       webhookDataObj.id = createdWebhook.id;
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -165,7 +165,7 @@ async function getWebhook() {
       method: 'get',
       url: `${test.url}/api/webhooks/${webhookData.id}`,
       headers: testUtils.getHeaders(),
-      data: null
+      data: null,
     };
 
     // Make an API request
@@ -189,10 +189,13 @@ async function getWebhook() {
     chai.expect(foundWebhook.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(foundWebhook).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -210,8 +213,8 @@ async function getWebhooks() {
       url: `${test.url}/api/webhooks`,
       headers: testUtils.getHeaders(),
       params: {
-        ids: webhookData.map(w => w.id).toString()
-      }
+        ids: webhookData.map((w) => w.id).toString(),
+      },
     };
 
     // Make an API request
@@ -237,8 +240,7 @@ async function getWebhooks() {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -252,11 +254,14 @@ async function getWebhooks() {
       chai.expect(foundWebhook.updatedOn).to.not.equal(null);
 
       // Verify specific fields not returned
-      chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -273,7 +278,7 @@ async function getAllWebhooks() {
       method: 'get',
       url: `${test.url}/api/webhooks`,
       headers: testUtils.getHeaders(),
-      data: null
+      data: null,
     };
 
     // Make an API request
@@ -299,8 +304,7 @@ async function getAllWebhooks() {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -314,11 +318,14 @@ async function getAllWebhooks() {
       chai.expect(foundWebhook.updatedOn).to.not.equal(null);
 
       // Verify specific fields not returned
-      chai.expect(foundWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -333,13 +340,13 @@ async function patchWebhook() {
     const webhookData = testData.webhooks[0];
     const webhookUpdate = {
       id: webhookData.id,
-      name: 'test update'
+      name: 'test update',
     };
     const options = {
       method: 'patch',
       url: `${test.url}/api/webhooks/${webhookData.id}`,
       headers: testUtils.getHeaders(),
-      data: webhookUpdate
+      data: webhookUpdate,
     };
 
     // Make an API request
@@ -363,10 +370,13 @@ async function patchWebhook() {
     chai.expect(updatedWebhook.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(updatedWebhook).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -381,16 +391,16 @@ async function patchWebhooks() {
     const webhookData = testData.webhooks.slice(1, 3);
     const webhookUpdate = [{
       id: webhookData[0].id,
-      name: 'test update'
+      name: 'test update',
     }, {
       id: webhookData[1].id,
-      name: 'test update'
+      name: 'test update',
     }];
     const options = {
       method: 'patch',
       url: `${test.url}/api/webhooks`,
       headers: testUtils.getHeaders(),
-      data: webhookUpdate
+      data: webhookUpdate,
     };
 
     // Make an API request
@@ -414,8 +424,7 @@ async function patchWebhooks() {
       chai.expect(updatedWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (updatedWebhook.type === 'Outgoing') {
         chai.expect(updatedWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(updatedWebhook.token).to.equal(token);
         chai.expect(updatedWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -430,11 +439,14 @@ async function patchWebhooks() {
       chai.expect(updatedWebhook.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedWebhook).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(updatedWebhook).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -451,7 +463,7 @@ async function deleteWebhook() {
       method: 'delete',
       url: `${test.url}/api/webhooks/${deleteID}`,
       headers: testUtils.getHeaders(),
-      body: null
+      body: null,
     };
 
     // Make an API request
@@ -463,8 +475,7 @@ async function deleteWebhook() {
     const deletedWebhooks = res.data;
     chai.expect(deletedWebhooks.length).to.equal(1);
     chai.expect(deletedWebhooks[0]).to.equal(deleteID);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -481,7 +492,7 @@ async function deleteWebhooks() {
     const options = {
       method: 'delete',
       url: `${test.url}/api/webhooks?ids=${ids}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -493,8 +504,7 @@ async function deleteWebhooks() {
     const deletedWebhooks = res.data;
     chai.expect(deletedWebhooks.length).to.equal(2);
     chai.expect(deletedWebhooks).to.have.members(deleteIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -511,8 +521,8 @@ async function triggerWebhook() {
     delete webhookData.id;
     const body = {
       test: {
-        token: Buffer.from(`${adminUser._id}:test token`).toString('base64')
-      }
+        token: Buffer.from(`${adminUser._id}:test token`).toString('base64'),
+      },
     };
 
     // Note: registering a listener here would not work because the event occurs on a
@@ -529,7 +539,7 @@ async function triggerWebhook() {
       method: 'post',
       url: `${test.url}/api/webhooks/trigger/${encodedID}`,
       headers: testUtils.getHeaders(),
-      data: body
+      data: body,
     };
 
     // Make an API request
@@ -537,8 +547,7 @@ async function triggerWebhook() {
 
     // Expect response status: 200 OK
     chai.expect(res.status).to.equal(200);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

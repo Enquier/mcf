@@ -34,11 +34,11 @@ import Create from '../shared-views/create.jsx';
 // Define function
 function OrganizationProjects(props) {
   // Initialize variables
-  const org = props.org;
+  const { org } = props;
   const listItems = [];
-  org.projects.forEach(project => {
+  org.projects.forEach((project) => {
     if (!props.user.admin) {
-      const username = props.user.username;
+      const { username } = props.user;
       const perm = project.permissions[username];
       if (perm === 'admin'
         || (!project.archived && (perm === 'write' || perm === 'read' || project.visibility === 'internal'))) {
@@ -48,8 +48,7 @@ function OrganizationProjects(props) {
                         </Link>
                       </ListItem>);
       }
-    }
-    else {
+    } else {
       const className = project.archived ? 'grayed-out' : '';
       listItems.push(<ListItem key={`proj-key-${project.id}`} className='proj-org-header'>
                       <Link to={`/orgs/${org.id}/projects/${project.id}/branches/master/elements`} className={className}>

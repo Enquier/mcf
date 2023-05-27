@@ -39,7 +39,6 @@ const spdy = require('spdy');
 const app = M.require('app');
 const startup = M.require('lib.startup');
 
-
 /**
  * @description Starts the MBEE server using the configuration file.
  *
@@ -52,7 +51,11 @@ function start(args) {
   startup(); // Print startup banner
 
   // Create command to check if dependencies are up-to-date
-  let cmd = 'yarn check --verify-tree';
+  let cmd = 'yarn install --check-files';
+  const preInstall = process.env.NOPREINSTALL;
+  const postInstall = process.env.NOPOSTINSTALL;
+  process.env.NOPREINSTALL = '1';
+  process.env.NOPOSTINSTALL = '1';
   if (process.env.NODE_ENV === 'production') {
     cmd += ' --production';
   }
@@ -60,14 +63,15 @@ function start(args) {
   try {
     // Run the command
     execSync(cmd);
-  }
-  catch (error) {
+  } catch (error) {
     // If failed, warn user and exit
     M.log.warn('Dependencies out of date! Please run \'yarn install\' or \'npm'
       + ' install\' to update the dependencies.');
     process.exit(1);
+  } finally {
+    process.env.NOPREINSTALL = preInstall;
+    process.env.NOPOSTINSTALL = postInstall;
   }
-
 
   // Initialize httpServer and http2Server objects
   let httpServer = null;
@@ -84,13 +88,12 @@ function start(args) {
         const redirectApp = express();
         redirectApp.use('*', (req, res) => {
           const host = req.hostname;
-          const port = M.config.server.https.port;
+          const { port } = M.config.server.https;
           const originalRoute = req.originalUrl;
           res.redirect(`https://${host}:${port}${originalRoute}`);
         });
         httpServer = http.createServer(redirectApp);
-      }
-      else {
+      } else {
         // Warn the user that says HTTPS redirect is enabled but HTTPS is disabled.
         M.log.warn('HTTPS redirect is enabled but HTTPS is disabled.'
           + '  Continuing with HTTP instead.');
@@ -120,7 +123,7 @@ function start(args) {
     const options = {
       key: privateKey,
       cert: certificate,
-      protocol: ['h2']
+      protocol: ['h2'],
     };
     http2Server = spdy.createServer(options, app);
 
@@ -133,7 +136,7 @@ function start(args) {
   // Run HTTP Server
   if (M.config.server.http.enabled) {
     httpServer.listen(M.config.server.http.port, () => {
-      const port = M.config.server.http.port;
+      const { port } = M.config.server.http;
       M.log.info(`MBEE server listening on port ${port}!`);
     });
   }
@@ -141,7 +144,7 @@ function start(args) {
   // Run HTTP/2 Server
   if (M.config.server.https.enabled) {
     http2Server.listen(M.config.server.https.port, () => {
-      const port = M.config.server.https.port;
+      const { port } = M.config.server.https;
       M.log.info(`MBEE server listening on port ${port}!`);
     });
   }

@@ -55,7 +55,7 @@ module.exports = {
   updateArtifact,
   updateWebhook,
   getLogs,
-  listBlobs
+  listBlobs,
 };
 
 /**
@@ -133,8 +133,7 @@ function createOrg(user) {
 function readOrg(user, org) {
   try {
     assert.ok(user.admin || org.permissions.hasOwnProperty(user._id), '');
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(`User does not have permission to find the org [${org._id}].`, 'warn');
   }
 }
@@ -153,8 +152,7 @@ function updateOrg(user, org) {
       assert.ok(org.permissions.hasOwnProperty(user._id), '');
       assert.ok(org.permissions[user._id].includes('admin'), '');
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(`User does not have permission to update the org [${org._id}].`, 'warn');
   }
 }
@@ -188,8 +186,7 @@ function createProject(user, org) {
       assert.ok(org.permissions.hasOwnProperty(user._id), '');
       assert.ok(org.permissions[user._id].includes('write'), '');
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError('User does not have permission to create'
       + ` projects in the org [${org._id}].`, 'warn');
   }
@@ -211,15 +208,13 @@ function readProject(user, org, project) {
         // User only needs read permissions on the org to read the project.
         assert.ok(org.permissions.hasOwnProperty(user._id), 'User does not have'
           + ` permission to find projects in the org [${org._id}].`);
-      }
-      else if (project.visibility === 'private') {
+      } else if (project.visibility === 'private') {
         // User must have read permissions on project.
         assert.ok(project.permissions.hasOwnProperty(user._id), 'User does not '
           + `have permission to find the project [${utils.parseID(project._id).pop()}].`);
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -236,15 +231,16 @@ function readProject(user, org, project) {
 function updateProject(user, org, project) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to update projects in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to update projects in the org [${org._id}].`,
+      );
       assert.ok(project.permissions.hasOwnProperty(user._id), 'User does not '
         + `have permission to update the project [${utils.parseID(project._id).pop()}].`);
       assert.ok(project.permissions[user._id].includes('admin'), 'User does not '
         + `have permission to update the project [${utils.parseID(project._id).pop()}].`);
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -277,17 +273,22 @@ function deleteProject(user, org, project) {
 function createElement(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to create items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to create items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to create items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to create items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -307,17 +308,20 @@ function readElement(user, org, project, branch) {
   try {
     if (!user.admin) {
       // User needs read permission of the org, regardless of the project visibility
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to find items in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to find items in the org [${org._id}].`,
+      );
 
       if (project.visibility === 'private') {
-        assert.ok(project.permissions.hasOwnProperty(user._id),
+        assert.ok(
+          project.permissions.hasOwnProperty(user._id),
           'User does not have permission to find items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+        );
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -335,17 +339,22 @@ function readElement(user, org, project, branch) {
 function updateElement(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to update items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to update items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to update items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to update items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -363,17 +372,22 @@ function updateElement(user, org, project, branch) {
 function deleteElement(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to delete items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to delete items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to delete items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to delete items in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -390,17 +404,22 @@ function deleteElement(user, org, project, branch) {
 function createBranch(user, org, project) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to create branches in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to create branches in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to create branches in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to create branches in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -419,17 +438,20 @@ function readBranch(user, org, project, branch) {
   try {
     if (!user.admin) {
       // User needs read permission of the org, regardless of the project visibility
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to find branches in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to find branches in the org [${org._id}].`,
+      );
 
       if (project.visibility === 'private') {
-        assert.ok(project.permissions.hasOwnProperty(user._id),
+        assert.ok(
+          project.permissions.hasOwnProperty(user._id),
           'User does not have permission to find branches in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+        );
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -447,17 +469,22 @@ function readBranch(user, org, project, branch) {
 function updateBranch(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to update branches in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to update branches in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to update branches in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to update branches in the project '
-      + `[${utils.parseID(project._id).pop()}].`);
+      + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -476,21 +503,25 @@ function deleteBranch(user, org, project, branch) {
   // Admin's can delete branches
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to delete branches in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to delete branches in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to delete branches in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+          + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to delete branches in the project '
-      + `[${utils.parseID(project._id).pop()}].`);
+      + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
-
 
 /**
  * @description Verify if user has permission to create artifacts in the
@@ -506,17 +537,22 @@ function deleteBranch(user, org, project, branch) {
 function createArtifact(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to create items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to create items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to create items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to create items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -536,17 +572,20 @@ function readArtifact(user, org, project, branch) {
   try {
     if (!user.admin) {
       // User needs read permission of the org, regardless of the project visibility
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to find items in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to find items in the org [${org._id}].`,
+      );
 
       if (project.visibility === 'private') {
-        assert.ok(project.permissions.hasOwnProperty(user._id),
+        assert.ok(
+          project.permissions.hasOwnProperty(user._id),
           'User does not have permission to get artifacts in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+        );
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -565,17 +604,22 @@ function readArtifact(user, org, project, branch) {
 function updateArtifact(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to update items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to update items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to update items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to update items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -593,17 +637,22 @@ function updateArtifact(user, org, project, branch) {
 function deleteArtifact(user, org, project, branch) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to delete items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to delete items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to delete items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to delete items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -621,17 +670,22 @@ function deleteArtifact(user, org, project, branch) {
 function createBlob(user, org, project) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to create items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to create items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to create items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to create items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -649,17 +703,20 @@ function readBlob(user, org, project) {
   try {
     if (!user.admin) {
       // User needs read permission of the org, regardless of the project visibility
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to find items in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to find items in the org [${org._id}].`,
+      );
 
       if (project.visibility === 'private') {
-        assert.ok(project.permissions.hasOwnProperty(user._id),
+        assert.ok(
+          project.permissions.hasOwnProperty(user._id),
           'User does not have permission to get artifacts in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+        );
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -676,17 +733,22 @@ function readBlob(user, org, project) {
 function deleteBlob(user, org, project) {
   try {
     if (!user.admin) {
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to delete items in the org [${org._id}].`);
-      assert.ok(project.permissions.hasOwnProperty(user._id),
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to delete items in the org [${org._id}].`,
+      );
+      assert.ok(
+        project.permissions.hasOwnProperty(user._id),
         'User does not have permission to delete items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-      assert.ok(project.permissions[user._id].includes('write'),
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+      assert.ok(
+        project.permissions[user._id].includes('write'),
         'User does not have permission to delete items in the project '
-        + `[${utils.parseID(project._id).pop()}].`);
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -704,17 +766,20 @@ function listBlobs(user, org, project) {
   try {
     if (!user.admin) {
       // User needs read permission of the org, regardless of the project visibility
-      assert.ok(org.permissions.hasOwnProperty(user._id),
-        `User does not have permission to find items in the org [${org._id}].`);
+      assert.ok(
+        org.permissions.hasOwnProperty(user._id),
+        `User does not have permission to find items in the org [${org._id}].`,
+      );
 
       if (project.visibility === 'private') {
-        assert.ok(project.permissions.hasOwnProperty(user._id),
+        assert.ok(
+          project.permissions.hasOwnProperty(user._id),
           'User does not have permission to get artifacts in the project '
-          + `[${utils.parseID(project._id).pop()}].`);
+          + `[${utils.parseID(project._id).pop()}].`,
+        );
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -732,22 +797,25 @@ function listBlobs(user, org, project) {
 function createWebhook(user, org = null, project = null, branch = null) {
   try {
     if (project) {
-      assert.ok(user.admin || (project.permissions.hasOwnProperty(user._id)
+      assert.ok(
+        user.admin || (project.permissions.hasOwnProperty(user._id)
         && project.permissions[user._id].includes('admin')),
-      'User does not have permission to create webhooks on the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-    }
-    else if (org) {
-      assert.ok(user.admin || (org.permissions.hasOwnProperty(user._id)
+        'User does not have permission to create webhooks on the project '
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+    } else if (org) {
+      assert.ok(
+        user.admin || (org.permissions.hasOwnProperty(user._id)
         && org.permissions[user._id].includes('admin')),
-      `User does not have permission to create webhooks on the org [${org._id}].`);
+        `User does not have permission to create webhooks on the org [${org._id}].`,
+      );
+    } else {
+      assert.ok(
+        user.admin,
+        'User does not have permission to create server level webhooks.',
+      );
     }
-    else {
-      assert.ok(user.admin,
-        'User does not have permission to create server level webhooks.');
-    }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -765,22 +833,25 @@ function createWebhook(user, org = null, project = null, branch = null) {
 function readWebhook(user, org = null, project = null, branch = null) {
   try {
     if (project) {
-      assert.ok(user.admin || (project.permissions.hasOwnProperty(user._id)
+      assert.ok(
+        user.admin || (project.permissions.hasOwnProperty(user._id)
         && project.permissions[user._id].includes('admin')),
-      'User does not have permission to read webhooks on the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-    }
-    else if (org) {
-      assert.ok(user.admin || (org.permissions.hasOwnProperty(user._id)
+        'User does not have permission to read webhooks on the project '
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+    } else if (org) {
+      assert.ok(
+        user.admin || (org.permissions.hasOwnProperty(user._id)
         && org.permissions[user._id].includes('admin')),
-      `User does not have permission to read webhooks on the org [${org._id}].`);
+        `User does not have permission to read webhooks on the org [${org._id}].`,
+      );
+    } else {
+      assert.ok(
+        user.admin,
+        'User does not have permission to read server level webhooks.',
+      );
     }
-    else {
-      assert.ok(user.admin,
-        'User does not have permission to read server level webhooks.');
-    }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -798,22 +869,25 @@ function readWebhook(user, org = null, project = null, branch = null) {
 function updateWebhook(user, org = null, project = null, branch = null) {
   try {
     if (project) {
-      assert.ok(user.admin || (project.permissions.hasOwnProperty(user._id)
+      assert.ok(
+        user.admin || (project.permissions.hasOwnProperty(user._id)
         && project.permissions[user._id].includes('admin')),
-      'User does not have permission to update webhooks on the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-    }
-    else if (org) {
-      assert.ok(user.admin || (org.permissions.hasOwnProperty(user._id)
+        'User does not have permission to update webhooks on the project '
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+    } else if (org) {
+      assert.ok(
+        user.admin || (org.permissions.hasOwnProperty(user._id)
         && org.permissions[user._id].includes('admin')),
-      `User does not have permission to update webhooks on the org [${org._id}].`);
+        `User does not have permission to update webhooks on the org [${org._id}].`,
+      );
+    } else {
+      assert.ok(
+        user.admin,
+        'User does not have permission to update server level webhooks.',
+      );
     }
-    else {
-      assert.ok(user.admin,
-        'User does not have permission to update server level webhooks.');
-    }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -831,22 +905,25 @@ function updateWebhook(user, org = null, project = null, branch = null) {
 function deleteWebhook(user, org = null, project = null, branch = null) {
   try {
     if (project) {
-      assert.ok(user.admin || (project.permissions.hasOwnProperty(user._id)
+      assert.ok(
+        user.admin || (project.permissions.hasOwnProperty(user._id)
         && project.permissions[user._id].includes('admin')),
-      'User does not have permission to delete webhooks on the project '
-        + `[${utils.parseID(project._id).pop()}].`);
-    }
-    else if (org) {
-      assert.ok(user.admin || (org.permissions.hasOwnProperty(user._id)
+        'User does not have permission to delete webhooks on the project '
+        + `[${utils.parseID(project._id).pop()}].`,
+      );
+    } else if (org) {
+      assert.ok(
+        user.admin || (org.permissions.hasOwnProperty(user._id)
         && org.permissions[user._id].includes('admin')),
-      `User does not have permission to delete webhooks on the org [${org._id}].`);
+        `User does not have permission to delete webhooks on the org [${org._id}].`,
+      );
+    } else {
+      assert.ok(
+        user.admin,
+        'User does not have permission to delete server level webhooks.',
+      );
     }
-    else {
-      assert.ok(user.admin,
-        'User does not have permission to delete server level webhooks.');
-    }
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }
@@ -861,8 +938,7 @@ function deleteWebhook(user, org = null, project = null, branch = null) {
 function getLogs(user) {
   try {
     assert.ok(user.admin, 'User does not have permission to view system logs.');
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.PermissionError(error.message, 'warn');
   }
 }

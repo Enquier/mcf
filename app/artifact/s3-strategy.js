@@ -35,7 +35,7 @@ const validator = {
   location: '^[^.]+$',
   filename: '^[^!\\<>:"\'|?*]+$',
   // Matches filename + extensions
-  extension: '^[^!\\<>:"\'|?*]+[.][\\w]+$'
+  extension: '^[^!\\<>:"\'|?*]+[.][\\w]+$',
 };
 
 // Global instance of s3 handler
@@ -47,12 +47,12 @@ if (M.config.artifact.strategy === 's3-strategy') {
   AWS.config.update({
     httpOptions: {
       agent: proxy(M.config.artifact.s3.proxy),
-      ca: fs.readFileSync(M.config.artifact.s3.ca)
+      ca: fs.readFileSync(M.config.artifact.s3.ca),
     },
     region: M.config.artifact.s3.region,
     accessKeyId: M.config.artifact.s3.accessKeyId,
     secretAccessKey: M.config.artifact.s3.secretAccessKey,
-    Bucket: M.config.artifact.s3.Bucket
+    Bucket: M.config.artifact.s3.Bucket,
   });
 
   s3 = new AWS.S3();
@@ -84,7 +84,7 @@ async function listBlobs(artMetadata) {
     // Define search obj
     const searchObj = {
       Bucket: M.config.artifact.s3.Bucket,
-      Prefix: fullPath
+      Prefix: fullPath,
     };
 
     // Keep looping while there are objects
@@ -96,8 +96,7 @@ async function listBlobs(artMetadata) {
       if (foundObj.Contents.length === 0) {
         // No objects found, break out of loop
         break;
-      }
-      else {
+      } else {
         // Objects found, set isTruncated
         isTruncated = foundObj.IsTruncated;
 
@@ -111,7 +110,7 @@ async function listBlobs(artMetadata) {
           // Push obj into array
           blobList.push({
             location: paths.slice(0, paths.length - 1).join('/'),
-            filename: paths.slice(-1)[0]
+            filename: paths.slice(-1)[0],
 
           });
         });
@@ -120,8 +119,7 @@ async function listBlobs(artMetadata) {
       }
     }
     return blobList;
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -148,15 +146,14 @@ async function getBlob(artMetadata) {
     // Set params
     const params = {
       Bucket: M.config.artifact.s3.Bucket,
-      Key: blobPath
+      Key: blobPath,
     };
 
     // Get the s3 object
     const data = await s3.getObject(params).promise();
     // Return the object
     return data.Body;
-  }
-  catch (err) {
+  } catch (err) {
     // Check status code
     if (err.statusCode === 404) {
       throw new M.NotFoundError('Artifact blob not found.', 'warn');
@@ -187,7 +184,7 @@ async function postBlob(artMetadata, artifactBlob) {
     const params = {
       Bucket: M.config.artifact.s3.Bucket,
       Key: blobPath,
-      Body: artifactBlob
+      Body: artifactBlob,
     };
 
     // Check object exists
@@ -198,8 +195,7 @@ async function postBlob(artMetadata, artifactBlob) {
 
     // Upload the blob
     await s3.upload(params).promise();
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -220,8 +216,7 @@ async function doesObjectExist(bucket, key) {
 
     // An object was found, return true
     return true;
-  }
-  catch (err) {
+  } catch (err) {
     // Error occurred, check if object not found
     if (err.code !== 'NotFound') {
       throw errors.captureError(err);
@@ -252,13 +247,12 @@ async function putBlob(artMetadata, artifactBlob) {
     const params = {
       Bucket: M.config.artifact.s3.Bucket,
       Key: blobPath,
-      Body: artifactBlob
+      Body: artifactBlob,
     };
 
     // Upload the blob
     await s3.upload(params).promise();
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -283,7 +277,7 @@ async function deleteBlob(artMetadata) {
     // Set params
     const params = {
       Bucket: M.config.artifact.s3.Bucket,
-      Key: blobPath
+      Key: blobPath,
     };
 
     // Check object does NOT exist
@@ -294,8 +288,7 @@ async function deleteBlob(artMetadata) {
 
     // Delete the blob
     await s3.deleteObject(params).promise();
-  }
-  catch (err) {
+  } catch (err) {
     throw errors.captureError(err);
   }
 }
@@ -315,7 +308,7 @@ async function deleteBlob(artMetadata) {
  */
 function createBlobPath(artMetadata) {
   // defined blob location
-  let location = artMetadata.location;
+  let { location } = artMetadata;
 
   // Get org id
   const orgID = utils.parseID(artMetadata.org).pop();
@@ -332,8 +325,7 @@ function createBlobPath(artMetadata) {
   // Remove os separator with periods
   const convertedLocation = location.replace(
     // eslint-disable-next-line security/detect-non-literal-regexp
-    new RegExp(`\\${path.sep}`, 'g'), '/'
-  );
+    new RegExp(`\\${path.sep}`, 'g'), '/');
 
   // Form the blob name, location concat with filename
   const concatenName = convertedLocation + artMetadata.filename;
@@ -364,14 +356,17 @@ function validateBlobMeta(artMetadata) {
         + `the ${field} field.`);
     });
 
-    assert.ok((RegExp(validator.filename).test(artMetadata.filename)
+    assert.ok(
+      (RegExp(validator.filename).test(artMetadata.filename)
       && RegExp(validator.extension).test(artMetadata.filename)),
-    `Artifact filename [${artMetadata.filename}] is improperly formatted.`);
+      `Artifact filename [${artMetadata.filename}] is improperly formatted.`,
+    );
 
-    assert.ok(RegExp(validator.location).test(artMetadata.location),
-      `Artifact location [${artMetadata.location}] is improperly formatted.`);
-  }
-  catch (error) {
+    assert.ok(
+      RegExp(validator.location).test(artMetadata.location),
+      `Artifact location [${artMetadata.location}] is improperly formatted.`,
+    );
+  } catch (error) {
     throw new M.DataFormatError(error.message, 'warn');
   }
 }
@@ -393,7 +388,7 @@ async function clear(clearPath) {
     // Define search obj
     const searchObj = {
       Bucket: M.config.artifact.s3.Bucket,
-      Prefix: dirToDelete
+      Prefix: dirToDelete,
     };
 
     // Keep looping while there are objects
@@ -403,7 +398,7 @@ async function clear(clearPath) {
       // Find all objects with given prefix
       const foundObj = await s3.listObjects({ // eslint-disable-line no-await-in-loop
         Bucket: M.config.artifact.s3.Bucket,
-        Prefix: dirToDelete
+        Prefix: dirToDelete,
       }).promise();
 
       // Check if objects found
@@ -414,7 +409,7 @@ async function clear(clearPath) {
         // Loop through each found object
         foundObj.Contents.forEach((obj) => {
           objToDelete.push({
-            Key: obj.Key
+            Key: obj.Key,
 
           });
         });
@@ -426,17 +421,15 @@ async function clear(clearPath) {
         await s3.deleteObjects({ // eslint-disable-line no-await-in-loop
           Bucket: M.config.artifact.s3.Bucket,
           Delete: {
-            Objects: objToDelete
-          }
+            Objects: objToDelete,
+          },
         }).promise();
-      }
-      else {
+      } else {
         // No objects found, set truncated to false
         isTruncated = false;
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -449,5 +442,5 @@ module.exports = {
   putBlob,
   deleteBlob,
   clear,
-  validator
+  validator,
 };

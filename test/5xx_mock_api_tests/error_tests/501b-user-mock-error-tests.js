@@ -31,7 +31,7 @@ const APIController = M.require('controllers.api-controller');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -48,8 +48,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -62,8 +61,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -98,12 +96,18 @@ describe(M.getModuleName(module.filename), () => {
   it('should return 404 for a DELETE users request for a nonexistent user', notFound('deleteUsers'));
   it('should return 404 for a GET search users request that returned no results', notFound('searchUsers'));
   //  ------------- Passwords -------------
-  it('should reject a PATCH request to patchPassword if the old password is not provided in the body',
-    badPasswordInput('Old'));
-  it('should reject a PATCH request to patchPassword if the new password is not provided in the body',
-    badPasswordInput('New'));
-  it('should reject a PATCH request to patchPassword if the confirm password is not provided in the body',
-    badPasswordInput('Confirmed'));
+  it(
+    'should reject a PATCH request to patchPassword if the old password is not provided in the body',
+    badPasswordInput('Old'),
+  );
+  it(
+    'should reject a PATCH request to patchPassword if the new password is not provided in the body',
+    badPasswordInput('New'),
+  );
+  it(
+    'should reject a PATCH request to patchPassword if the confirm password is not provided in the body',
+    badPasswordInput('Confirmed'),
+  );
 });
 
 /* --------------------( Tests )-------------------- */
@@ -121,7 +125,7 @@ function noReqUser(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method);
 
@@ -159,7 +163,7 @@ function invalidOptions(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
     req.query = { invalid: 'invalid option' };
@@ -198,7 +202,7 @@ function conflictingIDs(endpoint) {
   const params = { username: 'testuser01' };
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -243,7 +247,7 @@ function notFound(endpoint) {
     params = { username: name };
   }
 
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -278,7 +282,7 @@ function badPasswordInput(type) {
   const body = {
     oldPassword: 'pass',
     password: 'pass',
-    confirmPassword: 'pass'
+    confirmPassword: 'pass',
   };
   const endpoint = 'patchPassword';
   // Initialize expected message and status code
@@ -302,7 +306,7 @@ function badPasswordInput(type) {
     code = 403;
   }
 
-  return function(done) {
+  return function (done) {
     const params = { username: adminUser._id };
 
     // Create request object

@@ -22,7 +22,7 @@ module.exports = {
   find,
   create,
   update,
-  remove
+  remove,
 };
 
 // NPM modules
@@ -44,7 +44,6 @@ const permissions = M.require('lib.permissions');
 const EventEmitter = M.require('lib.events');
 const jmi = M.require('lib.jmi-conversions');
 const validators = M.require('lib.validators');
-
 
 /**
  * @description This function finds one or many webhooks. Depending on the parameters provided,
@@ -158,18 +157,19 @@ async function find(requestingUser, webhooks, options) {
       if (!(searchQuery.hasOwnProperty('project') && searchQuery.hasOwnProperty('org'))) {
         throw new M.DataFormatError('Query for branch provided but not for org or project', 'warn');
       }
-      searchQuery.reference = utils.createID(searchQuery.org, searchQuery.project,
-        searchQuery.branch);
+      searchQuery.reference = utils.createID(
+        searchQuery.org,
+        searchQuery.project,
+        searchQuery.branch,
+      );
       delete searchQuery.org; delete searchQuery.project; delete searchQuery.branch;
-    }
-    else if (searchQuery.hasOwnProperty('project')) {
+    } else if (searchQuery.hasOwnProperty('project')) {
       if (!searchQuery.hasOwnProperty('org')) {
         throw new M.DataFormatError('Query for project provided but not for org', 'warn');
       }
       searchQuery.reference = utils.createID(searchQuery.org, searchQuery.project);
       delete searchQuery.org; delete searchQuery.project;
-    }
-    else if (searchQuery.hasOwnProperty('org')) {
+    } else if (searchQuery.hasOwnProperty('org')) {
       searchQuery.reference = searchQuery.org;
       delete searchQuery.org;
     }
@@ -183,20 +183,27 @@ async function find(requestingUser, webhooks, options) {
       searchQuery.archived = true;
     }
 
-    const foundWebhooks = await Webhook.find(searchQuery, validatedOptions.fieldsString,
-      { skip: validatedOptions.skip,
+    const foundWebhooks = await Webhook.find(
+      searchQuery,
+      validatedOptions.fieldsString,
+      {
+        skip: validatedOptions.skip,
         limit: validatedOptions.limit,
         sort: validatedOptions.sort,
-        populate: validatedOptions.populateString
-      });
+        populate: validatedOptions.populateString,
+      },
+    );
 
     // Synchronously check the permissions for the webhooks
-    await checkPermissions(reqUser, foundWebhooks, 'readWebhook',
-      ((options && options.archived) || validatedOptions.includeArchived));
+    await checkPermissions(
+      reqUser,
+      foundWebhooks,
+      'readWebhook',
+      ((options && options.archived) || validatedOptions.includeArchived),
+    );
 
     return foundWebhooks;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -263,8 +270,7 @@ async function create(requestingUser, webhooks, options) {
     // Check the type of the webhooks parameter; format it into an array if it's a single object
     if (Array.isArray(saniWebhooks)) {
       webhooksToCreate = saniWebhooks;
-    }
-    else if (typeof saniWebhooks === 'object') {
+    } else if (typeof saniWebhooks === 'object') {
       webhooksToCreate = [saniWebhooks];
     }
 
@@ -283,8 +289,7 @@ async function create(requestingUser, webhooks, options) {
           // Ensure it's on the list of valid keys
           assert.ok(validWebhookKeys.includes(k), `Invalid key: [${k}]`);
         });
-      }
-      catch (error) {
+      } catch (error) {
         throw new M.DataFormatError(error.message, 'warn');
       }
     });
@@ -298,10 +303,9 @@ async function create(requestingUser, webhooks, options) {
           && (!webhookObj.reference.hasOwnProperty('project')
           || !webhookObj.reference.hasOwnProperty('org'))) {
           throw new M.DataFormatError(
-            'Webhook reference contains branch but not project or org'
+            'Webhook reference contains branch but not project or org',
           );
-        }
-        else if (webhookObj.reference.hasOwnProperty('project')
+        } else if (webhookObj.reference.hasOwnProperty('project')
           && !webhookObj.reference.hasOwnProperty('org')) {
           throw new M.DataFormatError('Webhook reference contains project but not org');
         }
@@ -310,8 +314,7 @@ async function create(requestingUser, webhooks, options) {
         if (webhookObj.reference.hasOwnProperty('project')) idArray.push(webhookObj.reference.project);
         if (webhookObj.reference.hasOwnProperty('branch')) idArray.push(webhookObj.reference.branch);
         webhookObj.reference = utils.createID(idArray);
-      }
-      else {
+      } else {
         webhookObj.reference = '';
       }
 
@@ -333,16 +336,17 @@ async function create(requestingUser, webhooks, options) {
 
     // Find the newly created webhooks
     const createdIDs = createdWebhooks.map((w) => w._id);
-    const foundWebhooks = await Webhook.find({ _id: { $in: createdIDs } },
+    const foundWebhooks = await Webhook.find(
+      { _id: { $in: createdIDs } },
       validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event for webhook creation
     EventEmitter.emit('webhooks-created', foundWebhooks);
 
     return foundWebhooks;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -400,8 +404,7 @@ async function update(requestingUser, webhooks, options) {
     // Check the type of the webhooks parameter; standardize input into array format
     if (Array.isArray(saniWebhooks)) {
       webhooksToUpdate = saniWebhooks;
-    }
-    else if (typeof saniWebhooks === 'object') {
+    } else if (typeof saniWebhooks === 'object') {
       webhooksToUpdate = [saniWebhooks];
     }
 
@@ -480,9 +483,8 @@ async function update(requestingUser, webhooks, options) {
               throw new M.DataFormatError(`Webhook ${webhook._id} validation failed: `
                 + `Invalid ${key}: [${webhookUpdate[key]}]`, 'warn');
             }
-          }
-          else if (Object.keys(validators.webhook[key])
-          .every(subkey => typeof validators.webhook[key][subkey] === 'function')) {
+          } else if (Object.keys(validators.webhook[key])
+            .every((subkey) => typeof validators.webhook[key][subkey] === 'function')) {
             const subkeys = Object.keys(validators.webhook[key]);
             subkeys.forEach((subkey) => {
               if (!validators.webhook[key][subkey](webhookUpdate[key])) {
@@ -536,8 +538,8 @@ async function update(requestingUser, webhooks, options) {
       bulkArray.push({
         updateOne: {
           filter: { _id: id },
-          update: webhookUpdate
-        }
+          update: webhookUpdate,
+        },
       });
     });
 
@@ -545,16 +547,17 @@ async function update(requestingUser, webhooks, options) {
     await Webhook.bulkWrite(bulkArray);
 
     // Find the updated webhooks
-    const foundUpdatedWebhooks = await Webhook.find({ _id: { $in: webhookIDs } },
+    const foundUpdatedWebhooks = await Webhook.find(
+      { _id: { $in: webhookIDs } },
       validatedOptions.fieldsString,
-      { populate: validatedOptions.populateString });
+      { populate: validatedOptions.populateString },
+    );
 
     // Emit the event webhooks-updated
     EventEmitter.emit('webhooks-updated', foundUpdatedWebhooks);
 
     return foundUpdatedWebhooks;
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -594,8 +597,7 @@ async function remove(requestingUser, webhooks, options) {
     // Check the type of the webhooks parameter
     if (Array.isArray(saniWebhooks) && saniWebhooks.length !== 0) {
       webhooksToDelete = saniWebhooks;
-    }
-    else if (typeof saniWebhooks === 'string') {
+    } else if (typeof saniWebhooks === 'string') {
       webhooksToDelete = [saniWebhooks];
     }
 
@@ -624,8 +626,7 @@ async function remove(requestingUser, webhooks, options) {
     EventEmitter.emit('webhooks-deleted', foundWebhooks);
 
     return foundWebhooks.map((w) => w._id);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -652,8 +653,7 @@ async function checkPermissions(reqUser, webhooks, operation, archiveOption = fa
       if (webhook.reference.hasOwnProperty('org')) orgID = webhook.reference.org;
       if (webhook.reference.hasOwnProperty('project')) projID = webhook.reference.project;
       if (webhook.reference.hasOwnProperty('branch')) branchID = webhook.reference.branch;
-    }
-    else if (typeof webhook.reference === 'string') {
+    } else if (typeof webhook.reference === 'string') {
       const ids = webhook.reference === '' ? [] : utils.parseID(webhook.reference);
       if (ids.length > 0) orgID = ids.shift();
       if (ids.length > 0) projID = ids.shift();
@@ -668,14 +668,20 @@ async function checkPermissions(reqUser, webhooks, operation, archiveOption = fa
     if (projID) {
       // Find the project and validate that it was found and not archived (unless specified)
       // eslint-disable-next-line no-await-in-loop
-      project = await helper.findAndValidate(Project, utils.createID(orgID, projID),
-        archiveOption);
+      project = await helper.findAndValidate(
+        Project,
+        utils.createID(orgID, projID),
+        archiveOption,
+      );
     }
     if (branchID) {
       // Ensure the branch is not archived
       // eslint-disable-next-line no-await-in-loop
-      branch = await helper.findAndValidate(Branch, utils.createID(orgID, projID, branchID),
-        archiveOption);
+      branch = await helper.findAndValidate(
+        Branch,
+        utils.createID(orgID, projID, branchID),
+        archiveOption,
+      );
     }
 
     // Check the permissions

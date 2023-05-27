@@ -30,7 +30,7 @@ const assert = require('assert');
  *
  * @returns {object|object[]} The converted JMI.
  */
-module.exports.convertJMI = function(from, to, data, field = '_id', unique = 'id') {
+module.exports.convertJMI = function (from, to, data, field = '_id', unique = 'id') {
   // Convert JMI type 1 to type 2
   if (from === 1 && to === 2) {
     // Return JMI type 2 data
@@ -57,8 +57,7 @@ function jmi12(data, field) {
   // Error Check: Ensure data is in JMI type 1
   try {
     assert.ok(Array.isArray(data), 'Data is not in JMI type 1.');
-  }
-  catch (msg) {
+  } catch (msg) {
     throw new M.DataFormatError(msg, 'warn');
   }
 
@@ -75,8 +74,7 @@ function jmi12(data, field) {
       // Create JMI type 2 object
       returnObj[object[field]] = object;
     });
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DataFormatError('Cannot create multiple elements with the same ID.', 'warn');
   }
 
@@ -96,11 +94,11 @@ function jmi12(data, field) {
  */
 function jmi13(data, field, unique = 'id') {
   // Ensure that each element has a parent and contains field
-  if (!data.every(e => e.hasOwnProperty('contains'))) {
+  if (!data.every((e) => e.hasOwnProperty('contains'))) {
     throw new M.DataFormatError('Elements must have the \'contains\' field to '
       + 'convert to JMI type 3.');
   }
-  if (!data.every(e => e.hasOwnProperty('parent'))) {
+  if (!data.every((e) => e.hasOwnProperty('parent'))) {
     throw new M.DataFormatError('Elements must have the \'parent\' field to '
       + 'convert to JMI type 3.');
   }
@@ -194,7 +192,7 @@ function jmi23Helper(jmi2, ids, unique = 'id') {
       : jmi2[parent.parent];
 
     // If all of the items in contains are objects, the parent is lowest level
-    if (Object.keys(parent.contains).every(k => typeof parent.contains[k] === 'object')
+    if (Object.keys(parent.contains).every((k) => typeof parent.contains[k] === 'object')
       && parentsParent) {
       empties.push(parentID);
     }

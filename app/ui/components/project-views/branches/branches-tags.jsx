@@ -20,7 +20,9 @@
 
 // React modules
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, ModalBody, UncontrolledTooltip } from 'reactstrap';
+import {
+  Button, Modal, ModalBody, UncontrolledTooltip,
+} from 'reactstrap';
 // MBEE modules
 import BoxList from '../../general/box-list.jsx';
 import CreateBranch from './branch-new.jsx';
@@ -63,16 +65,17 @@ function BranchesTags(props) {
     // Initialize variables
     const page = Number(differentPage) || Number(pages.branch);
     const options = {
-      includeArchived: true,
-      tag: false,
-      limit: 6
+      params: {
+        includeArchived: true,
+        tag: false,
+        limit: 6,
+      },
     };
 
     // Set skip option if appropriate
     if ((retrieving === 'next') || differentPage) {
       options.skip = (page * 6) - 1;
-    }
-    else if ((retrieving === 'back') && (page !== 2)) {
+    } else if ((retrieving === 'back') && (page !== 2)) {
       options.skip = ((page - 1) * 6) - 6;
     }
 
@@ -84,14 +87,12 @@ function BranchesTags(props) {
       // Reset to previous page because there's nothing to show on the current page
       setPages((prevState) => ({
         ...prevState,
-        branch: prevState.branch - 1
+        branch: prevState.branch - 1,
       }));
       getBranches(null, differentPage - 1);
-    }
-    else if (err) {
+    } else if (err) {
       setError(err);
-    }
-    else if (data) {
+    } else if (data) {
       // Set the branches state
       setBranches(data);
 
@@ -100,14 +101,13 @@ function BranchesTags(props) {
         // Set the update page number
         setPages((prevState) => ({
           branch: Number(prevState.branch) + 1,
-          tag: prevState.tag
+          tag: prevState.tag,
         }));
-      }
-      else if (retrieving === 'back') {
+      } else if (retrieving === 'back') {
         // Set the update page number
         setPages((prevState) => ({
           branch: Number(prevState.branch) - 1,
-          tag: prevState.tag
+          tag: prevState.tag,
         }));
       }
     }
@@ -117,15 +117,16 @@ function BranchesTags(props) {
     // Initialize variables
     const page = Number(differentPage) || Number(pages.tag);
     const options = {
-      includeArchived: true,
-      tag: true,
-      limit: 6
+      params: {
+        includeArchived: true,
+        tag: true,
+        limit: 6,
+      },
     };
     // Verify needed get request options
     if ((retrieving === 'next') || differentPage) {
       options.skip = (page * 6) - 1;
-    }
-    else if ((retrieving === 'back') && (page !== 2)) {
+    } else if ((retrieving === 'back') && (page !== 2)) {
       options.skip = ((page - 1) * 6) - 6;
     }
 
@@ -137,14 +138,12 @@ function BranchesTags(props) {
       // Reset to previous page because there's nothing to show on the current page
       setPages((prevState) => ({
         ...prevState,
-        branch: prevState.branch - 1
+        branch: prevState.branch - 1,
       }));
       getTags(null, differentPage - 1);
-    }
-    else if (err) {
+    } else if (err) {
       setError(err);
-    }
-    else if (data) {
+    } else if (data) {
       // Set the tags state
       setTags(data);
 
@@ -153,14 +152,13 @@ function BranchesTags(props) {
         // Set the update page number
         setPages((prevState) => ({
           branch: prevState.branch,
-          tag: Number(prevState.tag) + 1
+          tag: Number(prevState.tag) + 1,
         }));
-      }
-      else if (retrieving === 'back') {
+      } else if (retrieving === 'back') {
         // Set the update page number
         setPages((prevState) => ({
           branch: prevState.branch,
-          tag: Number(prevState.tag) - 1
+          tag: Number(prevState.tag) - 1,
         }));
       }
     }
@@ -183,8 +181,7 @@ function BranchesTags(props) {
       if (Number(newPages.branch) > 1) {
         // Get branches
         getBranches(null, newPages.branch - 1);
-      }
-      else {
+      } else {
         // Get branches
         getBranches();
       }
@@ -192,13 +189,11 @@ function BranchesTags(props) {
       if (Number(newPages.tag) > 1) {
         // Get tags
         getTags(null, newPages.tag - 1);
-      }
-      else {
+      } else {
         // Get tags
         getTags();
       }
-    }
-    else {
+    } else {
       // Get branches and tags
       getBranches();
       getTags();
@@ -209,7 +204,6 @@ function BranchesTags(props) {
   useEffect(() => {
     refresh();
   }, []);
-
 
   // Initialize variables
   let btnDisClassName = 'workspace-title workspace-title-padding';
@@ -223,9 +217,9 @@ function BranchesTags(props) {
         icon: 'fas fa-arrow-left',
         onClick: getBranches,
         varForClick: 'back',
-        pages: pages
-      }
-    }
+        pages,
+      },
+    },
   };
   const footerTagsBtn = {
     btn: {
@@ -234,9 +228,9 @@ function BranchesTags(props) {
         icon: 'fas fa-arrow-left',
         onClick: getTags,
         varForClick: 'back',
-        pages: pages
-      }
-    }
+        pages,
+      },
+    },
   };
 
   // Verify there is a next page
@@ -246,7 +240,7 @@ function BranchesTags(props) {
       icon: 'fas fa-arrow-right',
       onClick: getBranches,
       varForClick: 'next',
-      pages: pages
+      pages,
     };
   }
 
@@ -257,7 +251,7 @@ function BranchesTags(props) {
       icon: 'fas fa-arrow-right',
       onClick: getTags,
       varForClick: 'next',
-      pages: pages
+      pages,
     };
   }
 
@@ -370,10 +364,12 @@ function BranchesTags(props) {
               <div className='template-header' key='user-info-template'>
                 <BranchListItem className='head-info'
                                 label={true}
-                                branch={{ name: 'Name',
+                                branch={{
+                                  name: 'Name',
                                   id: 'ID',
                                   source: 'Source Branch',
-                                  createdOn: 'Created On' }}
+                                  createdOn: 'Created On',
+                                }}
                                 adminLabel={true}
                                 _key='branch-template'/>
               </div>
@@ -385,10 +381,12 @@ function BranchesTags(props) {
               <div className='template-header' key='user-info-template'>
                 <BranchListItem className='head-info'
                                 label={true}
-                                branch={{ name: 'Name',
+                                branch={{
+                                  name: 'Name',
                                   id: 'ID',
                                   source: 'Source Branch',
-                                  createdOn: 'Created On' }}
+                                  createdOn: 'Created On',
+                                }}
                                 adminLabel={true}
                                 _key='branch-template'/>
               </div>

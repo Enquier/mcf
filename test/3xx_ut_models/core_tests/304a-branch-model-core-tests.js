@@ -58,7 +58,7 @@ async function createBranch() {
     _id: utils.createID(org.id, project.id, testData.branches[0].id),
     name: testData.branches[0].name,
     project: utils.createID(org.id, project.id),
-    source: testData.branches[0].source
+    source: testData.branches[0].source,
   };
 
   // Save branch object to database
@@ -75,7 +75,7 @@ async function createBranch() {
 async function findBranch() {
   // Find the branch
   const branch = await Branch.findOne(
-    { _id: utils.createID(org.id, project.id, testData.branches[0].id) }
+    { _id: utils.createID(org.id, project.id, testData.branches[0].id) },
   );
   // Verify found branch is correct
   branch.name.should.equal(testData.branches[0].name);
@@ -96,8 +96,7 @@ async function updateBranch() {
     // Verify branch is updated correctly
     foundBranch._id.should.equal(branchID);
     foundBranch.name.should.equal('Updated Name');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -119,8 +118,7 @@ async function deleteBranch() {
 
     // foundBranch should be null
     should.not.exist(foundBranch);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

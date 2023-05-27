@@ -28,13 +28,14 @@ import {
   Button,
   Col,
   FormFeedback,
-  UncontrolledAlert
+  UncontrolledAlert,
 } from 'reactstrap';
 
 // MBEE modules
 import validators from '../../../../../build/json/validators';
 import ElementSelector from './element-selector.jsx';
 import { useApiClient } from '../../context/ApiClientProvider';
+
 const uuidv4 = require('uuid/v4');
 
 /* eslint-enable no-unused-vars */
@@ -52,7 +53,7 @@ function ElementNew(props) {
   const [values, setValues] = useState({
     id: uuidv4(),
     name: '',
-    type: ''
+    type: '',
   });
   const [parent, setParent] = useState(props.parent || 'model');
   const [target, setTarget] = useState(null);
@@ -73,7 +74,7 @@ function ElementNew(props) {
   const handleChange = (e) => {
     setValues((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
     e.persist();
   };
@@ -86,7 +87,7 @@ function ElementNew(props) {
       id: values.id,
       name: values.name,
       type: values.type,
-      parent: parent
+      parent,
     };
 
     if (source !== null && target !== null) {
@@ -103,9 +104,9 @@ function ElementNew(props) {
       data.sourceNamespace = sourceNamespace;
     }
 
-    const orgID = props.orgID;
+    const { orgID } = props;
     const projID = props.projectID;
-    const branchID = props.branchID;
+    const { branchID } = props;
 
     const [err, result] = await elementService.post(orgID, projID, branchID, data);
 
@@ -137,7 +138,7 @@ function ElementNew(props) {
       setSourceNamespace({
         org: _project.org,
         project: _project.id,
-        branch: 'master'
+        branch: 'master',
       });
     }
     setSource(_id);
@@ -157,12 +158,11 @@ function ElementNew(props) {
       setTargetNamespace({
         org: _project.org,
         project: _project.id,
-        branch: 'master'
+        branch: 'master',
       });
     }
     setTarget(_id);
   };
-
 
   let idInvalid;
   let disableSubmit;

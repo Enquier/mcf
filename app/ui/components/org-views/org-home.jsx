@@ -21,20 +21,19 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 // MBEE modules
 import Sidebar from '../general/sidebar/sidebar.jsx';
 import SidebarLink from '../general/sidebar/sidebar-link.jsx';
 import InformationPage from '../shared-views/information-page.jsx';
 import MembersPage from '../shared-views/members/members-page.jsx';
-import OrgProjects from '../org-views/organization-projects.jsx';
+import OrgProjects from './organization-projects.jsx';
 import { useApiClient } from '../context/ApiClientProvider.js';
-
 /* eslint-enable no-unused-vars */
 
 function OrgHome(props) {
-  const { orgService } = useApiClient();
+  const { authService, orgService } = useApiClient();
   const [org, setOrg] = useState(null);
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(false);
@@ -49,7 +48,7 @@ function OrgHome(props) {
 
   const setMountedComponentStates = (userData, orgData) => {
     // Initialize variables
-    const username = userData.username;
+    const { username } = userData;
     const perm = orgData.permissions[username];
 
     // Verify if user is admin
@@ -57,8 +56,7 @@ function OrgHome(props) {
       // Set the admin state
       setAdmin(true);
       setPermissions('admin');
-    }
-    else {
+    } else {
       setPermissions(perm);
     }
 
@@ -72,8 +70,7 @@ function OrgHome(props) {
       // Do not display the org information for non-perm user
       setOrg(null);
       setError(`Organization [${orgData.id}] not found.`);
-    }
-    else {
+    } else {
       // Set the org state
       setOrg(orgData);
     }
@@ -81,21 +78,22 @@ function OrgHome(props) {
 
   const refresh = () => {
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI(async (err, data) => {
+    authService.checkAuth(async (err, data) => {
       // Verify if error returned
       if (err) {
         // Set error state
         setError(err.responseText);
-      }
-      else {
+      } else {
         // Set user data
         setUser(data);
 
         // Initialize options for org request
         const options = {
           ids: props.match.params.orgid,
-          populate: 'projects',
-          includeArchived: true
+          params: {
+            populate: 'projects',
+            includeArchived: true,
+          },
         };
 
         // Get the org data
@@ -112,7 +110,6 @@ function OrgHome(props) {
   useEffect(() => {
     refresh();
   }, []);
-
 
   // Initialize variables
   let title;
@@ -147,7 +144,7 @@ function OrgHome(props) {
         ? <div id='view' className="loading"> {error || 'Loading your organization...'} </div>
         // Display page based on route on clients side
         : (
-          <Switch>
+          <Routes>
             { /* Route to org home page */ }
             <Route exact path={`${props.match.url}`}
                    render={ (renderProps) => <InformationPage {...renderProps}
@@ -168,7 +165,7 @@ function OrgHome(props) {
                                                           org={org}
                                                           admin={admin}
                                                           refresh={refresh}/> } />
-          </Switch>
+          </Routes>
         )
       }
     </div>

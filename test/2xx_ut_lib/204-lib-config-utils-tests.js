@@ -18,8 +18,8 @@
 
 // NPM modules
 const chai = require('chai');
-const should = chai.should(); // eslint-disable-line no-unused-vars
 
+const should = chai.should(); // eslint-disable-line no-unused-vars
 
 // MBEE modules
 const configUtils = M.require('lib.config-utils');
@@ -85,8 +85,7 @@ async function parseTest() {
   try {
     // Try to parse parseString to JSON Object
     JSON.parse(parseString);
-  }
-  catch (err) {
+  } catch (err) {
     M.log.error(err);
     // Expect no error
     chai.expect(true).to.equal(false);
@@ -99,8 +98,7 @@ async function parseTest() {
 async function validateTest() {
   try {
     configUtils.validate(M.config);
-  }
-  catch (error) {
+  } catch (error) {
     should.not.exist(error);
   }
 }
@@ -109,14 +107,13 @@ async function validateTest() {
  * @description Checks to make sure validate function rejects invalid config objects.
  */
 async function rejectInvalidConfigTest() {
-  let invalidConfig = Object.assign({}, M.config);
+  let invalidConfig = { ...M.config };
 
   // Test rejection if auth is not defined
   delete invalidConfig.auth;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "auth" is not defined.');
   }
 
@@ -124,8 +121,7 @@ async function rejectInvalidConfigTest() {
   invalidConfig.auth = 'not an object';
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "auth" is not an object.');
   }
 
@@ -133,82 +129,74 @@ async function rejectInvalidConfigTest() {
   invalidConfig.auth = {};
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "auth.strategy" is not defined.');
   }
 
   // Test rejection if db is not defined
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   delete invalidConfig.db;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "db" is not defined.');
   }
 
   // Test rejection if log is not defined
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   delete invalidConfig.log;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "log" is not defined.');
   }
 
   // Test rejection if server is not defined
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   delete invalidConfig.server;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "server" is not defined.');
   }
 
   // Test rejection if test is not defined
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   delete invalidConfig.test;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "test" is not defined.');
   }
 
   // Test rejection if artifact is not defined
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   delete invalidConfig.artifact;
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: "artifact" is not defined.');
   }
 
   // Test rejection if custom id excludes root element
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   invalidConfig.validators = {
-    id: '([A-Z])+'
+    id: '([A-Z])+',
   };
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: custom id regex excludes root id "model".');
   }
 
   // Test rejection if custom element id excludes root element
-  invalidConfig = Object.assign({}, M.config);
+  invalidConfig = { ...M.config };
   invalidConfig.validators = {
-    element_id: '([A-Z])+'
+    element_id: '([A-Z])+',
   };
   try {
     configUtils.validate(invalidConfig);
-  }
-  catch (error) {
+  } catch (error) {
     error.message.should.equal('Configuration file: custom element id regex excludes root id "model".');
   }
 }

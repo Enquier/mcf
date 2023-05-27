@@ -51,12 +51,14 @@ describe(M.getModuleName(module.filename), () => {
       // Create the test org
       org = await testUtils.createTestOrg(adminUser);
       // Create the projects
-      const createdProjects = await ProjectController.create(adminUser, org._id,
-        [testData.projects[0], testData.projects[1]]);
+      const createdProjects = await ProjectController.create(
+        adminUser,
+        org._id,
+        [testData.projects[0], testData.projects[1]],
+      );
       // Expect array to contain 2 projects
       chai.expect(createdProjects.length).to.equal(2);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -72,8 +74,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       // Removing admin user
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -101,19 +102,24 @@ async function replaceInvalidId() {
   const testProjObj1 = testData.projects[1];
   const invalidProjObj = { id: '!!', name: 'proj name' };
 
-  await ProjectController.createOrReplace(adminUser, org._id,
-    [testProjObj0, testProjObj1, invalidProjObj])
-  .should.eventually.be.rejectedWith(
-    `Project validation failed: _id: Invalid project ID [${invalidProjObj.id}].`
-  );
+  await ProjectController.createOrReplace(
+    adminUser,
+    org._id,
+    [testProjObj0, testProjObj1, invalidProjObj],
+  )
+    .should.eventually.be.rejectedWith(
+      `Project validation failed: _id: Invalid project ID [${invalidProjObj.id}].`,
+    );
 
   let foundProjs;
   try {
     // Expected error, find valid projects
-    foundProjs = await ProjectController.find(adminUser,
-      org._id, [testProjObj0.id, testProjObj1.id]);
-  }
-  catch (error) {
+    foundProjs = await ProjectController.find(
+      adminUser,
+      org._id,
+      [testProjObj0.id, testProjObj1.id],
+    );
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -132,16 +138,21 @@ async function replaceWithoutId() {
   const testProjObj1 = testData.projects[1];
   const invalidProjObj = { name: 'missing id' };
 
-  await ProjectController.createOrReplace(adminUser, org._id,
-    [testProjObj0, testProjObj1, invalidProjObj])
-  .should.eventually.be.rejectedWith('Project #3 does not have an id.');
+  await ProjectController.createOrReplace(
+    adminUser,
+    org._id,
+    [testProjObj0, testProjObj1, invalidProjObj],
+  )
+    .should.eventually.be.rejectedWith('Project #3 does not have an id.');
 
   let foundProjs;
   try {
-    foundProjs = await ProjectController.find(adminUser,
-      org._id, [testProjObj0.id, testProjObj1.id]);
-  }
-  catch (error) {
+    foundProjs = await ProjectController.find(
+      adminUser,
+      org._id,
+      [testProjObj0.id, testProjObj1.id],
+    );
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

@@ -18,6 +18,8 @@
 
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
+// Other
+import axios from 'axios';
 
 // React modules
 import React, { Component } from 'react';
@@ -29,16 +31,18 @@ import {
   FormFeedback,
   Col,
   UncontrolledAlert,
-  Tooltip
+  Tooltip,
 } from 'reactstrap';
 
 // MBEE modules
 import ElementSelector from './element-selector.jsx';
+import { useHttpClient } from '../../context/HttpProvider';
+
+const { httpClient } = useHttpClient();
 
 /* eslint-enable no-unused-vars */
 
 class ElementEdit extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
@@ -63,7 +67,7 @@ class ElementEdit extends Component {
       parentUpdate: null,
       isSaveTooltipOpen: false,
       isExitTooltipOpen: false,
-      error: null
+      error: null,
     };
 
     // Bind component function
@@ -83,21 +87,21 @@ class ElementEdit extends Component {
     const url = `${this.props.url}/elements/${elementId}?minified=true&includeArchived=true`;
 
     // Get element data
-    $.ajax({
+    httpClient({
       method: 'GET',
-      url: url,
+      url,
       statusCode: {
         200: (elements) => {
           const element = elements[0];
           this.setState({
-            element: element,
+            element,
             name: element.name,
             type: element.type,
             documentation: element.documentation,
             custom: JSON.stringify(element.custom, null, 2),
             org: element.org,
             project: element.project,
-            archived: element.archived
+            archived: element.archived,
           });
 
           if (element.parent) {
@@ -130,8 +134,8 @@ class ElementEdit extends Component {
         },
         404: (err) => {
           this.setState({ error: err.responseText });
-        }
-      }
+        },
+      },
     });
   }
 
@@ -148,9 +152,8 @@ class ElementEdit extends Component {
     // Verify target being changed
     if (event.target.name === 'archived') {
       // Change the archive state to opposite value
-      this.setState(prevState => ({ archived: !prevState.archived }));
-    }
-    else {
+      this.setState((prevState) => ({ archived: !prevState.archived }));
+    } else {
       // Change the state with new value
       this.setState({ [event.target.name]: event.target.value });
     }
@@ -162,12 +165,10 @@ class ElementEdit extends Component {
       // Verify if custom data is correct JSON format
       try {
         JSON.parse(this.state.custom);
-      }
-      catch (err) {
+      } catch (err) {
         this.setState({ error: 'Custom data must be valid JSON.' });
       }
-    }
-    else if (event.target.name === 'documentation') {
+    } else if (event.target.name === 'documentation') {
       // Resize custom data field
       $('textarea[name="documentation"]').autoResize();
     }
@@ -192,7 +193,7 @@ class ElementEdit extends Component {
       target: this.state.target,
       archived: this.state.archived,
       documentation: this.state.documentation,
-      custom: JSON.parse(this.state.custom)
+      custom: JSON.parse(this.state.custom),
     };
 
     if (this.state.parentUpdate !== this.state.parent) {
@@ -209,9 +210,9 @@ class ElementEdit extends Component {
     }
 
     // Send a patch request to update element data
-    $.ajax({
+    axios({
       method: 'PATCH',
-      url: url,
+      url,
       data: JSON.stringify(data),
       contentType: 'application/json',
       statusCode: {
@@ -221,8 +222,7 @@ class ElementEdit extends Component {
             // Send the parents IDs to be refreshed in element tree
             const refreshIds = [this.state.parentUpdate, this.state.parent];
             this.props.closeSidePanel(null, refreshIds);
-          }
-          else {
+          } else {
             this.props.closeSidePanel(null, [elementId]);
           }
         },
@@ -237,8 +237,8 @@ class ElementEdit extends Component {
         },
         403: (err) => {
           this.setState({ error: err.responseText });
-        }
-      }
+        },
+      },
     });
   }
 
@@ -296,11 +296,10 @@ class ElementEdit extends Component {
         sourceNamespace: {
           org: project.org,
           project: project.id,
-          branch: 'master'
-        }
+          branch: 'master',
+        },
       });
-    }
-    else {
+    } else {
       // Set the sourceNamespace field to null
       this.setState({ sourceNamespace: null });
     }
@@ -323,11 +322,10 @@ class ElementEdit extends Component {
         targetNamespace: {
           org: project.org,
           project: project.id,
-          branch: 'master'
-        }
+          branch: 'master',
+        },
       });
-    }
-    else {
+    } else {
       // Set the targetNamespace field  to null
       this.setState({ targetNamespace: null });
     }
@@ -347,8 +345,7 @@ class ElementEdit extends Component {
     // Verify if custom data is correct JSON format
     try {
       JSON.parse(this.state.custom);
-    }
-    catch (err) {
+    } catch (err) {
       customInvalid = true;
     }
 
@@ -511,7 +508,6 @@ class ElementEdit extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

@@ -19,7 +19,7 @@ module.exports = {
   handleBasicAuth,
   handleTokenAuth,
   doLogin,
-  validatePassword
+  validatePassword,
 };
 
 // Node modules
@@ -65,8 +65,7 @@ async function handleBasicAuth(req, res, username, password) {
 
     // Sync user with local database; return authenticated user object
     return await mmsSync(token);
-  }
-  catch (error) {
+  } catch (error) {
     throw errors.captureError(error);
   }
 }
@@ -116,10 +115,9 @@ async function handleTokenAuth(req, res, token) {
     try {
       user = await User.findOne({
         _id: sani.sanitize(decryptedToken.id),
-        archivedOn: null
+        archivedOn: null,
       });
-    }
-    catch (findUserTokenErr) {
+    } catch (findUserTokenErr) {
       throw findUserTokenErr;
     }
     // A valid session was found in the request but the user no longer exists
@@ -135,9 +133,8 @@ async function handleTokenAuth(req, res, token) {
     return user;
   }
   // If token is expired user is unauthorized
-  else {
-    throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
-  }
+
+  throw new M.AuthorizationError('Token is expired or session is invalid.', 'warn');
 }
 
 /**
@@ -179,12 +176,12 @@ async function mmsAuth(user, password) {
   const url = `${baseUrl}/authentication`;
   return axios({
     method: 'get',
-    url: url,
+    url,
     auth: {
       username: user,
-      password: password
-    }
-  }).then(response => {
+      password,
+    },
+  }).then((response) => {
     M.log.debug(response.data.token);
     return response.data.token;
   });
@@ -206,8 +203,8 @@ async function mmsSync(token) {
   const userData = await axios({
     method: 'get',
     url: `${baseUrl}/checkAuth`,
-    headers: { Authorization: `Bearer ${token}` }
-  }).catch(error => {
+    headers: { Authorization: `Bearer ${token}` },
+  }).catch((error) => {
     M.log.error(error);
     throw new M.ServerError('Error checking token for user infomration;');
   });
@@ -217,8 +214,7 @@ async function mmsSync(token) {
   try {
     // Search for user in database
     foundUser = await User.findOne({ _id: mmsUserObj[mmsConfig.attributes.username] });
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError('Search query on user failed', 'warn');
   }
 
@@ -238,8 +234,7 @@ async function mmsSync(token) {
 
       // Find the updated user
       userObject = await User.findOne({ _id: mmsUserObj[mmsConfig.attributes.username] });
-    }
-    else {
+    } else {
       // User not found, create a new one
       // Initialize userData with LDAP information
       const initData = {
@@ -249,14 +244,13 @@ async function mmsSync(token) {
         // lname: ldapUserObj[mmsConfig.attributes.lastName],
         // email: ldapUserObj[mmsConfig.attributes.email],
         provider: 'mms',
-        changePassword: false
+        changePassword: false,
       };
 
       // Save ldap user
       userObject = (await User.insertMany(initData))[0];
     }
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     throw new M.DatabaseError('Could not save user data to database', 'warn');
   }
@@ -267,8 +261,7 @@ async function mmsSync(token) {
   try {
     // Find the default org
     defaultOrg = await Organization.findOne({ _id: M.config.server.defaultOrganizationId });
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError('Query operation on default organization failed', 'warn');
   }
 
@@ -277,10 +270,11 @@ async function mmsSync(token) {
     defaultOrg.permissions[userObject._id] = ['read', 'write'];
 
     // Save the updated default org
-    await Organization.updateOne({ _id: M.config.server.defaultOrganizationId },
-      { permissions: defaultOrg.permissions });
-  }
-  catch (saveErr) {
+    await Organization.updateOne(
+      { _id: M.config.server.defaultOrganizationId },
+      { permissions: defaultOrg.permissions },
+    );
+  } catch (saveErr) {
     M.log.error(saveErr.message);
     throw new M.DatabaseError('Could not save new user permissions to database', 'warn');
   }
@@ -304,9 +298,7 @@ function parseJwt(token) {
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const bufferBase64 = Buffer.from(base64, 'base64');
   const decodedBase64 = bufferBase64.toString('ascii');
-  const jsonPayload = decodeURIComponent(decodedBase64.split('').map((c) => {
-    return `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`;
-  }).join(''));
+  const jsonPayload = decodeURIComponent(decodedBase64.split('').map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`).join(''));
 
   return JSON.parse(jsonPayload);
 }

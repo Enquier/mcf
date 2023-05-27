@@ -29,7 +29,7 @@ const User = M.require('models.user');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   await userHelper();
 };
 
@@ -68,8 +68,8 @@ async function userHelper() {
         bulkWrite.push({
           updateOne: {
             filter: { _id: user._id },
-            update: { changePassword: false }
-          }
+            update: { changePassword: false },
+          },
         });
       });
 

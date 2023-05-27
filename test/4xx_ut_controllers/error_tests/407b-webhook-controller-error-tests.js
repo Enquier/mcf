@@ -102,10 +102,12 @@ describe(M.getModuleName(module.filename), () => {
       branchWebhooks.push(webhooks[0]);
 
       // Enumerate all the webhook ids into a single array
-      webhookIDs.push(...orgWebhooks.map((w) => w._id),
-        ...projWebhooks.map((w) => w._id), ...branchWebhooks.map((w) => w._id));
-    }
-    catch (error) {
+      webhookIDs.push(
+        ...orgWebhooks.map((w) => w._id),
+        ...projWebhooks.map((w) => w._id),
+        ...branchWebhooks.map((w) => w._id),
+      );
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -122,8 +124,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       await testUtils.removeNonAdminUser();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -190,7 +191,7 @@ describe(M.getModuleName(module.filename), () => {
  * @returns {Function} Returns a function to be used as a test.
  */
 function unauthorizedTest(level, operation) {
-  return async function() {
+  return async function () {
     let webhookData = testData.webhooks[0];
     webhookData.id = webhookID;
     webhookData.reference = {};
@@ -206,7 +207,7 @@ function unauthorizedTest(level, operation) {
         // Set the reference namespace
         if (typeof webhookData === 'object') {
           webhookData.reference = {
-            org: org._id
+            org: org._id,
           };
         }
         break;
@@ -218,7 +219,7 @@ function unauthorizedTest(level, operation) {
         if (typeof webhookData === 'object') {
           webhookData.reference = {
             org: org._id,
-            project: projID
+            project: projID,
           };
         }
         break;
@@ -232,7 +233,7 @@ function unauthorizedTest(level, operation) {
           webhookData.reference = {
             org: org._id,
             project: projID,
-            branch: branchID
+            branch: branchID,
           };
         }
         // eslint-disable-next-line no-param-reassign
@@ -247,7 +248,7 @@ function unauthorizedTest(level, operation) {
     switch (operation) {
       case 'find':
         webhookData = webhookData.id;
-        op = 'read';  // Changing this because permissions errors say "read" instead of "find"
+        op = 'read'; // Changing this because permissions errors say "read" instead of "find"
         break;
       case 'create':
         delete webhookData.id;
@@ -255,7 +256,7 @@ function unauthorizedTest(level, operation) {
       case 'update':
         webhookData = {
           id: webhookData.id,
-          description: 'update'
+          description: 'update',
         };
         break;
       case 'remove':
@@ -271,17 +272,15 @@ function unauthorizedTest(level, operation) {
       if (level === 'server') {
         // Attempt to perform unauthorized operation
         await WebhookController[operation](nonAdminUser, webhookData)
-        .should.eventually.be.rejectedWith(`User does not have permission to ${op} server level `
+          .should.eventually.be.rejectedWith(`User does not have permission to ${op} server level `
         + 'webhooks.');
-      }
-      else {
+      } else {
         // Attempt to perform the unauthorized operation
         await WebhookController[operation](nonAdminUser, webhookData)
-        .should.eventually.be.rejectedWith(`User does not have permission to ${op} webhooks on the `
+          .should.eventually.be.rejectedWith(`User does not have permission to ${op} webhooks on the `
         + `${level} [${id}].`);
       }
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       should.not.exist(error);
     }
@@ -297,7 +296,7 @@ function unauthorizedTest(level, operation) {
  * @returns {Function} Returns a function to be used as a test.
  */
 function archivedTest(model, operation) {
-  return async function() {
+  return async function () {
     let webhookData = testData.webhooks[0];
     let id;
     let name;
@@ -309,7 +308,7 @@ function archivedTest(model, operation) {
         webhookData.id = orgWebhooks[0]._id;
         // Set the reference namespace
         webhookData.reference = {
-          org: org._id
+          org: org._id,
         };
         name = 'Organization';
         break;
@@ -320,7 +319,7 @@ function archivedTest(model, operation) {
         // Set the reference namespace
         webhookData.reference = {
           org: org._id,
-          project: projID
+          project: projID,
         };
         name = 'Project';
         break;
@@ -332,7 +331,7 @@ function archivedTest(model, operation) {
         webhookData.reference = {
           org: org._id,
           project: projID,
-          branch: branchID
+          branch: branchID,
         };
         name = 'Branch';
         break;
@@ -356,7 +355,7 @@ function archivedTest(model, operation) {
       case 'update':
         webhookData = {
           id: webhookData.id,
-          description: 'update'
+          description: 'update',
         };
         break;
       case 'remove':
@@ -370,14 +369,13 @@ function archivedTest(model, operation) {
     await model.updateOne({ _id: id }, { archived: true });
 
     await WebhookController[operation](adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
+      .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
       + 'It must first be unarchived before performing this operation.');
 
     // un-archive the object of interest
     await model.updateOne({ _id: id }, { archived: false });
   };
 }
-
 
 /**
  * @description Validates that the Webhook Controller will deny a request to create a webhook with
@@ -392,9 +390,8 @@ async function createInvalidKey() {
     webhookData.wrong_key = 'invalid';
 
     await WebhookController.create(adminUser, webhookData)
-    .should.eventually.be.rejectedWith('Invalid key: [wrong_key]');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Invalid key: [wrong_key]');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -410,9 +407,8 @@ async function createNull() {
     const webhookData = null;
 
     await WebhookController.create(nonAdminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhooks parameter cannot be null.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhooks parameter cannot be null.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -428,9 +424,8 @@ async function createBoolean() {
     const webhookData = true;
 
     await WebhookController.create(nonAdminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type boolean.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type boolean.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -446,9 +441,8 @@ async function createString() {
     const webhookData = 'webhook';
 
     await WebhookController.create(nonAdminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type string.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type string.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -464,9 +458,8 @@ async function createInvalidArray() {
     const webhookData = [true, true];
 
     await WebhookController.create(nonAdminUser, webhookData)
-    .should.eventually.be.rejectedWith('Not every item in Webhooks is an object.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Not every item in Webhooks is an object.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -482,9 +475,8 @@ async function createUndefined() {
     const webhookData = undefined;
 
     await WebhookController.create(nonAdminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type undefined.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhooks parameter cannot be of type undefined.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -498,13 +490,12 @@ async function updateMissingID() {
   try {
     // Create update missing an id
     const webhookData = {
-      description: 'update'
+      description: 'update',
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith('One or more webhook updates does not have an id.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('One or more webhook updates does not have an id.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -518,13 +509,12 @@ async function updateType() {
     // Create update for an outgoing webhook
     const webhookData = {
       id: webhookID,
-      type: 'update'
+      type: 'update',
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhook property [type] cannot be changed.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhook property [type] cannot be changed.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -539,13 +529,12 @@ async function updateReference() {
     // Create update for an outgoing webhook
     const webhookData = {
       id: webhookID,
-      reference: 'wrong'
+      reference: 'wrong',
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith('Webhook property [reference] cannot be changed.');
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith('Webhook property [reference] cannot be changed.');
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -560,17 +549,16 @@ async function updateDuplicate() {
     // Create updates for an outgoing webhook
     const webhookData = [{
       id: webhookID,
-      description: 'update'
+      description: 'update',
     }, {
       id: webhookID,
-      description: 'update'
+      description: 'update',
     }];
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith('Duplicate ids found in update array: '
+      .should.eventually.be.rejectedWith('Duplicate ids found in update array: '
       + `${webhookID}`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -585,13 +573,12 @@ async function updateNotFound() {
     // Create update for an outgoing webhook
     const webhookData = {
       id: 'webhookID',
-      description: 'update'
+      description: 'update',
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`The following webhooks were not found: [${webhookData.id}]`);
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith(`The following webhooks were not found: [${webhookData.id}]`);
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -607,14 +594,13 @@ async function updateInvalidToken() {
     const webhookData = {
       id: incomingWebhookID,
       description: 'null',
-      token: null
+      token: null,
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`Webhook ${incomingWebhookID} validation failed: `
+      .should.eventually.be.rejectedWith(`Webhook ${incomingWebhookID} validation failed: `
         + 'Invalid token: [null]');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -629,14 +615,13 @@ async function updateInvalidTokenLocation() {
     // Create update for an incoming webhook
     const webhookData = {
       id: incomingWebhookID,
-      tokenLocation: null
+      tokenLocation: null,
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`Webhook ${incomingWebhookID} validation failed: `
+      .should.eventually.be.rejectedWith(`Webhook ${incomingWebhookID} validation failed: `
       + 'Invalid tokenLocation: [null]');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -651,14 +636,13 @@ async function updateAddTokenLocation() {
     // Create update for an outgoing webhook
     const webhookData = {
       id: webhookID,
-      tokenLocation: 'test'
+      tokenLocation: 'test',
     };
 
     await WebhookController.update(adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`Webhook ${webhookID} validation failed: `
+      .should.eventually.be.rejectedWith(`Webhook ${webhookID} validation failed: `
       + 'An outgoing webhook cannot have a tokenLocation.');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }
@@ -674,9 +658,8 @@ async function deleteNotFound() {
     const webhookData = 'not a webhook id';
 
     await WebhookController.remove(adminUser, webhookData)
-    .should.eventually.be.rejectedWith(`The following webhooks were not found: [${webhookData}]`);
-  }
-  catch (error) {
+      .should.eventually.be.rejectedWith(`The following webhooks were not found: [${webhookData}]`);
+  } catch (error) {
     M.log.error(error);
     should.not.exist(error);
   }

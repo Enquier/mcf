@@ -30,12 +30,11 @@ const APIController = M.require('controllers.api-controller');
 /* --------------------( Test Data )-------------------- */
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 const filepath = path.join(M.root, '/test/testzip.json');
 let adminUser = null;
 let nonAdminUser = null;
 let org = null;
-
 
 /* --------------------( Main )-------------------- */
 /**
@@ -56,8 +55,7 @@ describe(M.getModuleName(module.filename), () => {
       nonAdminUser = await testUtils.createNonAdminUser();
       // Create organization
       org = await testUtils.createTestOrg(adminUser);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -73,8 +71,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestAdmin();
       await testUtils.removeNonAdminUser();
       await fs.unlinkSync(filepath);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -102,7 +99,7 @@ function patchOtherPassword(done) {
   const body = {
     password: 'NewPass123456?',
     confirmPassword: 'NewPass123456?',
-    oldPassword: userData.password
+    oldPassword: userData.password,
   };
   const params = { username: userData.username };
   const method = 'PATCH';
@@ -151,7 +148,7 @@ function postGzip(done) {
 
   // Initialize the request attributes
   const params = {
-    orgid: org.id
+    orgid: org.id,
   };
   const body = {};
   const method = 'POST';
@@ -159,8 +156,15 @@ function postGzip(done) {
   const headers = 'application/gzip';
 
   // Create a read stream of the zip file and give it request-like attributes
-  const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-    filepath, headers);
+  const req = testUtils.createReadStreamRequest(
+    adminUser,
+    params,
+    body,
+    method,
+    query,
+    filepath,
+    headers,
+  );
   req.headers['accept-encoding'] = 'gzip';
 
   // Set response as empty object
@@ -186,9 +190,9 @@ function postGzip(done) {
 
     // Remove the test user
     UserController.remove(adminUser, userData.username)
-    .then(() => {
-      done();
-    });
+      .then(() => {
+        done();
+      });
   };
 
   // POST a user
@@ -210,7 +214,7 @@ function putGzip(done) {
 
   // Initialize the request attributes
   const params = {
-    orgid: org.id
+    orgid: org.id,
   };
   const body = {};
   const method = 'PUT';
@@ -218,8 +222,15 @@ function putGzip(done) {
   const headers = 'application/gzip';
 
   // Create a read stream of the zip file and give it request-like attributes
-  const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-    filepath, headers);
+  const req = testUtils.createReadStreamRequest(
+    adminUser,
+    params,
+    body,
+    method,
+    query,
+    filepath,
+    headers,
+  );
   req.headers['accept-encoding'] = 'gzip';
 
   // Set response as empty object
@@ -245,9 +256,9 @@ function putGzip(done) {
 
     // Remove the test user
     UserController.remove(adminUser, userData.username)
-    .then(() => {
-      done();
-    });
+      .then(() => {
+        done();
+      });
   };
 
   // PUTs a user
@@ -265,58 +276,65 @@ function patchGzip(done) {
 
   // Create the user to be patched
   UserController.create(adminUser, userData)
-  .then(() => {
+    .then(() => {
     // create updates to the user
-    userData.fname = 'updated';
-    userData.password = undefined;
+      userData.fname = 'updated';
+      userData.password = undefined;
 
-    // Create a gzip file for testing
-    const zippedData = zlib.gzipSync(JSON.stringify(userData));
-    fs.appendFileSync((filepath), zippedData);
+      // Create a gzip file for testing
+      const zippedData = zlib.gzipSync(JSON.stringify(userData));
+      fs.appendFileSync((filepath), zippedData);
 
-    // Initialize the request attributes
-    const params = {
-      orgid: org.id
-    };
-    const body = {};
-    const method = 'PATCH';
-    const query = {};
-    const headers = 'application/gzip';
+      // Initialize the request attributes
+      const params = {
+        orgid: org.id,
+      };
+      const body = {};
+      const method = 'PATCH';
+      const query = {};
+      const headers = 'application/gzip';
 
-    // Create a read stream of the zip file and give it request-like attributes
-    const req = testUtils.createReadStreamRequest(adminUser, params, body, method, query,
-      filepath, headers);
-    req.headers['accept-encoding'] = 'gzip';
+      // Create a read stream of the zip file and give it request-like attributes
+      const req = testUtils.createReadStreamRequest(
+        adminUser,
+        params,
+        body,
+        method,
+        query,
+        filepath,
+        headers,
+      );
+      req.headers['accept-encoding'] = 'gzip';
 
-    // Set response as empty object
-    const res = {};
+      // Set response as empty object
+      const res = {};
 
-    // Verifies status code and headers
-    testUtils.createResponse(res);
+      // Verifies status code and headers
+      testUtils.createResponse(res);
 
-    // Verifies the response data
-    res.send = function send(_data) {
+      // Verifies the response data
+      res.send = function send(_data) {
       // Verify response body
-      const createdUsers = JSON.parse(_data);
-      const createdUser = createdUsers[0];
+        const createdUsers = JSON.parse(_data);
+        const createdUser = createdUsers[0];
 
-      // Verify user updated properly
-      chai.expect(createdUser.username).to.equal(userData.username);
-      chai.expect(createdUser.fname).to.equal(userData.fname);
-      chai.expect(createdUser.lname).to.equal(userData.lname);
-      chai.expect(createdUser.custom || {}).to.deep.equal(userData.custom);
+        // Verify user updated properly
+        chai.expect(createdUser.username).to.equal(userData.username);
+        chai.expect(createdUser.fname).to.equal(userData.fname);
+        chai.expect(createdUser.lname).to.equal(userData.lname);
+        chai.expect(createdUser.custom || {}).to.deep.equal(userData.custom);
 
-      // Clear the data used for testing
-      fs.truncateSync(filepath);
+        // Clear the data used for testing
+        fs.truncateSync(filepath);
 
-      // Remove the test user
-      UserController.remove(adminUser, userData.username)
-      .then(() => {
-        done();
-      });
-    };
+        // Remove the test user
+        UserController.remove(adminUser, userData.username)
+          .then(() => {
+            done();
+          });
+      };
 
-    // PATCH a user
-    APIController.patchUsers(req, res, next(req, res));
-  });
+      // PATCH a user
+      APIController.patchUsers(req, res, next(req, res));
+    });
 }

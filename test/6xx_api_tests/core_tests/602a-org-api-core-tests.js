@@ -28,7 +28,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const test = M.config.test;
+const { test } = M.config;
 let adminUser = null;
 
 /* --------------------( Main )-------------------- */
@@ -46,8 +46,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       // Create test admin
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -61,8 +60,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       // Delete test admin
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -94,7 +92,7 @@ async function postOrg() {
       method: 'post',
       url: `${test.url}/api/orgs/${orgData.id}`,
       headers: testUtils.getHeaders(),
-      data: orgData
+      data: orgData,
     };
 
     // Make an API request
@@ -117,10 +115,13 @@ async function postOrg() {
     chai.expect(postedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(postedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(postedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -134,13 +135,13 @@ async function postOrgs() {
   try {
     const orgData = [
       testData.orgs[1],
-      testData.orgs[2]
+      testData.orgs[2],
     ];
     const options = {
       method: 'post',
       url: `${test.url}/api/orgs`,
       headers: testUtils.getHeaders(),
-      data: orgData
+      data: orgData,
     };
 
     // Make an API request
@@ -172,11 +173,14 @@ async function postOrgs() {
       chai.expect(postedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(postedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(postedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -194,7 +198,7 @@ async function putOrg() {
       method: 'put',
       url: `${test.url}/api/orgs/${orgData.id}`,
       headers: testUtils.getHeaders(),
-      data: orgData
+      data: orgData,
     };
 
     // Make an API request
@@ -217,10 +221,13 @@ async function putOrg() {
     chai.expect(replacedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(replacedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(replacedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -235,13 +242,13 @@ async function putOrgs() {
     const orgData = [
       testData.orgs[1],
       testData.orgs[2],
-      testData.orgs[3]
+      testData.orgs[3],
     ];
     const options = {
       method: 'put',
       url: `${test.url}/api/orgs`,
       headers: testUtils.getHeaders(),
-      data: orgData
+      data: orgData,
     };
 
     // Make an API request
@@ -273,11 +280,14 @@ async function putOrgs() {
       chai.expect(replacedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(replacedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(replacedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -293,7 +303,7 @@ async function getOrg() {
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${testData.orgs[0].id}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -316,10 +326,13 @@ async function getOrg() {
     chai.expect(foundOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(foundOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -335,14 +348,14 @@ async function getOrgs() {
     const orgData = [
       testData.orgs[1],
       testData.orgs[2],
-      testData.orgs[3]
+      testData.orgs[3],
     ];
-    const orgIDs = orgData.map(p => p.id).join(',');
+    const orgIDs = orgData.map((p) => p.id).join(',');
 
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs?ids=${orgIDs}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -375,11 +388,14 @@ async function getOrgs() {
       chai.expect(foundOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -395,16 +411,16 @@ async function getAllOrgs() {
     const orgData = [
       {
         id: M.config.server.defaultOrganizationId,
-        name: M.config.server.defaultOrganizationName
+        name: M.config.server.defaultOrganizationName,
       },
       testData.orgs[1],
       testData.orgs[2],
-      testData.orgs[3]
+      testData.orgs[3],
     ];
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -444,11 +460,14 @@ async function getAllOrgs() {
       }
 
       // Verify specific fields not returned
-      chai.expect(foundOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -465,7 +484,7 @@ async function patchOrg() {
       method: 'patch',
       url: `${test.url}/api/orgs/${testData.orgs[0].id}`,
       headers: testUtils.getHeaders(),
-      data: { name: 'Edited Name' }
+      data: { name: 'Edited Name' },
     };
 
     // Make an API request
@@ -489,10 +508,13 @@ async function patchOrg() {
     chai.expect(patchedOrg.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(patchedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(patchedOrg).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -507,18 +529,18 @@ async function patchOrgs() {
     const orgData = [
       testData.orgs[1],
       testData.orgs[2],
-      testData.orgs[3]
+      testData.orgs[3],
     ];
     const arrUpdateOrg = orgData.map((p) => ({
       id: p.id,
-      name: 'Edited Name'
+      name: 'Edited Name',
     }));
 
     const options = {
       method: 'patch',
       url: `${test.url}/api/orgs`,
       headers: testUtils.getHeaders(),
-      data: arrUpdateOrg
+      data: arrUpdateOrg,
     };
 
     // Make an API request
@@ -550,11 +572,14 @@ async function patchOrgs() {
       chai.expect(patchedOrg.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(patchedOrg).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(patchedOrg).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -570,7 +595,7 @@ async function deleteOrg() {
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs/${orgData.id}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -583,8 +608,7 @@ async function deleteOrg() {
 
     // Verify correct orgs deleted
     chai.expect(deletedID).to.equal(orgData.id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -599,16 +623,16 @@ async function deleteOrgs() {
     const orgData = [
       testData.orgs[1],
       testData.orgs[2],
-      testData.orgs[3]
+      testData.orgs[3],
     ];
 
-    const orgIDs = orgData.map(o => o.id);
+    const orgIDs = orgData.map((o) => o.id);
     const ids = orgIDs.join(',');
 
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs?ids=${ids}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -621,8 +645,7 @@ async function deleteOrgs() {
 
     // Verify correct orgs deleted
     chai.expect(deletedIDs).to.have.members(orgIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

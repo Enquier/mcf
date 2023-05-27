@@ -14,14 +14,15 @@
  * @description This renders a project's artifacts page.
  */
 
-
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsdoc/require-jsdoc */
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Spinner, Tooltip, UncontrolledAlert, UncontrolledTooltip } from 'reactstrap';
+import {
+  Button, Modal, ModalHeader, ModalBody, ModalFooter, Spinner, Tooltip, UncontrolledAlert, UncontrolledTooltip,
+} from 'reactstrap';
 
 // MBEE modules
 import BoxList from '../../general/box-list.jsx';
@@ -101,20 +102,17 @@ function ProjectArtifacts(props) {
           link.click();
           link.remove();
           window.URL.revokeObjectURL(dataUrl);
-        }
-        else {
+        } else {
           setError(`[${filename}] ${xhr.responseText}`);
           // Display error response from server
         }
-      }
-      else if (xhr.readyState === 2) {
+      } else if (xhr.readyState === 2) {
         // readyState of '2' indicates headers have been received and response status is available.
         // Update response type based on status
         if (xhr.status === 200) {
           // File exists
           xhr.responseType = 'blob';
-        }
-        else {
+        } else {
           // No file found. Error response will be 'text'.
           xhr.responseType = 'text';
         }
@@ -130,7 +128,9 @@ function ProjectArtifacts(props) {
     const { org, id } = props.project;
     const branchId = props.match.params.branchid;
     const options = {
-      includeArchived: true
+      params: {
+        includeArchived: true,
+      },
     };
 
     // request the artifacts
@@ -155,15 +155,14 @@ function ProjectArtifacts(props) {
     const branchID = props.match.params.branchid;
 
     const options = {
-      ids: artifactID
+      ids: artifactID,
     };
 
     // Make the delete request
     const [err, result] = await artifactService.delete(orgID, projectID, branchID, null, options);
 
     // Set error state or refresh the page
-    if (err) { setError(err); }
-    else if (result) {
+    if (err) { setError(err); } else if (result) {
       isDeleting();
       modalToggle();
       refresh();
@@ -219,7 +218,6 @@ function ProjectArtifacts(props) {
   useEffect(() => {
     refresh();
   }, [props.project, props.branchID]);
-
 
   // Display first 30 artifacts
   const artifactsList = artifacts.slice(0, 30);
@@ -285,7 +283,8 @@ function ProjectArtifacts(props) {
                                     artifact={{
                                       filename: 'Filename',
                                       location: 'Location',
-                                      description: 'Description' }}
+                                      description: 'Description',
+                                    }}
                                     _key='artifacts-template'/>
                 </div>
                 {/* Render Artifacts List Items */}

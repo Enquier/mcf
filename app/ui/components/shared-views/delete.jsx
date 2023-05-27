@@ -20,7 +20,9 @@
 
 // React modules
 import React, { useState } from 'react';
-import { Form, FormGroup, Label, Input, Button, UncontrolledAlert } from 'reactstrap';
+import {
+  Form, FormGroup, Label, Input, Button, UncontrolledAlert,
+} from 'reactstrap';
 
 // MBEE modules
 import { useApiClient } from '../context/ApiClientProvider';
@@ -28,7 +30,9 @@ import { useApiClient } from '../context/ApiClientProvider';
 /* eslint-enable no-unused-vars */
 
 function Delete(props) {
-  const { orgService, projectService, branchService, elementService } = useApiClient();
+  const {
+    orgService, projectService, branchService, elementService,
+  } = useApiClient();
   const [org, setOrg] = useState(null);
   const [id, setID] = useState(null);
   const [projectOpt, setProjectOpt] = useState(null);
@@ -40,7 +44,9 @@ function Delete(props) {
     if (props.projects) {
       // Request project data
       const options = {
-        fields: 'id,name'
+        params: {
+          fields: 'id,name',
+        },
       };
       const [err, projects] = await projectService.get(e.target.value, options);
 
@@ -48,11 +54,10 @@ function Delete(props) {
       if (err) {
         setError(err);
         setProjectOpt([]);
-      }
-      else if (projects) {
+      } else if (projects) {
         // Loop through project-views and create proj options
         const projectOptions = projects.map(
-          (project) => (<option value={project.id}>{project.name}</option>)
+          (project) => (<option value={project.id}>{project.name}</option>),
         );
 
         // Set the new project options
@@ -72,23 +77,25 @@ function Delete(props) {
 
     // Verify if project-views provided
     if (props.element) {
-      deleteRequest = () => elementService.delete(props.element.org,
-        props.element.project, props.element.branch, [props.element.id]);
-    }
-    else if (props.branch) {
-      deleteRequest = () => branchService.delete(props.branch.org,
-        props.branch.project, [props.branch.id]);
-    }
-    else if (props.projects) {
+      deleteRequest = () => elementService.delete(
+        props.element.org,
+        props.element.project,
+        props.element.branch,
+        [props.element.id],
+      );
+    } else if (props.branch) {
+      deleteRequest = () => branchService.delete(
+        props.branch.org,
+        props.branch.project,
+        [props.branch.id],
+      );
+    } else if (props.projects) {
       deleteRequest = () => projectService.delete(org, [id]);
-    }
-    else if (props.project) {
+    } else if (props.project) {
       deleteRequest = () => projectService.delete(props.project.org, [props.project.id]);
-    }
-    else if (props.orgs) {
+    } else if (props.orgs) {
       deleteRequest = () => orgService.delete([org]);
-    }
-    else {
+    } else {
       deleteRequest = () => orgService.delete([props.org.id]);
     }
 
@@ -97,20 +104,17 @@ function Delete(props) {
 
     if (err) {
       setError(err);
-    }
-    else if (result) {
+    } else if (result) {
       if (props.element) {
         props.closeSidePanel(null, [props.element.parent]);
         props.toggle();
-      }
-      else {
+      } else {
         // On success, return to the project-views page
         props.refresh();
         props.toggle();
       }
     }
   };
-
 
   // Initialize variables
   let title;
@@ -119,14 +123,11 @@ function Delete(props) {
 
   if (props.project || props.projects) {
     title = 'Project';
-  }
-  else if (props.element) {
+  } else if (props.element) {
     title = 'Element';
-  }
-  else if (props.branch) {
+  } else if (props.branch) {
     title = 'Branch';
-  }
-  else {
+  } else {
     title = 'Organization';
   }
 
@@ -138,18 +139,15 @@ function Delete(props) {
 
   if (props.org) {
     name = props.org.name;
-  }
-  else if (props.project) {
+  } else if (props.project) {
     name = props.project.name;
-  }
-  else if (props.element) {
+  } else if (props.element) {
     name = (<span className='element-name'>
               {props.element.name} {' '}
         <span className={'element-id'}>({props.element.id})</span>
             </span>
     );
-  }
-  else if (props.branch) {
+  } else if (props.branch) {
     name = props.branch.name ? props.branch.name : props.branch.id;
   }
 

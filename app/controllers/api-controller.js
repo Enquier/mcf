@@ -30,6 +30,7 @@ const axios = require('axios');
 // NPM modules
 const swaggerJSDoc = require('swagger-jsdoc');
 const multer = require('multer');
+
 const upload = multer().single('file');
 
 // MBEE modules
@@ -50,11 +51,7 @@ const permissions = M.require('lib.permissions');
 const publicData = M.require('lib.get-public-data');
 const sani = M.require('lib.sanitization');
 const utils = M.require('lib.utils');
-const sync = M.require('lib.sync');
 const mmsConfig = M.config.server.plugins.plugins['mms-adapter'].mms || null;
-
-// MMS modules
-const MMSOrgController = M.require('api.mms-strategy.controllers.organization-controller');
 
 // Publisher
 const publisher = require('../lib/pubsub/publisher');
@@ -111,7 +108,7 @@ module.exports = {
   deleteWebhooks,
   triggerWebhook,
   getMetrics,
-  invalidRoute
+  invalidRoute,
 };
 
 /* ------------------------( API Helper Function )--------------------------- */
@@ -130,9 +127,8 @@ function formatJSON(obj, minified = false) {
     return JSON.stringify(obj);
   }
   // Stringify and format the object
-  else {
-    return JSON.stringify(obj, null, M.config.server.api.json.indent);
-  }
+
+  return JSON.stringify(obj, null, M.config.server.api.json.indent);
 }
 
 /**
@@ -145,13 +141,13 @@ function swaggerSpec() {
   return swaggerJSDoc({
     swaggerDefinition: {
       info: {
-        title: 'MBEE API Documentation',          // Title (required)
-        version: M.version                        // Version (required)
-      }
+        title: 'MBEE API Documentation', // Title (required)
+        version: M.version, // Version (required)
+      },
     },
     apis: [
-      path.join(M.root, 'app', 'api-routes.js') // Path to the API docs
-    ]
+      path.join(M.root, 'app', 'api-routes.js'), // Path to the API docs
+    ],
   });
 }
 
@@ -195,8 +191,8 @@ async function login(req, res, next) {
 
   // Checking to see if there are any integrated services
   if (M.config.integratedServices) {
-    M.config.integratedServices.forEach(service => {
-      const integrationKey = user.integration_keys.find(key => key.name === service.name);
+    M.config.integratedServices.forEach((service) => {
+      const integrationKey = user.integration_keys.find((key) => key.name === service.name);
 
       // data the integration service needs for authentication
       const data = {
@@ -204,7 +200,7 @@ async function login(req, res, next) {
         token: req.session.token,
         user: req.user._id,
         name: service.name,
-        exists: false
+        exists: false,
       };
 
       if (integrationKey) {
@@ -216,10 +212,11 @@ async function login(req, res, next) {
       publisher.publish('AUTH_INTEGRATION', JSON.stringify(data));
     });
   }
+
   const json = formatJSON({ token: req.session.token });
   res.locals = {
     message: json,
-    statusCode: 200
+    statusCode: 200,
   };
   next();
 }
@@ -244,7 +241,7 @@ function logout(req, res, next) {
 
   res.locals = {
     message: 'Successfully logged out',
-    statusCode: 200
+    statusCode: 200,
   };
   next();
 }
@@ -280,7 +277,7 @@ function version(req, res, next) {
   // Create version object
   const json = formatJSON({
     version: M.version,
-    build: `${M.build}`
+    build: `${M.build}`,
   });
 
   // Return version object
@@ -313,8 +310,7 @@ function getLogs(req, res, next) {
   // Ensure that the user has permission to get the logs
   try {
     permissions.getLogs(req.user);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -323,7 +319,7 @@ function getLogs(req, res, next) {
   const validOptions = {
     skip: 'number',
     limit: 'number',
-    removeColor: 'boolean'
+    removeColor: 'boolean',
   };
 
   // Attempt to parse query options
@@ -339,8 +335,7 @@ function getLogs(req, res, next) {
     if (options.limit === 0) {
       throw new M.DataFormatError('A limit of 0 is not allowed.', 'warn');
     }
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -358,8 +353,7 @@ function getLogs(req, res, next) {
     }
 
     logContent = fs.readFileSync(logPath).toString();
-  }
-  else {
+  } else {
     const error = new M.ServerError('Server log file does not exist.', 'critical');
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -370,13 +364,11 @@ function getLogs(req, res, next) {
   // If limit is -1, all log content should be returned
   if (options.limit < 0) {
     returnedLines = logContent.split('\n');
-  }
-  else {
+  } else {
     // Ensure skip option is in correct range
     if (options.skip < 0) {
       options.skip = 0;
-    }
-    else if (options.skip > numLines) {
+    } else if (options.skip > numLines) {
       options.skip = numLines;
     }
 
@@ -397,7 +389,7 @@ function getLogs(req, res, next) {
   res.locals = {
     message: returnedLines.join('\n'),
     statusCode: 200,
-    contentType: 'text/plain'
+    contentType: 'text/plain',
   };
   next();
 }
@@ -440,7 +432,7 @@ async function getOrgs(req, res, next) {
     name: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Loop through req.query
@@ -460,8 +452,7 @@ async function getOrgs(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -473,20 +464,18 @@ async function getOrgs(req, res, next) {
     delete options.ids;
   }
   // No IDs included in options, check body for IDs
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     ids = req.body;
   }
   // No IDs in options or body, check body for org objects
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    ids = req.body.map(o => o.id);
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    ids = req.body.map((o) => o.id);
   }
   // Check if orgid provided in query
   else if (req.params.orgid) {
     // If orgid was provided in the body, ensure it matches orgid in params
     if (req.body.hasOwnProperty('orgid') && (req.body.orgid !== req.params.orgid)) {
-      const error = new M.DataFormatError(
-        'Orgid in body does not match orgid in params.', 'warn'
-      );
+      const error = new M.DataFormatError('Orgid in body does not match orgid in params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     // Set body ids
@@ -502,35 +491,7 @@ async function getOrgs(req, res, next) {
   try {
     // Get all organizations the requesting user has access to
     // NOTE: find() sanitizes arrOrgID.
-    const orgs = [];
-    const mcfOrgs = await OrgController.find(req.user, ids, options);
-
-    // Support for MMS API Strategy (TODO: needs to be generalized)
-    if (M.config.api.strategy) {
-      const connect = {
-        token: req.session.token,
-        protocol: req.protocol,
-        mms_token: req.session.token
-      };
-      // if (!M.config.auth.strategy.includes('mms')) {
-      //   connect.token = req.session.mms_token;
-      // }
-      try {
-        const mmsOrgs = MMSOrgController.find(req.user, ids, options, connect);
-        if (mmsOrgs.status !== 200) {
-          throw new M.ServerError('Issue creating MMS org');
-        }
-        orgs.push(
-          sync.syncOrgs(req.user, mmsOrgs.data.orgs, mcfOrgs, M.config.api.authority, connect)
-        );
-      }
-      catch (error) {
-        return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
-      }
-    }
-    else {
-      orgs.push(mcfOrgs);
-    }
+    const orgs = await OrgController.find(req.user, ids, options);
     // Verify orgs array is not empty
     if (orgs.length === 0) {
       throw new M.NotFoundError('No orgs found.', 'warn');
@@ -538,7 +499,7 @@ async function getOrgs(req, res, next) {
 
     // Get the public data of each org
     const orgsPublicData = sani.html(
-      orgs.map(o => publicData.getPublicData(req.user, o, 'org', options))
+      orgs.map((o) => publicData.getPublicData(req.user, o, 'org', options)),
     );
 
     // Format JSON
@@ -547,11 +508,10 @@ async function getOrgs(req, res, next) {
     // Sets the message to the found orgs' public data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -581,7 +541,7 @@ async function postOrgs(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -591,8 +551,7 @@ async function postOrgs(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -609,25 +568,20 @@ async function postOrgs(req, res, next) {
     try {
       // This function parses incoming gzipped data
       orgData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.orgid) {
+  } else if (req.params.orgid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.orgid)) {
-      const error = new M.DataFormatError(
-        'Organization ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Organization ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     orgData = req.body;
     // Set the org ID in the body equal req.params.orgid
     req.body.id = req.params.orgid;
-  }
-  else {
+  } else {
     orgData = req.body;
   }
 
@@ -635,28 +589,33 @@ async function postOrgs(req, res, next) {
     // Create organizations from org data
     // NOTE: create() sanitizes orgData
     const orgs = await OrgController.create(req.user, orgData, options);
-    if (M.config.api.strategy.includes('mms')) {
-      const mmsConnect = {
-        token: req.session.token,
-        protocol: req.protocol,
-        mms_token: req.session.token
-      };
-      if (!M.config.auth.strategy.includes('mms')) {
-        mmsConnect.token = req.session.mms_token;
-      }
-      MMSOrgController.create(req.user, orgs, options, mmsConnect).then(function(response) {
-        if (response.status !== 200) {
-          throw new M.ServerError('Issue creating MMS org');
-        }
-      })
-      .catch(function(error) {
-        return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
+
+    if (mmsConfig) {
+      orgs.forEach((org) => {
+        const { port } = M.config.server[req.protocol];
+        const requestOptions = {
+          url: `${req.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-org`,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${req.session.token}`,
+            'MMS-TOKEN': req.session.mms_token,
+          },
+          method: 'post',
+          data: org,
+        };
+
+        axios(requestOptions).then((response) => {
+          if (response.status !== 200) {
+            throw new M.ServerError('Issue creating MMS org');
+          }
+        })
+          .catch((error) => utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next));
       });
     }
 
     // Get the public data of each org
     const orgsPublicData = sani.html(
-      orgs.map(o => publicData.getPublicData(req.user, o, 'org', options))
+      orgs.map((o) => publicData.getPublicData(req.user, o, 'org', options)),
     );
 
     // Format JSON
@@ -665,11 +624,10 @@ async function postOrgs(req, res, next) {
     // Sets the message to the created orgs and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -700,7 +658,7 @@ async function putOrgs(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -710,8 +668,7 @@ async function putOrgs(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -728,25 +685,20 @@ async function putOrgs(req, res, next) {
     try {
       // This function parses incoming gzipped data
       orgData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.orgid) {
+  } else if (req.params.orgid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.orgid)) {
-      const error = new M.DataFormatError(
-        'Organization ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Organization ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     orgData = req.body;
     // Set the org ID in the body equal req.params.orgid
     req.body.id = req.params.orgid;
-  }
-  else {
+  } else {
     orgData = req.body;
   }
 
@@ -756,7 +708,7 @@ async function putOrgs(req, res, next) {
     const orgs = await OrgController.createOrReplace(req.user, orgData, options);
     // Get the public data of each org
     const orgsPublicData = sani.html(
-      orgs.map(o => publicData.getPublicData(req.user, o, 'org', options))
+      orgs.map((o) => publicData.getPublicData(req.user, o, 'org', options)),
     );
 
     // Format JSON
@@ -765,11 +717,10 @@ async function putOrgs(req, res, next) {
     // Sets the message to the replaced orgs and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -799,7 +750,7 @@ async function patchOrgs(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -809,8 +760,7 @@ async function patchOrgs(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -827,25 +777,20 @@ async function patchOrgs(req, res, next) {
     try {
       // This function parses incoming gzipped data
       orgData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.orgid) {
+  } else if (req.params.orgid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.orgid)) {
-      const error = new M.DataFormatError(
-        'Organization ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Organization ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     orgData = req.body;
     // Set the org ID in the body equal req.params.orgid
     req.body.id = req.params.orgid;
-  }
-  else {
+  } else {
     orgData = req.body;
   }
 
@@ -855,7 +800,7 @@ async function patchOrgs(req, res, next) {
     const orgs = await OrgController.update(req.user, orgData, options);
     // Get the public data of each org
     const orgsPublicData = sani.html(
-      orgs.map(o => publicData.getPublicData(req.user, o, 'org', options))
+      orgs.map((o) => publicData.getPublicData(req.user, o, 'org', options)),
     );
 
     // Format JSON
@@ -864,11 +809,10 @@ async function patchOrgs(req, res, next) {
     // Sets the message to the updated orgs and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -899,7 +843,7 @@ async function deleteOrgs(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     minified: 'boolean',
-    ids: 'array'
+    ids: 'array',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -909,8 +853,7 @@ async function deleteOrgs(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -919,14 +862,11 @@ async function deleteOrgs(req, res, next) {
   if (req.params.orgid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.orgid)) {
-      const error = new M.DataFormatError(
-        'Organization ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Organization ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     ids = req.params.orgid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -949,11 +889,10 @@ async function deleteOrgs(req, res, next) {
     // Sets the message to the deleted org ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -994,7 +933,7 @@ async function getAllProjects(req, res, next) {
     visibility: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Loop through req.query
@@ -1014,8 +953,7 @@ async function getAllProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1035,7 +973,7 @@ async function getAllProjects(req, res, next) {
     }
 
     const publicProjectData = sani.html(
-      projects.map(p => publicData.getPublicData(req.user, p, 'project', options))
+      projects.map((p) => publicData.getPublicData(req.user, p, 'project', options)),
     );
 
     // Format JSON
@@ -1044,11 +982,10 @@ async function getAllProjects(req, res, next) {
     // Sets the message to the public project data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1091,7 +1028,7 @@ async function getProjects(req, res, next) {
     visibility: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Loop through req.query
@@ -1111,8 +1048,7 @@ async function getProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1124,14 +1060,13 @@ async function getProjects(req, res, next) {
     delete options.ids;
   }
   // If project ids provided in array in request body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     ids = req.body;
   }
   // If project objects provided in array in request body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    ids = req.body.map(p => p.id);
-  }
-  else if (req.params.projectid) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    ids = req.body.map((p) => p.id);
+  } else if (req.params.projectid) {
     // Set the project id
     ids = req.params.projectid;
   }
@@ -1153,7 +1088,7 @@ async function getProjects(req, res, next) {
     }
 
     const publicProjectData = sani.html(
-      projects.map(p => publicData.getPublicData(req.user, p, 'project', options))
+      projects.map((p) => publicData.getPublicData(req.user, p, 'project', options)),
     );
 
     // Format JSON
@@ -1162,11 +1097,10 @@ async function getProjects(req, res, next) {
     // Sets the message to the public project data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1196,7 +1130,7 @@ async function postProjects(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1206,8 +1140,7 @@ async function postProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1224,91 +1157,88 @@ async function postProjects(req, res, next) {
     try {
       // This function parses incoming gzipped data
       projectData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.projectid) {
+  } else if (req.params.projectid) {
     // If project ID was provided in the body, ensure it matches project ID in params
     if (req.body.hasOwnProperty('id') && (req.params.projectid !== req.body.id)) {
-      const error = new M.DataFormatError(
-        'Project ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Project ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     projectData = req.body;
 
     // Set the projectid in case it wasn't provided
     projectData.id = req.params.projectid;
-  }
-  else {
+  } else {
     projectData = req.body;
   }
 
   try {
     // Create the specified projects
     // NOTE: create() sanitizes req.params.orgid and projectData
-    const projects = await ProjectController.create(req.user, req.params.orgid, projectData,
-      options);
+    const projects = await ProjectController.create(
+      req.user,
+      req.params.orgid,
+      projectData,
+      options,
+    );
 
     if (mmsConfig) {
-      projects.forEach(proj => {
-        const port = M.config.server[req.protocol].port;
+      projects.forEach((proj) => {
+        const { port } = M.config.server[req.protocol];
         const projectRequestOptions = {
           url: `${req.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-project`,
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${req.session.token}`,
-            'MMS-TOKEN': req.session.mms_token
+            'MMS-TOKEN': req.session.mms_token,
           },
           method: 'post',
-          data: proj
+          data: proj,
         };
 
-        axios(projectRequestOptions).then(async function() {
+        axios(projectRequestOptions).then(async () => {
           const elementIds = ['model', 'undefined', 'holding_bin', '__mbee__'];
-          const orgid = req.params.orgid;
+          const { orgid } = req.params;
           const projectid = utils.parseID(proj._id)[1];
 
           // Get all init elements
           const elements = await ElementController.find(req.user, orgid, projectid, 'master', elementIds);
 
           // Create the init elements in MMS
-          elements.forEach(element => {
+          elements.forEach((element) => {
             const elementRequestOptions = {
               url: `${req.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-element`,
               headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${req.session.token}`,
-                'MMS-TOKEN': req.session.mms_token
+                'MMS-TOKEN': req.session.mms_token,
               },
               method: 'post',
               data: {
                 projectId: projectid,
                 branchId: 'master',
-                element: element
-              }
+                element,
+              },
             };
 
-            axios(elementRequestOptions).then(function() {
+            axios(elementRequestOptions).then(() => {
               M.log.info(`Success: created element ${element.name} in MMS`);
             })
-            .catch(function(error) {
-              const message = error.message;
-              return utils.formatResponse(req, res, message, errors.getStatusCode(error), next);
-            });
+              .catch((error) => {
+                const { message } = error;
+                return utils.formatResponse(req, res, message, errors.getStatusCode(error), next);
+              });
           });
         })
-        .catch(function(error) {
-          return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
-        });
+          .catch((error) => utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next));
       });
     }
 
     const publicProjectData = sani.html(
-      projects.map(p => publicData.getPublicData(req.user, p, 'project', options))
+      projects.map((p) => publicData.getPublicData(req.user, p, 'project', options)),
     );
 
     // Format JSON
@@ -1317,11 +1247,10 @@ async function postProjects(req, res, next) {
     // Sets the message to the created projects and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1352,7 +1281,7 @@ async function putProjects(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1362,8 +1291,7 @@ async function putProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1380,36 +1308,35 @@ async function putProjects(req, res, next) {
     try {
       // This function parses incoming gzipped data
       projectData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.projectid) {
+  } else if (req.params.projectid) {
     // If project ID was provided in the body, ensure it matches project ID in params
     if (req.body.hasOwnProperty('id') && (req.params.projectid !== req.body.id)) {
-      const error = new M.DataFormatError(
-        'Project ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Project ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     projectData = req.body;
 
     // Set the projectid in req.body in case it wasn't provided
     projectData.id = req.params.projectid;
-  }
-  else {
+  } else {
     projectData = req.body;
   }
 
   try {
     // Create or replace the specified projects
     // NOTE: createOrReplace() sanitizes req.params.orgid and projectData
-    const projects = await ProjectController.createOrReplace(req.user, req.params.orgid,
-      projectData, options);
+    const projects = await ProjectController.createOrReplace(
+      req.user,
+      req.params.orgid,
+      projectData,
+      options,
+    );
     const publicProjectData = sani.html(
-      projects.map(p => publicData.getPublicData(req.user, p, 'project', options))
+      projects.map((p) => publicData.getPublicData(req.user, p, 'project', options)),
     );
 
     // Format JSON
@@ -1418,11 +1345,10 @@ async function putProjects(req, res, next) {
     // Sets the message to the replaced projects and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1452,7 +1378,7 @@ async function patchProjects(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1462,8 +1388,7 @@ async function patchProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1480,36 +1405,35 @@ async function patchProjects(req, res, next) {
     try {
       // This function parses incoming gzipped data
       projectData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.projectid) {
+  } else if (req.params.projectid) {
     // If project ID was provided in the body, ensure it matches project ID in params
     if (req.body.hasOwnProperty('id') && (req.params.projectid !== req.body.id)) {
-      const error = new M.DataFormatError(
-        'Project ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Project ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     projectData = req.body;
 
     // Set the projectid in req.body in case it wasn't provided
     projectData.id = req.params.projectid;
-  }
-  else {
+  } else {
     projectData = req.body;
   }
 
   try {
     // Update the specified projects
     // NOTE: update() sanitizes req.params.orgid projectData
-    const projects = await ProjectController.update(req.user, req.params.orgid,
-      projectData, options);
+    const projects = await ProjectController.update(
+      req.user,
+      req.params.orgid,
+      projectData,
+      options,
+    );
     const publicProjectData = sani.html(
-      projects.map(p => publicData.getPublicData(req.user, p, 'project', options))
+      projects.map((p) => publicData.getPublicData(req.user, p, 'project', options)),
     );
 
     // Format JSON
@@ -1518,11 +1442,10 @@ async function patchProjects(req, res, next) {
     // Sets the message to the updated projects and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1553,7 +1476,7 @@ async function deleteProjects(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     ids: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1563,8 +1486,7 @@ async function deleteProjects(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1573,16 +1495,13 @@ async function deleteProjects(req, res, next) {
   if (req.params.projectid) {
     // If project ID was provided in the body, ensure it matches project ID in params
     if (req.body.hasOwnProperty('id') && (req.params.projectid !== req.body.id)) {
-      const error = new M.DataFormatError(
-        'Project ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Project ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
 
     // Set the projectid in req.body in case it wasn't provided
     ids = req.params.projectid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -1599,7 +1518,7 @@ async function deleteProjects(req, res, next) {
   try {
     // Remove the specified projects
     const projectIDs = await ProjectController.remove(req.user, req.params.orgid, ids, options);
-    const parsedIDs = projectIDs.map(p => utils.parseID(p).pop());
+    const parsedIDs = projectIDs.map((p) => utils.parseID(p).pop());
 
     // Format JSON
     const json = formatJSON(parsedIDs, minified);
@@ -1607,11 +1526,10 @@ async function deleteProjects(req, res, next) {
     // Sets the message to the deleted project ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1656,7 +1574,7 @@ async function getUsers(req, res, next) {
     custom: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1666,8 +1584,7 @@ async function getUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1681,12 +1598,12 @@ async function getUsers(req, res, next) {
     delete options.usernames;
   }
   // Usernames provided in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     usernames = req.body;
   }
   // Check user object in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    usernames = req.body.map(p => p.id);
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    usernames = req.body.map((p) => p.id);
   }
   // Handle case with single user
   else if (req.params.username) {
@@ -1710,7 +1627,7 @@ async function getUsers(req, res, next) {
     }
 
     const publicUserData = sani.html(
-      users.map(u => publicData.getPublicData(req.user, u, 'user', options))
+      users.map((u) => publicData.getPublicData(req.user, u, 'user', options)),
     );
 
     // Format JSON
@@ -1719,11 +1636,10 @@ async function getUsers(req, res, next) {
     // Sets the message to the public user data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1754,7 +1670,7 @@ async function postUsers(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1764,8 +1680,7 @@ async function postUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1782,8 +1697,7 @@ async function postUsers(req, res, next) {
     try {
       // This function parses incoming gzipped data
       userData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
@@ -1792,26 +1706,22 @@ async function postUsers(req, res, next) {
   else if (req.params.username) {
     // If username was provided in the body, ensure it matches username in params
     if (req.body.hasOwnProperty('username') && (req.body.username !== req.params.username)) {
-      const error = new M.DataFormatError(
-        'Username in body does not match username in params.', 'warn'
-      );
+      const error = new M.DataFormatError('Username in body does not match username in params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     userData = req.body;
     // Set body username
     userData.username = req.params.username;
-  }
-  else {
+  } else {
     userData = req.body;
   }
-
 
   try {
     // Create users
     // NOTE: create() sanitizes userData
     const users = await UserController.create(req.user, userData, options);
     const publicUserData = sani.html(
-      users.map(u => publicData.getPublicData(req.user, u, 'user', options))
+      users.map((u) => publicData.getPublicData(req.user, u, 'user', options)),
     );
 
     // Format JSON
@@ -1820,11 +1730,10 @@ async function postUsers(req, res, next) {
     // Sets the message to the public user data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1855,7 +1764,7 @@ async function putUsers(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1865,8 +1774,7 @@ async function putUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1883,8 +1791,7 @@ async function putUsers(req, res, next) {
     try {
       // This function parses incoming gzipped data
       userData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
@@ -1893,16 +1800,13 @@ async function putUsers(req, res, next) {
   else if (req.params.username) {
     // If username was provided in the body, ensure it matches username in params
     if (req.body.hasOwnProperty('username') && (req.body.username !== req.params.username)) {
-      const error = new M.DataFormatError(
-        'Username in body does not match username in params.', 'warn'
-      );
+      const error = new M.DataFormatError('Username in body does not match username in params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     userData = req.body;
     // Set body username
     userData.username = req.params.username;
-  }
-  else {
+  } else {
     userData = req.body;
   }
 
@@ -1911,7 +1815,7 @@ async function putUsers(req, res, next) {
     // NOTE: createOrReplace() sanitizes userData
     const users = await UserController.createOrReplace(req.user, userData, options);
     const publicUserData = sani.html(
-      users.map(u => publicData.getPublicData(req.user, u, 'user', options))
+      users.map((u) => publicData.getPublicData(req.user, u, 'user', options)),
     );
 
     // Format JSON
@@ -1920,11 +1824,10 @@ async function putUsers(req, res, next) {
     // Sets the message to the public user data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1955,7 +1858,7 @@ async function patchUsers(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -1965,8 +1868,7 @@ async function patchUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -1983,8 +1885,7 @@ async function patchUsers(req, res, next) {
     try {
       // This function parses incoming gzipped data
       userData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
@@ -1993,16 +1894,13 @@ async function patchUsers(req, res, next) {
   else if (req.params.username) {
     // If username was provided in the body, ensure it matches username in params
     if (req.body.hasOwnProperty('username') && (req.body.username !== req.params.username)) {
-      const error = new M.DataFormatError(
-        'Username in body does not match username in params.', 'warn'
-      );
+      const error = new M.DataFormatError('Username in body does not match username in params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     userData = req.body;
     // Set body username
     userData.username = req.params.username;
-  }
-  else {
+  } else {
     userData = req.body;
   }
 
@@ -2011,7 +1909,7 @@ async function patchUsers(req, res, next) {
     // NOTE: update() sanitizes userData
     const users = await UserController.update(req.user, userData, options);
     const publicUserData = sani.html(
-      users.map(u => publicData.getPublicData(req.user, u, 'user', options))
+      users.map((u) => publicData.getPublicData(req.user, u, 'user', options)),
     );
 
     // Format JSON
@@ -2020,11 +1918,10 @@ async function patchUsers(req, res, next) {
     // Sets the message to the public user data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2055,7 +1952,7 @@ async function deleteUsers(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     ids: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2065,8 +1962,7 @@ async function deleteUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2074,8 +1970,7 @@ async function deleteUsers(req, res, next) {
   let ids;
   if (req.params.username) {
     ids = req.params.username;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options, true);
 
@@ -2099,11 +1994,10 @@ async function deleteUsers(req, res, next) {
     // Sets the message to the deleted usernames and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2131,7 +2025,7 @@ async function whoami(req, res, next) {
 
   // Define valid option and its parsed type
   const validOptions = {
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2141,8 +2035,7 @@ async function whoami(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2154,7 +2047,7 @@ async function whoami(req, res, next) {
   }
 
   const publicUserData = sani.html(
-    publicData.getPublicData(req.user, req.user, 'user', options)
+    publicData.getPublicData(req.user, req.user, 'user', options),
   );
 
   // Format JSON
@@ -2163,7 +2056,7 @@ async function whoami(req, res, next) {
   // Sets the message to the public user data and the status code to 200
   res.locals = {
     message: json,
-    statusCode: 200
+    statusCode: 200,
   };
   next();
 }
@@ -2198,7 +2091,7 @@ async function searchUsers(req, res, next) {
     sort: 'string',
     q: 'string',
     minified: 'boolean',
-    populate: 'array'
+    populate: 'array',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2208,8 +2101,7 @@ async function searchUsers(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2236,7 +2128,7 @@ async function searchUsers(req, res, next) {
     }
 
     const usersPublicData = sani.html(
-      users.map(u => publicData.getPublicData(req.user, u, 'user', options))
+      users.map((u) => publicData.getPublicData(req.user, u, 'user', options)),
     );
 
     // Format JSON
@@ -2245,11 +2137,10 @@ async function searchUsers(req, res, next) {
     // Sets the message to the public user data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2277,7 +2168,7 @@ async function patchPassword(req, res, next) {
 
   // Define valid option and its parsed type
   const validOptions = {
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2287,8 +2178,7 @@ async function patchPassword(req, res, next) {
   if (!req.body.oldPassword) {
     if (req.user._id !== req.params.username) {
       req.body.oldPassword = null;
-    }
-    else {
+    } else {
       const error = new M.DataFormatError('Old password not in request body.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
@@ -2310,8 +2200,7 @@ async function patchPassword(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2324,10 +2213,15 @@ async function patchPassword(req, res, next) {
 
   try {
     // Update the password
-    const user = await UserController.updatePassword(req.user, req.params.username,
-      req.body.oldPassword, req.body.password, req.body.confirmPassword);
+    const user = await UserController.updatePassword(
+      req.user,
+      req.params.username,
+      req.body.oldPassword,
+      req.body.password,
+      req.body.confirmPassword,
+    );
     const publicUserData = sani.html(
-      publicData.getPublicData(req.user, user, 'user', options)
+      publicData.getPublicData(req.user, user, 'user', options),
     );
 
     // Format JSON
@@ -2336,11 +2230,10 @@ async function patchPassword(req, res, next) {
     // Sends 200: OK and the updated user's public data
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2391,7 +2284,7 @@ async function getElements(req, res, next) {
     createdBy: 'string',
     lastModifiedBy: 'string',
     archivedBy: 'string',
-    artifact: 'string'
+    artifact: 'string',
   };
 
   // Loop through req.query
@@ -2411,8 +2304,7 @@ async function getElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2421,16 +2313,14 @@ async function getElements(req, res, next) {
   if (options.ids) {
     elemIDs = options.ids;
     delete options.ids;
-  }
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  } else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     // No IDs include in options, check body
     elemIDs = req.body;
   }
   // Check element object in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    elemIDs = req.body.map(p => p.id);
-  }
-  else if (req.params.elementid) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    elemIDs = req.body.map((p) => p.id);
+  } else if (req.params.elementid) {
     // Set the element id
     elemIDs = req.params.elementid;
   }
@@ -2457,10 +2347,16 @@ async function getElements(req, res, next) {
   try {
     // Find elements
     // NOTE: find() sanitizes input params
-    const elements = await ElementController.find(req.user, req.params.orgid, req.params.projectid,
-      req.params.branchid, elemIDs, options);
+    const elements = await ElementController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      elemIDs,
+      options,
+    );
     const elementsPublicData = sani.html(
-      elements.map(e => publicData.getPublicData(req.user, e, 'element', options))
+      elements.map((e) => publicData.getPublicData(req.user, e, 'element', options)),
     );
 
     // Verify elements public data array is not empty
@@ -2474,8 +2370,7 @@ async function getElements(req, res, next) {
     // Check for JMI conversion
     if (format === 'jmi2') {
       retData = jmi.convertJMI(1, 2, elementsPublicData, 'id');
-    }
-    else if (format === 'jmi3') {
+    } else if (format === 'jmi3') {
       retData = jmi.convertJMI(1, 3, elementsPublicData, 'id');
     }
 
@@ -2485,11 +2380,10 @@ async function getElements(req, res, next) {
     // Sets the message to the public element data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2520,7 +2414,7 @@ async function postElements(req, res, next) {
     populate: 'array',
     fields: 'array',
     minified: 'boolean',
-    gzip: 'boolean'
+    gzip: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2530,8 +2424,7 @@ async function postElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2548,36 +2441,37 @@ async function postElements(req, res, next) {
     try {
       // This function parses incoming gzipped data
       elementData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.elementid) {
+  } else if (req.params.elementid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.elementid)) {
-      const error = new M.DataFormatError(
-        'Element ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Element ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     elementData = req.body;
     elementData.id = req.params.elementid;
-  }
-  else {
+  } else {
     elementData = req.body;
   }
 
   try {
     // Create the specified elements
     // NOTE: create() sanitizes input params
-    const elements = await ElementController.create(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, elementData, options);
+    const elements = await ElementController.create(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      elementData,
+      options,
+    );
 
     if (mmsConfig) {
-      elements.forEach(element => {
-        const port = M.config.server[req.protocol].port;
+      elements.forEach((element) => {
+        const { port } = M.config.server[req.protocol];
         const split = element.branch.split(':');
         // const org = split[0];
         const proj = split[1];
@@ -2587,28 +2481,28 @@ async function postElements(req, res, next) {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${req.session.token}`,
-            'MMS-TOKEN': req.session.mms_token
+            'MMS-TOKEN': req.session.mms_token,
           },
           method: 'post',
           data: {
             projectId: proj,
             branchId: branch,
-            element: element
-          }
+            element,
+          },
         };
 
-        axios(requestOptions).then(function(response) {
+        axios(requestOptions).then((response) => {
           M.log.info(`Success: created element ${element.name} in MMS`);
         })
-        .catch(function(error) {
-          M.log.error(error);
-          return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
-        });
+          .catch((error) => {
+            M.log.error(error);
+            return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
+          });
       });
     }
 
     const elementsPublicData = sani.html(
-      elements.map(e => publicData.getPublicData(req.user, e, 'element', options))
+      elements.map((e) => publicData.getPublicData(req.user, e, 'element', options)),
     );
 
     // Format JSON
@@ -2617,11 +2511,10 @@ async function postElements(req, res, next) {
     // Sets the message to the public element data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2652,7 +2545,7 @@ async function putElements(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2662,8 +2555,7 @@ async function putElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2680,34 +2572,35 @@ async function putElements(req, res, next) {
     try {
       // This function parses incoming gzipped data
       elementData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.elementid) {
+  } else if (req.params.elementid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.elementid)) {
-      const error = new M.DataFormatError(
-        'Element ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Element ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     elementData = req.body;
     elementData.id = req.params.elementid;
-  }
-  else {
+  } else {
     elementData = req.body;
   }
 
   try {
     // Create or replace the specified elements
     // NOTE: createOrReplace() sanitizes input params
-    const elements = await ElementController.createOrReplace(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, elementData, options);
+    const elements = await ElementController.createOrReplace(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      elementData,
+      options,
+    );
     const elementsPublicData = sani.html(
-      elements.map(e => publicData.getPublicData(req.user, e, 'element', options))
+      elements.map((e) => publicData.getPublicData(req.user, e, 'element', options)),
     );
 
     // Format JSON
@@ -2716,11 +2609,10 @@ async function putElements(req, res, next) {
     // Sets the message to the public element data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2750,7 +2642,7 @@ async function patchElements(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2760,8 +2652,7 @@ async function patchElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2778,34 +2669,35 @@ async function patchElements(req, res, next) {
     try {
       // This function parses incoming gzipped data
       elementData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.elementid) {
+  } else if (req.params.elementid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.elementid)) {
-      const error = new M.DataFormatError(
-        'Element ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Element ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     elementData = req.body;
     elementData.id = req.params.elementid;
-  }
-  else {
+  } else {
     elementData = req.body;
   }
 
   try {
     // Update the specified elements
     // NOTE: update() sanitizes input params
-    const elements = await ElementController.update(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, elementData, options);
+    const elements = await ElementController.update(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      elementData,
+      options,
+    );
     const elementsPublicData = sani.html(
-      elements.map(e => publicData.getPublicData(req.user, e, 'element', options))
+      elements.map((e) => publicData.getPublicData(req.user, e, 'element', options)),
     );
 
     // Format JSON
@@ -2814,11 +2706,10 @@ async function patchElements(req, res, next) {
     // Sets the message to the public element data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2848,7 +2739,7 @@ async function deleteElements(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     ids: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -2858,8 +2749,7 @@ async function deleteElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2867,8 +2757,7 @@ async function deleteElements(req, res, next) {
   let ids;
   if (req.params.elementid) {
     ids = req.params.elementid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -2885,9 +2774,15 @@ async function deleteElements(req, res, next) {
   try {
     // Remove the specified elements
     // NOTE: remove() sanitizes input params
-    const elements = await ElementController.remove(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, ids, options);
-    const parsedIDs = elements.map(e => utils.parseID(e).pop());
+    const elements = await ElementController.remove(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      ids,
+      options,
+    );
+    const parsedIDs = elements.map((e) => utils.parseID(e).pop());
 
     // Format JSON
     const json = formatJSON(parsedIDs, minified);
@@ -2895,11 +2790,10 @@ async function deleteElements(req, res, next) {
     // Sets the message to the deleted element ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2945,7 +2839,7 @@ async function searchElements(req, res, next) {
     createdBy: 'string',
     lastModifiedBy: 'string',
     archivedBy: 'string',
-    artifact: 'string'
+    artifact: 'string',
   };
 
   // Loop through req.query
@@ -2955,8 +2849,7 @@ async function searchElements(req, res, next) {
       if (k.startsWith('custom.')) {
         if (req.query[k] === 'true' || req.query[k] === 'false') {
           validOptions[k] = 'boolean';
-        }
-        else {
+        } else {
           validOptions[k] = 'string';
         }
       }
@@ -2970,8 +2863,7 @@ async function searchElements(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -2991,15 +2883,21 @@ async function searchElements(req, res, next) {
   try {
     // Find elements
     // NOTE: search() sanitizes input params
-    const elements = await ElementController.search(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, query, options);
+    const elements = await ElementController.search(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      query,
+      options,
+    );
     // Verify elements public data array is not empty
     if (elements.length === 0) {
       throw new M.NotFoundError('No elements found.', 'warn');
     }
 
     const elementsPublicData = sani.html(
-      elements.map(e => publicData.getPublicData(req.user, e, 'element', options))
+      elements.map((e) => publicData.getPublicData(req.user, e, 'element', options)),
     );
 
     // Format JSON
@@ -3008,11 +2906,10 @@ async function searchElements(req, res, next) {
     // Sets the message to the public element data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3056,7 +2953,7 @@ async function getBranches(req, res, next) {
     name: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Loop through req.query
@@ -3076,8 +2973,7 @@ async function getBranches(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3089,14 +2985,13 @@ async function getBranches(req, res, next) {
   else if (options.ids) {
     branchIDs = options.ids;
     delete options.ids;
-  }
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  } else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     // No IDs include in options, check body
     branchIDs = req.body;
   }
   // Check branch object in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    branchIDs = req.body.map(p => p.id);
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    branchIDs = req.body.map((p) => p.id);
   }
 
   // Check options for minified
@@ -3108,10 +3003,15 @@ async function getBranches(req, res, next) {
   try {
     // Find branches
     // NOTE: find() sanitizes input params
-    const branches = await BranchController.find(req.user, req.params.orgid, req.params.projectid,
-      branchIDs, options);
+    const branches = await BranchController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      branchIDs,
+      options,
+    );
     const branchesPublicData = sani.html(
-      branches.map(b => publicData.getPublicData(req.user, b, 'branch', options))
+      branches.map((b) => publicData.getPublicData(req.user, b, 'branch', options)),
     );
 
     // Verify branches public data array is not empty
@@ -3125,11 +3025,10 @@ async function getBranches(req, res, next) {
     // Sets the message to the public branch data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3159,7 +3058,7 @@ async function postBranches(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3169,8 +3068,7 @@ async function postBranches(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3187,42 +3085,42 @@ async function postBranches(req, res, next) {
     try {
       // This function parses incoming gzipped data
       branchData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.branchid) {
+  } else if (req.params.branchid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.branchid)) {
-      const error = new M.DataFormatError(
-        'Branch ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Branch ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
 
     branchData = req.body;
     branchData.id = req.params.branchid;
-  }
-  else {
+  } else {
     branchData = req.body;
   }
 
   try {
     // Create the specified branches
     // NOTE: create() sanitizes req.params.orgid, req.params.projectid, and branchData
-    const branches = await BranchController.create(req.user, req.params.orgid, req.params.projectid,
-      branchData, options);
+    const branches = await BranchController.create(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      branchData,
+      options,
+    );
     const publicBranchData = sani.html(
-      branches.map(b => publicData.getPublicData(req.user, b, 'branch', options))
+      branches.map((b) => publicData.getPublicData(req.user, b, 'branch', options)),
     );
 
     if (mmsConfig) {
       // Create new branch in MMS and the initial elements
-      branches.forEach(branch => {
-        const projectid = req.params.projectid;
-        const port = M.config.server[req.protocol].port;
+      branches.forEach((branch) => {
+        const { projectid } = req.params;
+        const { port } = M.config.server[req.protocol];
 
         // Setting up request options
         const branchRequestOptions = {
@@ -3230,19 +3128,19 @@ async function postBranches(req, res, next) {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${req.session.token}`,
-            'MMS-TOKEN': req.session.mms_token
+            'MMS-TOKEN': req.session.mms_token,
           },
           method: 'post',
           data: {
             projectId: projectid,
-            branchObj: branch
-          }
+            branchObj: branch,
+          },
         };
 
         // Sending request to MMS adapter to create branch
-        axios(branchRequestOptions).then(async function() {
+        axios(branchRequestOptions).then(async () => {
           // const elementIds = ['model', 'undefined', 'holding_bin', '__mbee__'];
-          const orgid = req.params.orgid;
+          const { orgid } = req.params;
           // const projectid = req.params.projectid;
           const branchid = utils.parseID(branch._id)[2];
 
@@ -3250,35 +3148,33 @@ async function postBranches(req, res, next) {
           const elements = await ElementController.find(req.user, orgid, projectid, `${branchid}`);
 
           // Creating the initial 4 elements in MMS
-          elements.forEach(element => {
+          elements.forEach((element) => {
             const elementRequestOptions = {
               url: `${req.protocol}://${M.config.server.commitURL}:${port}/plugins/mms-adapter/alfresco/service/mms-element`,
               headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${req.session.token}`,
-                'MMS-TOKEN': req.session.mms_token
+                'MMS-TOKEN': req.session.mms_token,
               },
               method: 'post',
               data: {
                 projectId: projectid,
                 branchId: branchid,
-                element: element
-              }
+                element,
+              },
             };
 
             // Sending request to MMS adapter to create elements
-            axios(elementRequestOptions).then(function() {
+            axios(elementRequestOptions).then(() => {
               M.log.info(`Success: created element ${element.name} in MMS`);
             })
-            .catch(function(error) {
-              const message = error.message;
-              return utils.formatResponse(req, res, message, errors.getStatusCode(error), next);
-            });
+              .catch((error) => {
+                const { message } = error;
+                return utils.formatResponse(req, res, message, errors.getStatusCode(error), next);
+              });
           });
         })
-        .catch(function(error) {
-          return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
-        });
+          .catch((error) => utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next));
       });
     }
 
@@ -3288,11 +3184,10 @@ async function postBranches(req, res, next) {
     // Sets the message to the public branch data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3322,7 +3217,7 @@ async function patchBranches(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3332,8 +3227,7 @@ async function patchBranches(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3350,34 +3244,34 @@ async function patchBranches(req, res, next) {
     try {
       // This function parses incoming gzipped data
       branchData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.branchid) {
+  } else if (req.params.branchid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.branchid)) {
-      const error = new M.DataFormatError(
-        'Branch ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Branch ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     branchData = req.body;
     branchData.id = req.params.branchid;
-  }
-  else {
+  } else {
     branchData = req.body;
   }
 
   try {
     // Update the specified branches
     // NOTE: update() sanitizes input params
-    const branches = await BranchController.update(req.user, req.params.orgid, req.params.projectid,
-      branchData, options);
+    const branches = await BranchController.update(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      branchData,
+      options,
+    );
     const branchesPublicData = sani.html(
-      branches.map(b => publicData.getPublicData(req.user, b, 'branch', options))
+      branches.map((b) => publicData.getPublicData(req.user, b, 'branch', options)),
     );
 
     // Format JSON
@@ -3386,11 +3280,10 @@ async function patchBranches(req, res, next) {
     // Sets the message to the public branch data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3420,7 +3313,7 @@ async function deleteBranches(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     ids: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3430,8 +3323,7 @@ async function deleteBranches(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3440,14 +3332,11 @@ async function deleteBranches(req, res, next) {
   if (req.params.branchid) {
     // If an ID was provided in the body, ensure it matches the ID in params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.branchid)) {
-      const error = new M.DataFormatError(
-        'Branch ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Branch ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
     ids = req.params.branchid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -3463,9 +3352,14 @@ async function deleteBranches(req, res, next) {
 
   try {
     // Remove the specified branches
-    const branchIDs = await BranchController.remove(req.user, req.params.orgid,
-      req.params.projectid, ids, options);
-    const parsedIDs = branchIDs.map(p => utils.parseID(p).pop());
+    const branchIDs = await BranchController.remove(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      ids,
+      options,
+    );
+    const parsedIDs = branchIDs.map((p) => utils.parseID(p).pop());
 
     // Format JSON
     const json = formatJSON(parsedIDs, minified);
@@ -3473,11 +3367,10 @@ async function deleteBranches(req, res, next) {
     // Sets the message to the deleted branch ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3521,7 +3414,7 @@ async function getArtifacts(req, res, next) {
     description: 'string',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3531,8 +3424,7 @@ async function getArtifacts(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3541,16 +3433,14 @@ async function getArtifacts(req, res, next) {
   if (options.ids) {
     artIDs = options.ids;
     delete options.ids;
-  }
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  } else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     // No IDs included in options, check body
     artIDs = req.body;
   }
   // Check artifact object in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    artIDs = req.body.map(a => a.id);
-  }
-  else if (req.params.artifactid) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    artIDs = req.body.map((a) => a.id);
+  } else if (req.params.artifactid) {
     artIDs = req.params.artifactid;
   }
 
@@ -3576,10 +3466,16 @@ async function getArtifacts(req, res, next) {
   try {
     // Find the artifacts
     // NOTE: find() sanitizes input params
-    const artifacts = await ArtifactController.find(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, artIDs, options);
+    const artifacts = await ArtifactController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      artIDs,
+      options,
+    );
     const artifactsPublicData = sani.html(
-      artifacts.map(a => publicData.getPublicData(req.user, a, 'artifact', options))
+      artifacts.map((a) => publicData.getPublicData(req.user, a, 'artifact', options)),
     );
 
     // Verify artifacts public data array is not empty
@@ -3598,8 +3494,7 @@ async function getArtifacts(req, res, next) {
         // If JMI type 1, return plain artifact public data
         if (format === 'jmi1') {
           jmiData = artifactsPublicData;
-        }
-        else if (format === 'jmi2') {
+        } else if (format === 'jmi2') {
           jmiData = jmi.convertJMI(1, 2, artifactsPublicData, 'id');
         }
 
@@ -3609,11 +3504,10 @@ async function getArtifacts(req, res, next) {
         // Sets the message to the public JMI artifact data and the status code to 200
         res.locals = {
           message: json,
-          statusCode: 200
+          statusCode: 200,
         };
         next();
-      }
-      catch (err) {
+      } catch (err) {
         throw err;
       }
     }
@@ -3624,11 +3518,10 @@ async function getArtifacts(req, res, next) {
     // Sets the message to the public artifact data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3659,7 +3552,7 @@ async function postArtifacts(req, res, next) {
     populate: 'array',
     fields: 'array',
     minified: 'boolean',
-    gzip: 'boolean'
+    gzip: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3669,8 +3562,7 @@ async function postArtifacts(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3687,36 +3579,37 @@ async function postArtifacts(req, res, next) {
     try {
       // This function parses incoming gzipped data
       artifactData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.artifactid) {
+  } else if (req.params.artifactid) {
     // If artifact ID was provided in the body, ensure it matches artifact ID in params
     if (req.body.hasOwnProperty('id') && req.params.artifactid !== req.body.id) {
-      const error = new M.DataFormatError(
-        'Artifact ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Artifact ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
 
     artifactData = req.body;
     artifactData.id = req.params.artifactid;
-  }
-  else {
+  } else {
     artifactData = req.body;
   }
 
   // Create artifacts with provided parameters
   // NOTE: create() sanitizes input params
   try {
-    const artifacts = await ArtifactController.create(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, artifactData, options);
+    const artifacts = await ArtifactController.create(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      artifactData,
+      options,
+    );
 
     const artifactsPublicData = sani.html(
-      artifacts.map(a => publicData.getPublicData(req.user, a, 'artifact', options))
+      artifacts.map((a) => publicData.getPublicData(req.user, a, 'artifact', options)),
     );
 
     // Format JSON
@@ -3725,11 +3618,10 @@ async function postArtifacts(req, res, next) {
     // Sets the message to the public artifact data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
 }
@@ -3758,7 +3650,7 @@ async function patchArtifacts(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3768,8 +3660,7 @@ async function patchArtifacts(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3786,25 +3677,20 @@ async function patchArtifacts(req, res, next) {
     try {
       // This function parses incoming gzipped data
       artifactData = await utils.handleGzip(req);
-    }
-    catch (error) {
+    } catch (error) {
       // Error occurred with options, report it
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
-  }
-  else if (req.params.artifactid) {
+  } else if (req.params.artifactid) {
     // If artifact ID was provided in the body, ensure it matches artifact ID in params
     if (req.body.hasOwnProperty('id') && req.params.artifactid !== req.body.id) {
-      const error = new M.DataFormatError(
-        'Artifact ID in the body does not match ID in the params.', 'warn'
-      );
+      const error = new M.DataFormatError('Artifact ID in the body does not match ID in the params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
 
     artifactData = req.body;
     artifactData.id = req.params.artifactid;
-  }
-  else {
+  } else {
     // Sanitize body
     artifactData = JSON.parse(JSON.stringify(req.body));
   }
@@ -3812,11 +3698,17 @@ async function patchArtifacts(req, res, next) {
   try {
     // Update the specified artifacts
     // NOTE: update() sanitizes input params
-    const artifacts = await ArtifactController.update(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, artifactData, options);
+    const artifacts = await ArtifactController.update(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      artifactData,
+      options,
+    );
 
     const artifactsPublicData = sani.html(
-      artifacts.map(a => publicData.getPublicData(req.user, a, 'artifact', options))
+      artifacts.map((a) => publicData.getPublicData(req.user, a, 'artifact', options)),
     );
 
     // Format JSON
@@ -3825,11 +3717,10 @@ async function patchArtifacts(req, res, next) {
     // Sets the message to the public artifact data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3860,7 +3751,7 @@ async function deleteArtifacts(req, res, next) {
   const validOptions = {
     minified: 'boolean',
     deleteBlob: 'boolean',
-    ids: 'array'
+    ids: 'array',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -3870,8 +3761,7 @@ async function deleteArtifacts(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3879,8 +3769,7 @@ async function deleteArtifacts(req, res, next) {
   let ids;
   if (req.params.artifactid) {
     ids = req.params.artifactid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -3896,9 +3785,15 @@ async function deleteArtifacts(req, res, next) {
   try {
     // Remove the specified artifacts
     // NOTE: remove() sanitizes input params
-    const removedArtIDs = await ArtifactController.remove(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, ids, options);
-    const parsedIDs = removedArtIDs.map(a => utils.parseID(a).pop());
+    const removedArtIDs = await ArtifactController.remove(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      ids,
+      options,
+    );
+    const parsedIDs = removedArtIDs.map((a) => utils.parseID(a).pop());
 
     // Format JSON
     const json = formatJSON(parsedIDs, minified);
@@ -3906,11 +3801,10 @@ async function deleteArtifacts(req, res, next) {
     // Sets the message to the deleted artifact ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -3935,17 +3829,19 @@ async function listBlobs(req, res, next) {
   if (!req.user) return noUserError(req, res);
 
   try {
-    const artifactList = await ArtifactController.listBlobs(req.user, req.params.orgid,
-      req.params.projectid);
+    const artifactList = await ArtifactController.listBlobs(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+    );
 
     // Sets the message to the public artifact data and the status code to 200
     res.locals = {
       message: artifactList,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.returnResponse(req, res, error.message, errors.getStatusCode(error));
   }
@@ -3970,8 +3866,12 @@ async function getBlob(req, res, next) {
   if (!req.user) return noUserError(req, res, next);
 
   try {
-    const artifactBlob = await ArtifactController.getBlob(req.user, req.params.orgid,
-      req.params.projectid, req.query);
+    const artifactBlob = await ArtifactController.getBlob(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.query,
+    );
 
     // Set filename
     res.header('Content-Disposition', `attachment; filename=${req.query.filename}`);
@@ -3981,11 +3881,10 @@ async function getBlob(req, res, next) {
     res.locals = {
       message: artifactBlob,
       statusCode: 200,
-      contentType: utils.getContentType(req.query.filename)
+      contentType: utils.getContentType(req.query.filename),
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4007,7 +3906,7 @@ async function postBlob(req, res, next) {
   // Skip controller code if a plugin pre-hook threw an error
   if (res.statusCode !== 200) return next();
 
-  await upload(req, res, async function(err) {
+  await upload(req, res, async (err) => {
     // Sanity Check: there should always be a user in the request
     if (!req.user) return noUserError(req, res, next);
 
@@ -4025,8 +3924,13 @@ async function postBlob(req, res, next) {
     }
 
     try {
-      const artifact = await ArtifactController.postBlob(req.user, req.params.orgid,
-        req.params.projectid, req.body, req.file.buffer);
+      const artifact = await ArtifactController.postBlob(
+        req.user,
+        req.params.orgid,
+        req.params.projectid,
+        req.body,
+        req.file.buffer,
+      );
 
       // Set minified to true
       const minified = true;
@@ -4037,11 +3941,10 @@ async function postBlob(req, res, next) {
       // Sets the message to the blob data and the status code to 200
       res.locals = {
         message: json,
-        statusCode: 200
+        statusCode: 200,
       };
       next();
-    }
-    catch (error) {
+    } catch (error) {
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
   });
@@ -4067,8 +3970,12 @@ async function deleteBlob(req, res, next) {
   if (!req.user) return noUserError(req, res, next);
 
   try {
-    const artifact = await ArtifactController.deleteBlob(req.user, req.params.orgid,
-      req.params.projectid, req.query);
+    const artifact = await ArtifactController.deleteBlob(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.query,
+    );
 
     // Set minified to true
     const minified = true;
@@ -4079,11 +3986,10 @@ async function deleteBlob(req, res, next) {
     // Sets the message to the deleted blob data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4111,7 +4017,7 @@ async function getBlobById(req, res, next) {
 
   // Define valid option and its parsed type
   const validOptions = {
-    includeArchived: 'boolean'
+    includeArchived: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -4121,8 +4027,7 @@ async function getBlobById(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4133,17 +4038,25 @@ async function getBlobById(req, res, next) {
 
     // Find the artifact from its artifact.id, project.id, and org.id
     // NOTE: find() sanitizes input params
-    const artMetadata = await ArtifactController.find(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, req.params.artifactid, options);
+    const artMetadata = await ArtifactController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      req.params.artifactid,
+      options,
+    );
 
     // Ensure blob found
     if (artMetadata.length === 0) {
-      throw new M.NotFoundError(
-        `No artifact blob found. [${req.params.artifactid}]`, 'warn'
-      );
+      throw new M.NotFoundError(`No artifact blob found. [${req.params.artifactid}]`, 'warn');
     }
-    const artifactBlob = await ArtifactController.getBlob(req.user, req.params.orgid,
-      req.params.projectid, artMetadata[0]);
+    const artifactBlob = await ArtifactController.getBlob(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      artMetadata[0],
+    );
 
     // Set filename
     res.header('Content-Disposition', `attachment; filename=${artMetadata[0].filename}`);
@@ -4153,11 +4066,10 @@ async function getBlobById(req, res, next) {
     res.locals = {
       message: artifactBlob,
       statusCode: 200,
-      contentType: utils.getContentType(artMetadata[0].filename)
+      contentType: utils.getContentType(artMetadata[0].filename),
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4205,7 +4117,7 @@ async function getWebhooks(req, res, next) {
     triggers: 'array',
     createdBy: 'string',
     lastModifiedBy: 'string',
-    archivedBy: 'string'
+    archivedBy: 'string',
   };
 
   // Loop through req.query
@@ -4229,8 +4141,7 @@ async function getWebhooks(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4239,16 +4150,14 @@ async function getWebhooks(req, res, next) {
   if (options.ids) {
     webhookIDs = options.ids;
     delete options.ids;
-  }
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'string')) {
+  } else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'string')) {
     // No IDs include in options, check body
     webhookIDs = req.body;
   }
   // Check for webhook objects in body
-  else if (Array.isArray(req.body) && req.body.every(s => typeof s === 'object')) {
-    webhookIDs = req.body.map(w => w.id);
-  }
-  else if (req.params.webhookid) {
+  else if (Array.isArray(req.body) && req.body.every((s) => typeof s === 'object')) {
+    webhookIDs = req.body.map((w) => w.id);
+  } else if (req.params.webhookid) {
     webhookIDs = req.params.webhookid;
   }
 
@@ -4264,7 +4173,7 @@ async function getWebhooks(req, res, next) {
 
     // Get public data of webhooks
     const webhooksPublicData = sani.html(
-      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options))
+      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options)),
     );
 
     // Verify the webhooks public data array is not empty
@@ -4278,11 +4187,10 @@ async function getWebhooks(req, res, next) {
     // Sets the message to the public webhook data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4311,7 +4219,7 @@ async function postWebhooks(req, res, next) {
   const validOptions = {
     populate: 'string',
     fields: 'string',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -4325,8 +4233,7 @@ async function postWebhooks(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4343,7 +4250,7 @@ async function postWebhooks(req, res, next) {
 
     // Get the webhooks' public data
     const webhookPublicData = sani.html(
-      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options))
+      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options)),
     );
 
     // Format JSON
@@ -4352,11 +4259,10 @@ async function postWebhooks(req, res, next) {
     // Sets the message to the public webhook data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4385,7 +4291,7 @@ async function patchWebhooks(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -4399,8 +4305,7 @@ async function patchWebhooks(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4415,16 +4320,13 @@ async function patchWebhooks(req, res, next) {
   if (req.params.webhookid) {
     // If there's a webhookid in the body, check that it matches the params
     if (req.body.hasOwnProperty('id') && (req.body.id !== req.params.webhookid)) {
-      const error = new M.DataFormatError(
-        'Webhook ID in body does not match webhook ID in params.', 'warn'
-      );
+      const error = new M.DataFormatError('Webhook ID in body does not match webhook ID in params.', 'warn');
       return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
     }
 
     webhookData = req.body;
     webhookData.id = req.params.webhookid;
-  }
-  else {
+  } else {
     webhookData = req.body;
   }
 
@@ -4434,7 +4336,7 @@ async function patchWebhooks(req, res, next) {
 
     // Get the webhooks' public data
     const webhookPublicData = sani.html(
-      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options))
+      webhooks.map((w) => publicData.getPublicData(req.user, w, 'webhook', options)),
     );
 
     // Format JSON
@@ -4443,11 +4345,10 @@ async function patchWebhooks(req, res, next) {
     // Sets the message to the public webhook data and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4475,7 +4376,7 @@ async function deleteWebhooks(req, res, next) {
   // Define valid option and its parsed type
   const validOptions = {
     ids: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -4489,8 +4390,7 @@ async function deleteWebhooks(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4498,8 +4398,7 @@ async function deleteWebhooks(req, res, next) {
   let ids;
   if (req.params.webhookid) {
     ids = req.params.webhookid;
-  }
-  else {
+  } else {
     // Extract IDs from request
     ids = utils.parseRequestIDs(req, options);
 
@@ -4523,11 +4422,10 @@ async function deleteWebhooks(req, res, next) {
     // Sets the message to the deleted webhook ids and the status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4577,8 +4475,7 @@ async function triggerWebhook(req, res, next) {
         const key = tokenPath[i];
         rawToken = rawToken[key];
       }
-    }
-    catch (error) {
+    } catch (error) {
       M.log.warn(error);
       throw new M.DataFormatError('Token could not be found in the request.', 'warn');
     }
@@ -4611,14 +4508,13 @@ async function triggerWebhook(req, res, next) {
     // Sets the message to "success" and the status code to 200
     res.locals = {
       message: 'success',
-      statusCode: 200
+      statusCode: 200,
     };
 
     // Set a mock user object to be used in the response logging middleware
     req.user = { _id: `Trigger of webhook ${webhook._id}` };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4649,7 +4545,7 @@ async function getMetrics(req, res, next) {
   const validOptions = {
     populate: 'array',
     fields: 'array',
-    minified: 'boolean'
+    minified: 'boolean',
   };
 
   // Sanity Check: there should always be a user in the request
@@ -4659,8 +4555,7 @@ async function getMetrics(req, res, next) {
   try {
     // Extract options from request query
     options = utils.parseOptions(req.query, validOptions);
-  }
-  catch (error) {
+  } catch (error) {
     // Error occurred with options, report it
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }
@@ -4673,8 +4568,13 @@ async function getMetrics(req, res, next) {
 
   try {
     // Get all elements from this model
-    const allElements = await ElementController.find(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, options);
+    const allElements = await ElementController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      options,
+    );
 
     // Define list/objects to store temp metric data
     const dateList = [];
@@ -4722,15 +4622,14 @@ async function getMetrics(req, res, next) {
         const count = seenTypes[elem.type][0] + 1;
         // Save off type count and overall percentage
         seenTypes[elem.type] = [count, (count / modelSize).toFixed(2)];
-      }
-      else {
+      } else {
         // New type, set count to 1
         seenTypes[elem.type] = [1, (1 / modelSize).toFixed(2)];
       }
     }
 
     // Loop through all found element types
-    Object.keys(seenTypes).forEach(function(type) {
+    Object.keys(seenTypes).forEach((type) => {
       const count = seenTypes[type][0];
       const percentage = seenTypes[type][1];
       // Create a triplet: elemType, numOfElemType, typePercentage
@@ -4744,16 +4643,22 @@ async function getMetrics(req, res, next) {
 
     // Create the metric element
     const metrics = {
-      Date: new Date(),                        // Date when metric was run
-      NumOfElems: modelSize,                   // Number of elements in this model
-      Users: userList,                         // Users who created/modifed this model
+      Date: new Date(), // Date when metric was run
+      NumOfElems: modelSize, // Number of elements in this model
+      Users: userList, // Users who created/modifed this model
       LastModifiedDaysAgo: daysAgo.toFixed(0), // Number of days since this model was last modified
-      Types: typeList                          // Array of ElemType triplets
+      Types: typeList, // Array of ElemType triplets
     };
 
     // Find any previously created metrics element
-    let metricsElem = await ElementController.find(req.user, req.params.orgid,
-      req.params.projectid, req.params.branchid, ['__metrics__'], options);
+    let metricsElem = await ElementController.find(
+      req.user,
+      req.params.orgid,
+      req.params.projectid,
+      req.params.branchid,
+      ['__metrics__'],
+      options,
+    );
 
     // Check if a __metrics__ element exists
     if (metricsElem.length === 0) {
@@ -4763,15 +4668,19 @@ async function getMetrics(req, res, next) {
         name: 'Model Metrics',
         parent: '__mbee__',
         custom: {
-          metrics: [metrics]
-        }
+          metrics: [metrics],
+        },
       };
 
       // Create it
-      await ElementController.create(req.user, req.params.orgid,
-        req.params.projectid, req.params.branchid, createObj);
-    }
-    else {
+      await ElementController.create(
+        req.user,
+        req.params.orgid,
+        req.params.projectid,
+        req.params.branchid,
+        createObj,
+      );
+    } else {
       // Metrics element already exists, update it
       const metricsArr = metricsElem[0].custom.metrics;
 
@@ -4783,13 +4692,19 @@ async function getMetrics(req, res, next) {
       const updateObj = {
         id: '__metrics__',
         custom: {
-          metrics: metricsArr
-        }
+          metrics: metricsArr,
+        },
       };
 
       // __metrics__ exist, update it
-      metricsElem = await ElementController.update(req.user, req.params.orgid,
-        req.params.projectid, req.params.branchid, updateObj, options);
+      metricsElem = await ElementController.update(
+        req.user,
+        req.params.orgid,
+        req.params.projectid,
+        req.params.branchid,
+        updateObj,
+        options,
+      );
     }
 
     // Format JSON
@@ -4798,11 +4713,10 @@ async function getMetrics(req, res, next) {
     // Sets message to the metric data, status code to 200
     res.locals = {
       message: json,
-      statusCode: 200
+      statusCode: 200,
     };
     next();
-  }
-  catch (error) {
+  } catch (error) {
     // If an error was thrown, return it and its status
     return utils.formatResponse(req, res, error.message, errors.getStatusCode(error), next);
   }

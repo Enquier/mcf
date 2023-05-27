@@ -46,7 +46,7 @@ const jmi = M.require('lib.jmi-conversions');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   try {
     // If data directory doesn't exist, create it
     if (!fs.existsSync(path.join(M.root, 'data'))) {
@@ -86,12 +86,10 @@ module.exports.up = async function() {
     await sixToSevenProjectHelper(projects, jmiUsers, jmiOrgs);
     await sixToSevenElementHelper(elements, jmiUsers, jmiProjects, jmiElements);
     await sixToSevenUserHelper(users, jmiUsers);
-  }
-  catch (error) {
+  } catch (error) {
     throw new M.DatabaseError(error.message, 'warn');
   }
 };
-
 
 /**
  * @description Helper function for 0.6.0 to 0.6.0.1 migration. Handles all
@@ -132,11 +130,9 @@ function sixToSevenOrgHelper(orgs, jmi2Users) {
         org.permissions.read.forEach((user) => {
           if (org.permissions.admin.includes(user)) {
             newPermissions[user] = ['read', 'write', 'admin'];
-          }
-          else if (org.permissions.write.includes(user)) {
+          } else if (org.permissions.write.includes(user)) {
             newPermissions[user] = ['read', 'write'];
-          }
-          else {
+          } else {
             newPermissions[user] = ['read'];
           }
         });
@@ -169,43 +165,43 @@ function sixToSevenOrgHelper(orgs, jmi2Users) {
     // Delete all currently existing orgs
     Organization.deleteMany({})
     // Find all indexes in the organizations collections
-    .then(() => Organization.getIndexes())
-    .then((indexes) => {
-      const promises = [];
-      // Loop through the found indexes
-      indexes.forEach((index) => {
+      .then(() => Organization.getIndexes())
+      .then((indexes) => {
+        const promises = [];
+        // Loop through the found indexes
+        indexes.forEach((index) => {
         // If unique ID index exists, delete from orgs collection
-        if (index.name === 'id_1') {
-          promises.push(Organization.deleteIndex('id_1'));
-        }
-        // If unique name index exists, delete from orgs collection
-        else if (index.name === 'name_1') {
-          promises.push(Organization.deleteIndex('name_1'));
-        }
-      });
-
-      // Return when all organization indexes have been dropped
-      return Promise.all(promises);
-    })
-    // Insert updated orgs
-    .then(() => {
-      // If there are orgs to add, add them
-      if (orgsToInsert.length > 0) {
-        return Organization.insertMany(orgsToInsert);
-      }
-    })
-    .then(() => {
-      if (fs.existsSync(path.join(M.root, 'data', 'orgs.json'))) {
-        return new Promise(function(res, rej) {
-          fs.unlink(path.join(M.root, 'data', 'orgs.json'), function(err) {
-            if (err) rej(err);
-            else res();
-          });
+          if (index.name === 'id_1') {
+            promises.push(Organization.deleteIndex('id_1'));
+          }
+          // If unique name index exists, delete from orgs collection
+          else if (index.name === 'name_1') {
+            promises.push(Organization.deleteIndex('name_1'));
+          }
         });
-      }
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+
+        // Return when all organization indexes have been dropped
+        return Promise.all(promises);
+      })
+    // Insert updated orgs
+      .then(() => {
+      // If there are orgs to add, add them
+        if (orgsToInsert.length > 0) {
+          return Organization.insertMany(orgsToInsert);
+        }
+      })
+      .then(() => {
+        if (fs.existsSync(path.join(M.root, 'data', 'orgs.json'))) {
+          return new Promise((res, rej) => {
+            fs.unlink(path.join(M.root, 'data', 'orgs.json'), (err) => {
+              if (err) rej(err);
+              else res();
+            });
+          });
+        }
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }
 
@@ -240,11 +236,11 @@ function sixToSevenProjectHelper(projects, jmi2Users, jmi2Orgs) {
 
         // Change the permissions from ObjectIDs to strings
         project.permissions.read = project.permissions.read
-        .map((u) => jmi2Users[u].username) || [];
+          .map((u) => jmi2Users[u].username) || [];
         project.permissions.write = project.permissions.write
-        .map((u) => jmi2Users[u].username) || [];
+          .map((u) => jmi2Users[u].username) || [];
         project.permissions.admin = project.permissions.admin
-        .map((u) => jmi2Users[u].username) || [];
+          .map((u) => jmi2Users[u].username) || [];
 
         const newPermissions = {};
         // Convert permissions from arrays to objects with username as the keys,
@@ -252,11 +248,9 @@ function sixToSevenProjectHelper(projects, jmi2Users, jmi2Orgs) {
         project.permissions.read.forEach((user) => {
           if (project.permissions.admin.includes(user)) {
             newPermissions[user] = ['read', 'write', 'admin'];
-          }
-          else if (project.permissions.write.includes(user)) {
+          } else if (project.permissions.write.includes(user)) {
             newPermissions[user] = ['read', 'write'];
-          }
-          else {
+          } else {
             newPermissions[user] = ['read'];
           }
         });
@@ -293,33 +287,33 @@ function sixToSevenProjectHelper(projects, jmi2Users, jmi2Orgs) {
     // Delete all projects
     Project.deleteMany({})
     // Find all indexes in the projects collections
-    .then(() => Project.getIndexes())
-    .then((indexes) => {
-      const indexNames = indexes.map(i => i.name);
-      // If unique ID index exists, delete from projects collection
-      if (indexNames.includes('id_1')) {
-        return Project.deleteIndex('id_1');
-      }
-    })
+      .then(() => Project.getIndexes())
+      .then((indexes) => {
+        const indexNames = indexes.map((i) => i.name);
+        // If unique ID index exists, delete from projects collection
+        if (indexNames.includes('id_1')) {
+          return Project.deleteIndex('id_1');
+        }
+      })
     // Insert updated projects
-    .then(() => {
+      .then(() => {
       // If there are projects to add, add them
-      if (projectsToInsert.length > 0) {
-        return Project.insertMany(projectsToInsert);
-      }
-    })
-    .then(() => {
-      if (fs.existsSync(path.join(M.root, 'data', 'projects.json'))) {
-        return new Promise(function(res, rej) {
-          fs.unlink(path.join(M.root, 'data', 'projects.json'), function(err) {
-            if (err) rej(err);
-            else res();
+        if (projectsToInsert.length > 0) {
+          return Project.insertMany(projectsToInsert);
+        }
+      })
+      .then(() => {
+        if (fs.existsSync(path.join(M.root, 'data', 'projects.json'))) {
+          return new Promise((res, rej) => {
+            fs.unlink(path.join(M.root, 'data', 'projects.json'), (err) => {
+              if (err) rej(err);
+              else res();
+            });
           });
-        });
-      }
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+        }
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }
 
@@ -381,15 +375,13 @@ function sixToSevenElementHelper(elements, jmi2Users, jmi2Projects, jmi2Elements
         }
         if (element.source) {
           element.source = jmi2Elements[element.source].id;
-        }
-        else {
+        } else {
           // Every element now has a source, set default to null
           element.source = null;
         }
         if (element.target) {
           element.target = jmi2Elements[element.target].id;
-        }
-        else {
+        } else {
           // Every element now has a target, set default to null
           element.target = null;
         }
@@ -405,43 +397,43 @@ function sixToSevenElementHelper(elements, jmi2Users, jmi2Projects, jmi2Elements
     // Delete all elements in the database
     Element.deleteMany({})
     // Find all indexes in the elements collections
-    .then(() => Element.getIndexes())
-    .then((indexes) => {
-      const promises = [];
-      // Loop through the found indexes
-      indexes.forEach((index) => {
+      .then(() => Element.getIndexes())
+      .then((indexes) => {
+        const promises = [];
+        // Loop through the found indexes
+        indexes.forEach((index) => {
         // If unique UUID index exists, delete from elements collection
-        if (index.name === 'uuid_1') {
-          promises.push(Element.deleteIndex('uuid_1'));
-        }
-        // If unique ID index exists, delete from elements collection
-        else if (index.name === 'id_1') {
-          promises.push(Element.deleteIndex('id_1'));
-        }
-      });
-
-      // Return when all element indexes have been dropped
-      return Promise.all(promises);
-    })
-    // Insert updated elements
-    .then(() => {
-      // If there are elements to add, add them
-      if (elementsToInsert.length > 0) {
-        return Element.insertMany(elementsToInsert);
-      }
-    })
-    .then(() => {
-      if (fs.existsSync(path.join(M.root, 'data', 'elements.json'))) {
-        return new Promise(function(res, rej) {
-          fs.unlink(path.join(M.root, 'data', 'elements.json'), function(err) {
-            if (err) rej(err);
-            else res();
-          });
+          if (index.name === 'uuid_1') {
+            promises.push(Element.deleteIndex('uuid_1'));
+          }
+          // If unique ID index exists, delete from elements collection
+          else if (index.name === 'id_1') {
+            promises.push(Element.deleteIndex('id_1'));
+          }
         });
-      }
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+
+        // Return when all element indexes have been dropped
+        return Promise.all(promises);
+      })
+    // Insert updated elements
+      .then(() => {
+      // If there are elements to add, add them
+        if (elementsToInsert.length > 0) {
+          return Element.insertMany(elementsToInsert);
+        }
+      })
+      .then(() => {
+        if (fs.existsSync(path.join(M.root, 'data', 'elements.json'))) {
+          return new Promise((res, rej) => {
+            fs.unlink(path.join(M.root, 'data', 'elements.json'), (err) => {
+              if (err) rej(err);
+              else res();
+            });
+          });
+        }
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }
 
@@ -496,23 +488,23 @@ function sixToSevenUserHelper(users, jmi2Users) {
     // Delete all users in the database
     User.deleteMany({})
     // Insert updated users
-    .then(() => {
+      .then(() => {
       // If there are users to add, add them
-      if (usersToInsert.length > 0) {
-        return User.insertMany(usersToInsert);
-      }
-    })
-    .then(() => {
-      if (fs.existsSync(path.join(M.root, 'data', 'users.json'))) {
-        return new Promise(function(res, rej) {
-          fs.unlink(path.join(M.root, 'data', 'users.json'), function(err) {
-            if (err) rej(err);
-            else res();
+        if (usersToInsert.length > 0) {
+          return User.insertMany(usersToInsert);
+        }
+      })
+      .then(() => {
+        if (fs.existsSync(path.join(M.root, 'data', 'users.json'))) {
+          return new Promise((res, rej) => {
+            fs.unlink(path.join(M.root, 'data', 'users.json'), (err) => {
+              if (err) rej(err);
+              else res();
+            });
           });
-        });
-      }
-    })
-    .then(() => resolve())
-    .catch((error) => reject(error));
+        }
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }

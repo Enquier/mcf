@@ -1,0 +1,34 @@
+/**
+ * @classification UNCLASSIFIED
+ *
+ * @module ui.components.context.AuthProvider
+ *
+ * @copyright Copyright (C) 2018, Lockheed Martin Corporation
+ *
+ * @license Apache-2.0
+ *
+ * @owner Connor Doyle
+ *
+ * @author Connor Doyle
+ *
+ * @description
+ */
+
+/* Modified ESLint rules for React. */
+/* eslint-disable no-unused-vars */
+/* eslint-disable jsdoc/require-jsdoc */
+
+// Other Modules
+import axios from 'axios';
+
+// React modules
+
+class HttpProvider {
+  constructor() {
+    this.httpClient = axios.create();
+  }
+
+  useHttpClient = () => this.httpClient;
+}
+
+export default HttpProvider;

@@ -72,8 +72,7 @@ async function createUser() {
     const savedUser = (await User.insertMany(user))[0];
     // Ensure that the user password is stored as a hash
     savedUser.password.should.equal(derivedKey.toString('hex'));
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -92,8 +91,7 @@ async function getUser() {
     user.fname.should.equal(testData.users[1].fname);
     user.lname.should.equal(testData.users[1].lname);
     user.preferredName.should.equal(testData.users[1].preferredName);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -111,8 +109,7 @@ async function getUserPublicData() {
     user.fname.should.equal(testData.users[1].fname);
     user.lname.should.equal(testData.users[1].lname);
     user.preferredName.should.equal(testData.users[1].preferredName);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -131,8 +128,7 @@ async function verifyValidPassword() {
     const result = await User.verifyPassword(user, testData.users[1].password);
     // expected - verifyPassword() returned true
     result.should.equal(true);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -154,8 +150,7 @@ async function updateUser() {
     // Verify user is updated correctly
     foundUser._id.should.equal(testData.users[1].username);
     foundUser.fname.should.equal('Updated');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -175,8 +170,7 @@ async function deleteUser() {
 
     // foundUser should be null
     should.not.exist(foundUser);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);
@@ -205,8 +199,7 @@ async function saveOldPassword() {
     const oldPasswords = User.checkOldPasswords(userObj, newPassword);
 
     oldPasswords.should.have.members([userObj.password]);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // There should be no error
     should.not.exist(error);

@@ -21,17 +21,18 @@
 
 // React modules
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // MBEE modules
 import LoginPage from './LoginPage.jsx';
 
-
 export default function UnauthenticatedApp(props) {
   return (
     <React.Fragment>
-      <Route path={'/login'} component={LoginPage}/>
-      <Route path={'/'} component={() => <Redirect to={'/login'}/>}/>
+      <Routes>
+        <Route path={'/login'} element={<LoginPage />}/>
+        <Route path={'/'} render={() => <Navigate to={'/login'}/>}/>
+      </Routes>
     </React.Fragment>
   );
 }

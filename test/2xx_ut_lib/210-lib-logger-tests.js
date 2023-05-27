@@ -63,15 +63,15 @@ function logMockResponse(done) {
     method: 'POST',
     originalUrl: 'ThisIsATest',
     ip: '127.0.0.1',
-    user: testData.adminUser
+    user: testData.adminUser,
   };
 
   // Create mock response object
   const mockResponse = {
     statusCode: 403,
     locals: {
-      message: 'This is a test response!'
-    }
+      message: 'This is a test response!',
+    },
   };
 
   // Log the response
@@ -81,7 +81,7 @@ function logMockResponse(done) {
   setTimeout(() => {
     // Read the log file and filter out non response logs
     const logData = fs.readFileSync(filePath).toString().split('\n')
-    .filter(e => e.includes('RESPONSE: '));
+      .filter((e) => e.includes('RESPONSE: '));
     // Get the last response entry and remove initial timestamps
     const latestEntry = logData.pop().split('RESPONSE: ')[1];
 
@@ -118,15 +118,15 @@ function logMockSecurityResponse(done) {
     method: 'POST',
     originalUrl: 'ThisIsATest',
     ip: '127.0.0.1',
-    user: testData.adminUser
+    user: testData.adminUser,
   };
 
   // Create mock response object
   const mockResponse = {
     statusCode: 403,
     locals: {
-      message: 'This is a test response!'
-    }
+      message: 'This is a test response!',
+    },
   };
 
   // Log the response
@@ -136,7 +136,7 @@ function logMockSecurityResponse(done) {
   setTimeout(() => {
     // Read the log file and filter out non response logs
     const logData = fs.readFileSync(filePath).toString().split('\n')
-    .filter(e => e.includes('RESPONSE: '));
+      .filter((e) => e.includes('RESPONSE: '));
     // Get the last response entry and remove initial timestamps
     const latestEntry = logData.pop().split('RESPONSE: ')[1];
 

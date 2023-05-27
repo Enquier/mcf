@@ -29,14 +29,13 @@ import { Link } from 'react-router-dom';
 
 // Define function
 class BoxList extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      isTooltipOpen: false
+      isTooltipOpen: false,
     };
 
     this.handleTooltipToggle = this.handleTooltipToggle.bind(this);
@@ -44,7 +43,7 @@ class BoxList extends Component {
 
   // Toggles the tooltip
   handleTooltipToggle() {
-    const isTooltipOpen = this.state.isTooltipOpen;
+    const { isTooltipOpen } = this.state;
 
     // Verify component is not unmounted
     if (!this.mounted) {
@@ -79,7 +78,7 @@ class BoxList extends Component {
               toggle={this.handleTooltipToggle}>
               {key}
             </Tooltip>
-          </React.Fragment>
+          </React.Fragment>,
         );
       });
     }
@@ -99,8 +98,7 @@ class BoxList extends Component {
         if (btnFor === 'branch') {
           otherPage = 'tag';
           otherPageNum = footer[key].pages[otherPage];
-        }
-        else {
+        } else {
           otherPage = 'branch';
           otherPageNum = footer[key].pages[otherPage];
         }
@@ -120,10 +118,9 @@ class BoxList extends Component {
                 <span className='btn-label'>
                   {key}
                 </span>
-              </Link>
+              </Link>,
           );
-        }
-        else if (key === 'next') {
+        } else if (key === 'next') {
           // Initialize search link
           const link = `?${btnFor}=${Number(changingPage) + 1}&${otherPage}=${otherPageNum}`;
           // Push a new btn to array
@@ -137,7 +134,7 @@ class BoxList extends Component {
               </span>
               <i id={`for-${btnFor}`}
                  className={footer[key].icon}/>
-            </Link>
+            </Link>,
           );
         }
       });
@@ -175,7 +172,6 @@ class BoxList extends Component {
       </div>
     );
   }
-
 }
 
 // Export function

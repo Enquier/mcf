@@ -19,18 +19,18 @@
 
 // React modules
 import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 // MBEE modules
 import Sidebar from '../general/sidebar/sidebar.jsx';
 import SidebarLink from '../general/sidebar/sidebar-link.jsx';
-import UserList from '../admin-console-views/user-list.jsx';
-import OrganizationList from '../admin-console-views/organization-list.jsx';
-import ProjectList from '../admin-console-views/project-list.jsx';
+import UserList from './user-list.jsx';
+import OrganizationList from './organization-list.jsx';
+import ProjectList from './project-list.jsx';
+import { useApiClient } from '../context/ApiClientProvider';
 
 // Define component
 class AdminConsoleHome extends Component {
-
   /* eslint-enable no-unused-vars */
 
   constructor(props) {
@@ -39,17 +39,17 @@ class AdminConsoleHome extends Component {
 
     // Initialize state props
     this.state = {
-      error: null
+      error: null,
     };
   }
 
   componentDidMount() {
+    const { authService } = useApiClient();
     // eslint-disable-next-line no-undef
-    mbeeWhoAmI((err, data) => {
+    authService.checkAuth((err, data) => {
       if (!data.admin) {
         this.setState({ error: 'Page does not exist.' });
-      }
-      else if (err) {
+      } else if (err) {
         // Set error state
         this.setState({ error: err.responseText });
       }
@@ -79,7 +79,7 @@ class AdminConsoleHome extends Component {
                              routerLink='/admin/projects'/>
               </Sidebar>
               { // Define routes for admin page
-                <Switch>
+                <Routes>
                   { /* Route to user management page (home page of admin console) */ }
                   <Route exact path='/admin'
                          render={(props) => (<UserList {...props}/>)}/>
@@ -91,13 +91,12 @@ class AdminConsoleHome extends Component {
                   <Route exact path='/admin/projects'
                          render={(props) => (<ProjectList {...props}
                                                           adminPage={true}/>)}/>
-                </Switch>
+                </Routes>
               }
             </div>
         )
     );
   }
-
 }
 
 export default AdminConsoleHome;

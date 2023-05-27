@@ -92,7 +92,7 @@ function clean(_args) {
     }
 
     // Format the string, concatenating full paths of all plugins
-    const deleteString = plugins.map(p => path.join(root, 'plugins', p)).join(' ');
+    const deleteString = plugins.map((p) => path.join(root, 'plugins', p)).join(' ');
     execSync(`${rmd} ${deleteString}`);
   }
 

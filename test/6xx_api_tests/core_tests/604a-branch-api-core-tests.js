@@ -28,7 +28,7 @@ const jmi = M.require('lib.jmi-conversions');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const test = M.config.test;
+const { test } = M.config;
 let org = null;
 let adminUser = null;
 let projID = null;
@@ -50,8 +50,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       const proj = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error.message).to.equal(null);
@@ -65,8 +64,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -97,7 +95,7 @@ async function postBranch() {
       method: 'post',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches/${branchData.id}`,
       headers: testUtils.getHeaders(),
-      data: branchData
+      data: branchData,
     };
 
     // Make an API request
@@ -123,10 +121,13 @@ async function postBranch() {
     chai.expect(createdBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(createdBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(createdBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -144,13 +145,13 @@ async function postBranches() {
       testData.branches[3],
       testData.branches[4],
       testData.branches[5],
-      testData.branches[6]
+      testData.branches[6],
     ];
     const options = {
       method: 'post',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches`,
       headers: testUtils.getHeaders(),
-      data: branchData
+      data: branchData,
     };
 
     // Make an API request
@@ -185,11 +186,14 @@ async function postBranches() {
       chai.expect(createdBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(createdBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(createdBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -207,7 +211,7 @@ async function getBranch() {
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches/${branchData.id}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -233,10 +237,13 @@ async function getBranch() {
     chai.expect(foundBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(foundBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(foundBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -251,15 +258,15 @@ async function getBranches() {
   try {
     const branchData = [
       testData.branches[1],
-      testData.branches[2]
+      testData.branches[2],
     ];
     const options = {
       method: 'get',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches`,
       headers: testUtils.getHeaders(),
       params: {
-        ids: branchData.map(b => b.id).toString()
-      }
+        ids: branchData.map((b) => b.id).toString(),
+      },
     };
 
     // Make an API request
@@ -294,11 +301,14 @@ async function getBranches() {
       chai.expect(foundBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(foundBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-        '__v', '_id');
+      chai.expect(foundBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -315,13 +325,13 @@ async function patchBranch() {
     const branchData = testData.branches[1];
     const updateObj = {
       id: branchData.id,
-      name: `${branchData.name}_edit`
+      name: `${branchData.name}_edit`,
     };
     const options = {
       method: 'patch',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches/${branchData.id}`,
       headers: testUtils.getHeaders(),
-      data: updateObj
+      data: updateObj,
     };
 
     // Make an API request
@@ -347,10 +357,13 @@ async function patchBranch() {
     chai.expect(updatedBranch.archived).to.equal(false);
 
     // Verify specific fields not returned
-    chai.expect(updatedBranch).to.not.have.any.keys('archivedOn', 'archivedBy',
-      '__v', '_id');
-  }
-  catch (error) {
+    chai.expect(updatedBranch).to.not.have.any.keys(
+      'archivedOn',
+      'archivedBy',
+      '__v',
+      '_id',
+    );
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -369,17 +382,17 @@ async function patchBranches() {
       testData.branches[3],
       testData.branches[4],
       testData.branches[5],
-      testData.branches[6]
+      testData.branches[6],
     ];
-    const updateObj = branchData.map(b => ({
+    const updateObj = branchData.map((b) => ({
       id: b.id,
-      name: `${b.name}_edit`
+      name: `${b.name}_edit`,
     }));
     const options = {
       method: 'patch',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches`,
       headers: testUtils.getHeaders(),
-      data: updateObj
+      data: updateObj,
     };
 
     // Make an API request
@@ -414,11 +427,14 @@ async function patchBranches() {
       chai.expect(updatedBranch.archived).to.equal(false);
 
       // Verify specific fields not returned
-      chai.expect(updatedBranch).to.not.have.any.keys('archivedOn',
-        'archivedBy', '__v', '_id');
+      chai.expect(updatedBranch).to.not.have.any.keys(
+        'archivedOn',
+        'archivedBy',
+        '__v',
+        '_id',
+      );
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -437,7 +453,7 @@ async function deleteBranch() {
       method: 'delete',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches/${branchData.id}`,
       headers: testUtils.getHeaders(),
-      ca: testUtils.readCaFile()
+      ca: testUtils.readCaFile(),
     };
 
     // Make an API request
@@ -450,8 +466,7 @@ async function deleteBranch() {
 
     // Verify correct branch deleted
     chai.expect(deleteBranchID).to.equal(branchData.id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -469,15 +484,15 @@ async function deleteBranches() {
       testData.branches[3],
       testData.branches[4],
       testData.branches[5],
-      testData.branches[6]
+      testData.branches[6],
     ];
 
-    const branchIDs = branchData.map(b => b.id);
+    const branchIDs = branchData.map((b) => b.id);
     const ids = branchIDs.join(',');
     const options = {
       method: 'delete',
       url: `${test.url}/api/orgs/${org._id}/projects/${projID}/branches?ids=${ids}`,
-      headers: testUtils.getHeaders()
+      headers: testUtils.getHeaders(),
     };
 
     // Make an API request
@@ -488,8 +503,7 @@ async function deleteBranches() {
     // Verify response body
     const deletedBranchIDs = res.data;
     chai.expect(deletedBranchIDs).to.have.members(branchIDs);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);

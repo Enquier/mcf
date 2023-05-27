@@ -23,7 +23,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
   Modal,
-  ModalBody, UncontrolledTooltip
+  ModalBody, UncontrolledTooltip,
 } from 'reactstrap';
 
 // MBEE modules
@@ -58,8 +58,7 @@ function UserList(props) {
     if (typeof user === 'object') {
       // Set selected user state
       setSelectedUser(user);
-    }
-    else {
+    } else {
       // Set selected user to null
       setSelectedUser(null);
     }
@@ -77,8 +76,7 @@ function UserList(props) {
     if (typeof username === 'string') {
       // Set selected user state
       setSelectedUser(username);
-    }
-    else {
+    } else {
       setSelectedUser(null);
     }
     // Toggle the modal
@@ -93,8 +91,10 @@ function UserList(props) {
   const refreshUsers = async () => {
     // Set options for request
     const options = {
-      includeArchived: true,
-      sort: 'username'
+      params: {
+        includeArchived: true,
+        sort: 'username',
+      },
     };
 
     // Request user data
@@ -114,7 +114,6 @@ function UserList(props) {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
 
   let listedUsers;
 
@@ -212,12 +211,14 @@ function UserList(props) {
                   <UserListItem className='head-info'
                                 adminState={true}
                                 label={true}
-                                user={{ fname: 'Name',
+                                user={{
+                                  fname: 'Name',
                                   lname: '',
                                   username: 'Username',
                                   preferredName: 'Preferred Name',
                                   email: 'E-mail',
-                                  admin: true }}
+                                  admin: true,
+                                }}
                                 adminLabel={true}
                                 key='user-template'/>
                 </div>

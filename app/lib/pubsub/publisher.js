@@ -5,7 +5,7 @@ const Redis = require('ioredis');
 const publisher = new Redis({
   port: M.config.auth.session.redis_port, // Redis port
   host: M.config.auth.session.redis_host, // Redis host
-  db: M.config.auth.session.redis_db
+  db: M.config.auth.session.redis_db,
 });
 
 // Exporting the publisher

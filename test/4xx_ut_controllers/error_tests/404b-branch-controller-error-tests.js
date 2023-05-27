@@ -65,8 +65,7 @@ describe(M.getModuleName(module.filename), () => {
       // Create project
       proj = await testUtils.createTestProject(adminUser, org._id);
       projID = utils.parseID(proj._id).pop();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -83,8 +82,7 @@ describe(M.getModuleName(module.filename), () => {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
       await testUtils.removeNonAdminUser();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -121,7 +119,7 @@ describe(M.getModuleName(module.filename), () => {
  * @returns {Function} Returns a function to be used as a test.
  */
 function unauthorizedTest(operation) {
-  return async function() {
+  return async function () {
     let branchData = testData.branches[0];
     let op = operation;
     const id = org._id;
@@ -137,7 +135,7 @@ function unauthorizedTest(operation) {
       case 'update':
         branchData = {
           id: branchData.id,
-          description: 'update'
+          description: 'update',
         };
         break;
       case 'remove':
@@ -151,9 +149,8 @@ function unauthorizedTest(operation) {
     try {
       // Attempt to perform the unauthorized operation
       await BranchController[operation](nonAdminUser, org._id, projID, branchData)
-      .should.eventually.be.rejectedWith(`User does not have permission to ${op} branches in the ${level} [${id}]`);
-    }
-    catch (error) {
+        .should.eventually.be.rejectedWith(`User does not have permission to ${op} branches in the ${level} [${id}]`);
+    } catch (error) {
       M.log.error(error);
       should.not.exist(error);
     }
@@ -169,7 +166,7 @@ function unauthorizedTest(operation) {
  * @returns {Function} Returns a function to be used as a test.
  */
 function archivedTest(model, operation) {
-  return async function() {
+  return async function () {
     let branchData = (operation === 'update') ? testData.branches[0] : testData.branches[1];
     let id;
     let name;
@@ -200,7 +197,7 @@ function archivedTest(model, operation) {
       case 'update':
         branchData = {
           id: testData.branches[0].id,
-          name: 'update'
+          name: 'update',
         };
         break;
       case 'find':
@@ -216,14 +213,12 @@ function archivedTest(model, operation) {
       await model.updateOne({ _id: id }, { archived: true });
 
       await BranchController[operation](adminUser, org._id, projID, branchData)
-      .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
+        .should.eventually.be.rejectedWith(`The ${name} [${utils.parseID(id).pop()}] is archived. `
         + 'It must first be unarchived before performing this operation.');
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       should.not.exist(error);
-    }
-    finally {
+    } finally {
       // un-archive the model
       await model.updateOne({ _id: id }, { archived: false });
     }
@@ -243,10 +238,9 @@ async function createExisting() {
 
     // Attempt to create a branch; this branch was already created in the before() function
     await BranchController.create(adminUser, org._id, projID, branchData)
-    .should.eventually.be.rejectedWith('Branches with the following IDs already exist '
+      .should.eventually.be.rejectedWith('Branches with the following IDs already exist '
       + `[${branchData.id}].`);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.warn(error);
     should.not.exist(error);
   }
@@ -260,5 +254,5 @@ async function deleteMasterBranch() {
 
   // Attempt to remove the master branch; should be rejected
   await BranchController.remove(adminUser, org._id, projID, branchID)
-  .should.eventually.be.rejectedWith(`User cannot delete branch: ${branchID}.`);
+    .should.eventually.be.rejectedWith(`User cannot delete branch: ${branchID}.`);
 }

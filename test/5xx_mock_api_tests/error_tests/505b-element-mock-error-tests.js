@@ -31,7 +31,7 @@ const APIController = M.require('controllers.api-controller');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org;
 let project;
@@ -55,8 +55,7 @@ describe(M.getModuleName(module.filename), () => {
       org = await testUtils.createTestOrg(adminUser);
       project = await testUtils.createTestProject(adminUser, org._id);
       projID = project._id;
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -70,8 +69,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -125,14 +123,14 @@ function noReqUser(endpoint) {
     const elemIDs = [
       testData.elements[3].id,
       testData.elements[4].id,
-      testData.elements[5].id
+      testData.elements[5].id,
     ];
 
     query.ids = elemIDs.join(',');
   }
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method, query);
 
@@ -175,14 +173,14 @@ function invalidOptions(endpoint) {
     const elemIDs = [
       testData.elements[3].id,
       testData.elements[4].id,
-      testData.elements[5].id
+      testData.elements[5].id,
     ];
 
     query.ids = elemIDs.join(',');
   }
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method, query);
     req.query = { invalid: 'invalid option' };
@@ -222,7 +220,7 @@ function conflictingIDs(endpoint) {
   const params = { elementid: 'testelem01' };
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -254,12 +252,12 @@ function conflictingIDs(endpoint) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function notFound(endpoint) {
-  return function(done) {
+  return function (done) {
     // Get unused element ids
     const elemIDs = [
       testData.elements[3].id,
       testData.elements[4].id,
-      testData.elements[5].id
+      testData.elements[5].id,
     ];
 
     const id = elemIDs[0];
@@ -270,13 +268,13 @@ function notFound(endpoint) {
     // Parse the method
     const method = testUtils.parseMethod(endpoint);
 
-    let body = { id: id };
+    let body = { id };
     let query = {};
 
     // Body must be an array of ids for get and delete; key-value pair for anything else
     if (endpoint === 'deleteElements' || endpoint === 'getElements') {
       body = [];
-      query = { ids: ids };
+      query = { ids };
     }
 
     const params = { orgid: org._id, projectid: projID, branchid: branchID };

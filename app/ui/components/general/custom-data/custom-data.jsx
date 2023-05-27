@@ -26,14 +26,13 @@ import KeyData from './key-data.jsx';
 /* eslint-enable no-unused-vars */
 
 class CustomData extends Component {
-
   constructor(props) {
     // Initialize parent props
     super(props);
 
     // Initialize state props
     this.state = {
-      custom: this.props.data
+      custom: this.props.data,
     };
   }
 
@@ -57,8 +56,7 @@ class CustomData extends Component {
         // Create the key data view
         keys.push(<KeyData key={`key-${key}`} keyName={key} data={customData[key]}/>);
       });
-    }
-    else {
+    } else {
       // Create no custom data view
       keys.push(<span key={'key-no-data'}>No Custom Data</span>);
     }
@@ -74,7 +72,6 @@ class CustomData extends Component {
       </React.Fragment>
     );
   }
-
 }
 
 export default CustomData;

@@ -24,15 +24,17 @@ const Element = M.require('models.element');
  *
  * @returns {Promise} Returns an empty promise upon completion.
  */
-module.exports.up = async function() {
+module.exports.up = async function () {
   // Ensure there are no branches without an __mbee__, holding_bin, or undefined element
   // Find all branches
   const branches = await Branch.find({});
 
   // Create a list of expected root elements
   const expectedElems = branches.map((b) => utils.createID(b._id, '__mbee__'))
-  .concat(branches.map((b) => utils.createID(b._id, 'holding_bin')),
-    branches.map((b) => utils.createID(b._id, 'undefined')));
+    .concat(
+      branches.map((b) => utils.createID(b._id, 'holding_bin')),
+      branches.map((b) => utils.createID(b._id, 'undefined')),
+    );
 
   // Query for the expected elements
   const foundElems = await Element.find({ _id: expectedElems });
@@ -59,20 +61,18 @@ module.exports.up = async function() {
     if (id === '__mbee__') {
       name = id;
       parent = utils.createID(branchID, 'model');
-    }
-    else if (id === 'holding_bin') {
+    } else if (id === 'holding_bin') {
       name = 'holding bin';
       parent = utils.createID(branchID, '__mbee__');
-    }
-    else if (id === 'undefined') {
+    } else if (id === 'undefined') {
       name = 'undefined element';
       parent = utils.createID(branchID, '__mbee__');
     }
     // Return the element object
     return {
       _id: elemID,
-      name: name,
-      parent: parent,
+      name,
+      parent,
       source: null,
       target: null,
       documentation: '',
@@ -85,7 +85,7 @@ module.exports.up = async function() {
       project: projID,
       branch: branchID,
       createdOn: branch.createdOn,
-      updatedOn: branch.createdOn
+      updatedOn: branch.createdOn,
     };
   });
 

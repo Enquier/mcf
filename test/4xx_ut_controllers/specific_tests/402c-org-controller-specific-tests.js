@@ -52,10 +52,9 @@ describe(M.getModuleName(module.filename), () => {
       // Sort the orgs; they will be returned out of order if custom id validators are used
       orgs = orgs.sort((a, b) => {
         if (Number(a.name.slice(-2)) > Number(b.name.slice(-2))) return 1;
-        else return -1;
+        return -1;
       });
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -69,8 +68,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await Organization.deleteMany({ _id: { $in: orgs.map((o) => o._id) } });
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -133,16 +131,14 @@ async function optionPopulateFind() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (foundOrg[field] !== null) {
+      } else if (foundOrg[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof foundOrg[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in foundOrg[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -166,7 +162,7 @@ async function optionIncludeArchivedFind() {
     // Archive the second org
     const archiveUpdate = {
       id: archivedID,
-      archived: true
+      archived: true,
     };
     await OrgController.update(adminUser, archiveUpdate);
 
@@ -177,17 +173,19 @@ async function optionIncludeArchivedFind() {
     chai.expect(foundOrg[0]._id).to.equal(org._id);
 
     // Perform a find on the orgs with the includeArchived option
-    const foundOrgs = await OrgController.find(adminUser,
-      [orgID, archivedID], options);
+    const foundOrgs = await OrgController.find(
+      adminUser,
+      [orgID, archivedID],
+      options,
+    );
     // There should be two orgs
     chai.expect(foundOrgs.length).to.equal(2);
-    chai.expect(foundOrgs.map(o => o._id)).to.have.members([org._id, archivedOrg._id]);
+    chai.expect(foundOrgs.map((o) => o._id)).to.have.members([org._id, archivedOrg._id]);
 
     // Clean up for the following tests
     archiveUpdate.archived = false;
     await OrgController.update(adminUser, archiveUpdate);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -205,7 +203,7 @@ async function optionFieldsFind() {
 
     // Create fields option
     const fields = ['name', 'permissions'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Perform a find on the org
     const foundOrgs = await OrgController.find(adminUser, orgID, options);
@@ -220,8 +218,7 @@ async function optionFieldsFind() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -240,8 +237,7 @@ async function optionLimitFind() {
     const limitOrgs = await OrgController.find(adminUser, options);
     // There should only be as many orgs as specified in the limit option
     chai.expect(limitOrgs.length).to.equal(options.limit);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -266,8 +262,7 @@ async function optionSkipFind() {
 
     // Check that the first 3 orgs were skipped
     chai.expect(skipOrgs[0]._id).to.equal(allOrgs[3]._id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -291,8 +286,7 @@ async function optionNameFind() {
 
     // Validate that the correct org has been found
     chai.expect(foundOrg.name).to.equal('Test Organization 01');
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -314,8 +308,7 @@ async function optionCreatedByFind() {
     foundOrgs.forEach((org) => {
       chai.expect(org.createdBy).to.equal('test_admin');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -337,8 +330,7 @@ async function optionLastModifiedByFind() {
     foundOrgs.forEach((org) => {
       chai.expect(org.lastModifiedBy).to.equal('test_admin');
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -362,21 +354,26 @@ async function optionArchivedFind() {
     // Archive the second org
     const archiveUpdate = {
       id: archivedID,
-      archived: true
+      archived: true,
     };
     await OrgController.update(adminUser, archiveUpdate);
 
     // Perform a find on the orgs
-    const foundOrgs = await OrgController.find(adminUser,
-      [orgID, archivedID]);
+    const foundOrgs = await OrgController.find(
+      adminUser,
+      [orgID, archivedID],
+    );
     // There should be one unarchived org
     chai.expect(foundOrgs.length).to.equal(1);
     chai.expect(foundOrgs[0]._id).to.equal(org._id);
     chai.expect(foundOrgs[0].archived).to.equal(false);
 
     // Perform a find on the orgs
-    const archivedOrgs = await OrgController.find(adminUser,
-      [orgID, archivedID], options);
+    const archivedOrgs = await OrgController.find(
+      adminUser,
+      [orgID, archivedID],
+      options,
+    );
     // There should be one archived org
     chai.expect(archivedOrgs.length).to.equal(1);
     chai.expect(archivedOrgs[0]._id).to.equal(archivedOrg._id);
@@ -385,8 +382,7 @@ async function optionArchivedFind() {
     // Clean up for the following tests
     archiveUpdate.archived = false;
     await OrgController.update(adminUser, archiveUpdate);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -401,7 +397,7 @@ async function optionArchivedByFind() {
     // Archive a org
     const update = {
       id: utils.parseID(orgs[0]._id).pop(),
-      archived: true
+      archived: true,
     };
     await OrgController.update(adminUser, update);
 
@@ -419,8 +415,7 @@ async function optionArchivedByFind() {
     // Clean up for the following tests
     update.archived = false;
     await OrgController.update(adminUser, update);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -443,8 +438,7 @@ async function optionCustomFind() {
 
     // Validate the found org has the custom data
     chai.expect(foundOrg.custom).to.deep.equal({ leader: 'Test Leader 01' });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -459,15 +453,15 @@ async function optionSortFind() {
     // Update the test org objects
     const testOrg0 = {
       id: orgs[0]._id,
-      name: 'b'
+      name: 'b',
     };
     const testOrg1 = {
       id: orgs[1]._id,
-      name: 'c'
+      name: 'c',
     };
     const testOrg2 = {
       id: orgs[2]._id,
-      name: 'a'
+      name: 'a',
     };
     // Create sort options
     const sortOption = { sort: 'name' };
@@ -478,8 +472,11 @@ async function optionSortFind() {
     // Expect createdOrgs array to contain 3 orgs
     chai.expect(updatedOrgs.length).to.equal(3);
 
-    const foundOrgs = await OrgController.find(adminUser, [testOrg0.id, testOrg1.id, testOrg2.id],
-      sortOption);
+    const foundOrgs = await OrgController.find(
+      adminUser,
+      [testOrg0.id, testOrg1.id, testOrg2.id],
+      sortOption,
+    );
     // Expect to find 3 orgs
     chai.expect(foundOrgs.length).to.equal(3);
 
@@ -492,8 +489,11 @@ async function optionSortFind() {
     chai.expect(foundOrgs[2].id).to.equal(orgs[1].id);
 
     // Find the orgs and return them sorted in reverse
-    const reverseOrgs = await OrgController.find(adminUser, [testOrg0.id, testOrg1.id, testOrg2.id],
-      sortOptionReverse);
+    const reverseOrgs = await OrgController.find(
+      adminUser,
+      [testOrg0.id, testOrg1.id, testOrg2.id],
+      sortOptionReverse,
+    );
     // Expect to find 3 orgs
     chai.expect(foundOrgs.length).to.equal(3);
 
@@ -504,8 +504,7 @@ async function optionSortFind() {
     chai.expect(reverseOrgs[1].id).to.equal(orgs[0].id);
     chai.expect(reverseOrgs[2].name).to.equal('a');
     chai.expect(reverseOrgs[2].id).to.equal(orgs[2].id);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no errors
     chai.expect(error.message).to.equal(null);
@@ -521,7 +520,7 @@ async function optionPopulateCreate() {
     const orgID = utils.parseID(orgs[1]._id).pop();
     const orgObj = {
       id: orgID,
-      name: 'Org01'
+      name: 'Org01',
     };
 
     // Delete the org
@@ -548,16 +547,14 @@ async function optionPopulateCreate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (createdOrg[field] !== null) {
+      } else if (createdOrg[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof createdOrg[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in createdOrg[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -573,7 +570,7 @@ async function optionFieldsCreate() {
     const orgID = utils.parseID(orgs[1]._id).pop();
     const orgObj = {
       id: orgID,
-      name: 'Org01'
+      name: 'Org01',
     };
 
     // Delete the org
@@ -581,11 +578,14 @@ async function optionFieldsCreate() {
 
     // Create fields option
     const fields = ['name', 'permissions'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Create the org
-    const createdOrgs = await OrgController.create(adminUser,
-      orgObj, options);
+    const createdOrgs = await OrgController.create(
+      adminUser,
+      orgObj,
+      options,
+    );
     // There should be one org
     chai.expect(createdOrgs.length).to.equal(1);
     const foundOrg = createdOrgs[0];
@@ -597,8 +597,7 @@ async function optionFieldsCreate() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -614,7 +613,7 @@ async function optionPopulateUpdate() {
     const orgID = utils.parseID(orgs[1]._id).pop();
     const orgObj = {
       id: orgID,
-      name: 'Org01 populate update'
+      name: 'Org01 populate update',
     };
 
     // Get populate options, without archivedBy because this org isn't archived
@@ -623,8 +622,11 @@ async function optionPopulateUpdate() {
     const options = { populate: fields };
 
     // Update the org
-    const updatedOrgs = await OrgController.update(adminUser,
-      orgObj, options);
+    const updatedOrgs = await OrgController.update(
+      adminUser,
+      orgObj,
+      options,
+    );
     // There should be one org
     chai.expect(updatedOrgs.length).to.equal(1);
     const updatedOrg = updatedOrgs[0];
@@ -639,16 +641,14 @@ async function optionPopulateUpdate() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (updatedOrg[field] !== null) {
+      } else if (updatedOrg[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof updatedOrg[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in updatedOrg[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -664,16 +664,19 @@ async function optionFieldsUpdate() {
     const orgID = utils.parseID(orgs[1]._id).pop();
     const orgObj = {
       id: orgID,
-      name: 'Org01 fields update'
+      name: 'Org01 fields update',
     };
 
     // Create fields option
     const fields = ['name', 'permissions'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Update the org
-    const updatedOrgs = await OrgController.update(adminUser,
-      orgObj, options);
+    const updatedOrgs = await OrgController.update(
+      adminUser,
+      orgObj,
+      options,
+    );
     // There should be one org
     chai.expect(updatedOrgs.length).to.equal(1);
     const foundOrg = updatedOrgs[0];
@@ -685,8 +688,7 @@ async function optionFieldsUpdate() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -702,7 +704,7 @@ async function optionPopulateReplace() {
     const orgID = orgs[1]._id;
     const orgObj = {
       id: orgID,
-      name: 'Org01'
+      name: 'Org01',
     };
 
     // Get populate options, without archivedBy because this org isn't archived
@@ -711,8 +713,11 @@ async function optionPopulateReplace() {
     const options = { populate: fields };
 
     // Replace the org
-    const createdOrgs = await OrgController.createOrReplace(adminUser, orgObj,
-      options);
+    const createdOrgs = await OrgController.createOrReplace(
+      adminUser,
+      orgObj,
+      options,
+    );
     // There should be one org
     chai.expect(createdOrgs.length).to.equal(1);
     const createdOrg = createdOrgs[0];
@@ -727,16 +732,14 @@ async function optionPopulateReplace() {
           // Expect each populated field to at least have an id
           chai.expect('_id' in item).to.equal(true);
         });
-      }
-      else if (createdOrg[field] !== null) {
+      } else if (createdOrg[field] !== null) {
         // Expect each populated field to be an object
         chai.expect(typeof createdOrg[field]).to.equal('object');
         // Expect each populated field to at least have an id
         chai.expect('_id' in createdOrg[field]).to.equal(true);
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -752,16 +755,19 @@ async function optionFieldsReplace() {
     const orgID = orgs[1]._id;
     const orgObj = {
       id: orgID,
-      name: 'Org01'
+      name: 'Org01',
     };
 
     // Create fields option
     const fields = ['name', 'permissions'];
-    const options = { fields: fields };
+    const options = { fields };
 
     // Replace the org
-    const createdOrgs = await OrgController.createOrReplace(adminUser,
-      orgObj, options);
+    const createdOrgs = await OrgController.createOrReplace(
+      adminUser,
+      orgObj,
+      options,
+    );
     // There should be one org
     chai.expect(createdOrgs.length).to.equal(1);
     const foundOrg = createdOrgs[0];
@@ -773,8 +779,7 @@ async function optionFieldsReplace() {
     fields.forEach((field) => {
       chai.expect(keys.includes(field)).to.equal(true);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error.message);
     // Expect no error
     chai.expect(error.message).to.equal(null);

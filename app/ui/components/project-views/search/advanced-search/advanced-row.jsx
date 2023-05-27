@@ -20,7 +20,9 @@
 
 // React modules
 import React from 'react';
-import { Button, Container, Row, Col, Input, InputGroup, Form } from 'reactstrap';
+import {
+  Button, Container, Row, Col, Input, InputGroup, Form,
+} from 'reactstrap';
 
 /* eslint-enable no-unused-vars */
 

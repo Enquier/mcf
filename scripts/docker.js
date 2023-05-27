@@ -17,7 +17,6 @@
 /* eslint-disable jsdoc/require-description-complete-sentence */
 // Rule disabled to allow list in description
 
-
 // Error Check - Check if file was run directly or global M object is undefined
 if (module.parent == null || typeof M === 'undefined') {
   // File was run directly, print error message and exit process
@@ -63,7 +62,7 @@ function docker(args) {
     const buildArgs = [
       'build',
       '-f', M.config.docker.Dockerfile,
-      '-t', M.config.docker.image.name, '.'
+      '-t', M.config.docker.image.name, '.',
     ];
     // Run build process
     const cmd = spawn('docker', buildArgs, { stdio: 'inherit' });
@@ -76,8 +75,7 @@ function docker(args) {
         // exit code NOT 0, fail
         M.log.error('Docker build failed');
         process.exit(code);
-      }
-      else {
+      } else {
         M.log.info('Docker Image Built.');
       }
     });
@@ -93,7 +91,7 @@ function docker(args) {
       '-d',
       '-it',
       '--restart=always',
-      '-e', `MBEE_ENV=${M.env}`
+      '-e', `MBEE_ENV=${M.env}`,
     ].concat(args.slice(1));
     // Check if the database is in docker container
     if (M.config.docker.db.enabled) {
@@ -135,7 +133,7 @@ function docker(args) {
     // Build the "docker run" command
     const rargs = [
       'logs',
-      M.config.docker.container.name
+      M.config.docker.container.name,
     ];
 
     // Call the Docker logs command
@@ -151,8 +149,7 @@ function docker(args) {
       }
     });
     M.log.info('End of Docker logs.');
-  }
-  else {
+  } else {
     M.log.info('Invalid arguments');
   }
 }

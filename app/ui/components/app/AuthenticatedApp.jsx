@@ -21,7 +21,7 @@
 
 // React modules
 import React from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // MBEE modules
 import Home from '../home-views/home.jsx';
@@ -31,19 +31,20 @@ import ProfileHome from '../profile-views/profile-home.jsx';
 import AdminConsoleHome from '../admin-console-views/admin-console-home.jsx';
 import About from '../general/About.jsx';
 import NotFound from '../shared-views/NotFound.jsx';
+import { Nav } from 'reactstrap';
 
 export default function AuthenticatedApp(props) {
   return (
-    <Switch>
-      <Route path={'/login'} component={() => <Redirect to={'/'}/>}/>
-      <Route path={'/orgs/:orgid/projects/:projectid'} component={ProjectHome} />
-      <Route path={'/orgs/:orgid'} component={OrgHome} />
-      <Route path={'/profile/:username'} component={ProfileHome}/>
-      <Route path={'/profile'} component={ProfileHome}/>
-      <Route path={'/admin'} component={AdminConsoleHome}/>
-      <Route path={'/about'} component={About}/>
-      <Route path={'/'} exact component={Home}/>
-      <Route path={'/'} component={NotFound}/>
-    </Switch>
+    <Routes>
+      <Route path={'/login'} render={() => <Navigate to={'/'}/>}/>
+      <Route path={'/orgs/:orgid/projects/:projectid'} element={<ProjectHome />} />
+      <Route path={'/orgs/:orgid'} element={<OrgHome />} />
+      <Route path={'/profile/:username'} element={<ProfileHome />}/>
+      <Route path={'/profile'} element={<ProfileHome />}/>
+      <Route path={'/admin'} element={<AdminConsoleHome />}/>
+      <Route path={'/about'} element={<About />}/>
+      <Route path={'/'} exact element={<Home />}/>
+      <Route path={'/'} element={<NotFound />}/>
+    </Routes>
   );
 }

@@ -44,11 +44,9 @@ async function environmentCheck() {
 
   if (typeof processEnv !== 'undefined') {
     chai.expect(M.env).to.equal(processEnv);
-  }
-  else if (fs.existsSync(path.join(M.root, 'config', 'dev.cfg'))) {
+  } else if (fs.existsSync(path.join(M.root, 'config', 'dev.cfg'))) {
     chai.expect(M.env).to.equal('dev');
-  }
-  else {
+  } else {
     chai.expect(M.env).to.equal('default');
   }
 }

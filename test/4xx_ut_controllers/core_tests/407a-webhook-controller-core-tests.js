@@ -41,8 +41,7 @@ describe(M.getModuleName(module.filename), () => {
   before(async () => {
     try {
       adminUser = await testUtils.createTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -55,8 +54,7 @@ describe(M.getModuleName(module.filename), () => {
   after(async () => {
     try {
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -112,8 +110,7 @@ async function createWebhook() {
 
     // Save the generated UUID to be used later in find() tests
     webhookData._id = createdWebhook._id;
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -148,8 +145,7 @@ async function createWebhooks() {
       chai.expect(createdWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (createdWebhook.type === 'Outgoing') {
         chai.expect(createdWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(createdWebhook.token).to.equal(token);
         chai.expect(createdWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -166,8 +162,7 @@ async function createWebhooks() {
       // Save the _id for later use
       webhookDataObj._id = createdWebhook._id;
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -206,8 +201,7 @@ async function findWebhook() {
     chai.expect(foundWebhook.createdOn).to.not.equal(null);
     chai.expect(foundWebhook.updatedOn).to.not.equal(null);
     chai.expect(foundWebhook.archivedOn).to.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -243,8 +237,7 @@ async function findWebhooks() {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -258,8 +251,7 @@ async function findWebhooks() {
       chai.expect(foundWebhook.updatedOn).to.not.equal(null);
       chai.expect(foundWebhook.archivedOn).to.equal(null);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -294,8 +286,7 @@ async function findAllWebhooks() {
       chai.expect(foundWebhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (foundWebhook.type === 'Outgoing') {
         chai.expect(foundWebhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(foundWebhook.token).to.equal(token);
         chai.expect(foundWebhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -309,8 +300,7 @@ async function findAllWebhooks() {
       chai.expect(foundWebhook.updatedOn).to.not.equal(null);
       chai.expect(foundWebhook.archivedOn).to.equal(null);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -325,7 +315,7 @@ async function updateWebhook() {
     const webhookData = testData.webhooks[0];
     const webhookUpdate = {
       id: webhookData._id,
-      name: 'test update'
+      name: 'test update',
     };
 
     // Update webhook via controller
@@ -350,8 +340,7 @@ async function updateWebhook() {
     chai.expect(updatedWebhook.createdOn).to.not.equal(null);
     chai.expect(updatedWebhook.updatedOn).to.not.equal(null);
     chai.expect(updatedWebhook.archivedOn).to.equal(null);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -366,11 +355,11 @@ async function updateWebhooks() {
     const webhookData = testData.webhooks.slice(1, 3);
     const webhookUpdate = [{
       id: webhookData[0]._id,
-      name: 'test update'
+      name: 'test update',
     },
     {
       id: webhookData[1]._id,
-      name: 'test update'
+      name: 'test update',
     }];
 
     // Update webhooks via controller
@@ -394,8 +383,7 @@ async function updateWebhooks() {
       chai.expect(webhook.triggers).to.deep.equal(webhookDataObj.triggers);
       if (webhook.type === 'Outgoing') {
         chai.expect(webhook.url).to.equal(webhookDataObj.url);
-      }
-      else {
+      } else {
         chai.expect(webhook.token).to.equal(token);
         chai.expect(webhook.tokenLocation).to.equal(webhookDataObj.tokenLocation);
       }
@@ -409,8 +397,7 @@ async function updateWebhooks() {
       chai.expect(webhook.updatedOn).to.not.equal(null);
       chai.expect(webhook.archivedOn).to.equal(null);
     });
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -437,8 +424,7 @@ async function deleteWebhook() {
 
     // Expect nothing to be returned
     chai.expect(foundWebhooks.length).to.equal(0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);
@@ -465,8 +451,7 @@ async function deleteWebhooks() {
 
     // Expect nothing to be returned
     chai.expect(foundWebhooks.length).to.equal(0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error.message).to.equal(null);

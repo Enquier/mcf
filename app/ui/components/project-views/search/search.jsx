@@ -17,6 +17,9 @@
 /* Modified ESLint rules for React. */
 /* eslint-disable no-unused-vars */
 
+// Other modules
+import axios from 'axios';
+
 // React modules
 import React, { Component } from 'react';
 import {
@@ -33,7 +36,7 @@ import {
   Input,
   InputGroup,
   Label,
-  UncontrolledButtonDropdown, Spinner
+  UncontrolledButtonDropdown, Spinner,
 } from 'reactstrap';
 
 // Import MBEE Modules
@@ -45,7 +48,6 @@ import BranchBar from '../branches/branch-bar.jsx';
 /* eslint-enable no-unused-vars */
 
 class Search extends Component {
-
   constructor(props) {
     super(props);
 
@@ -67,7 +69,7 @@ class Search extends Component {
       source: false,
       target: false,
       type: false,
-      updatedOn: false
+      updatedOn: false,
     };
 
     const options = ['Parent', 'Source', 'Target', 'Type', 'Created By', 'Archived By', 'Last Modified By'];
@@ -75,24 +77,22 @@ class Search extends Component {
 
     // Parse URL parameters
     if (params) {
-      params.split('&').forEach(pair => {
+      params.split('&').forEach((pair) => {
         const [param, value] = pair.split('=');
         const decodedVal = decodeURIComponent(value);
         // Update element filter checkbox values for specified fields
         if (param === 'fields') {
           // Decode commas in fields
           const fields = decodedVal.split(',');
-          fields.forEach(field => { filters[field] = true; });
-        }
-        else if (param !== 'q' && param !== 'query') {
+          fields.forEach((field) => { filters[field] = true; });
+        } else if (param !== 'q' && param !== 'query') {
           // Add the parameter to rows to be rendered.
           rows.push({
             // eslint-disable-next-line no-undef
             criteria: convertCase(param, 'proper'),
-            value: decodedVal
+            value: decodedVal,
           });
-        }
-        else if (param === 'q' || param === 'query') {
+        } else if (param === 'q' || param === 'query') {
           basicQuery = decodedVal;
         }
       });
@@ -108,7 +108,7 @@ class Search extends Component {
       page: 1,
       apiUrl: '',
       message: '',
-      options: options
+      options,
     };
 
     this.toggle = this.toggle.bind(this);
@@ -128,14 +128,14 @@ class Search extends Component {
 
   addRow() {
     this.setState((prevState) => ({
-      rows: [...prevState.rows, { criteria: this.state.options[0], value: '' }]
+      rows: [...prevState.rows, { criteria: this.state.options[0], value: '' }],
     }));
   }
 
   removeRow(i) {
-    const rows = this.state.rows;
+    const { rows } = this.state;
     rows.splice(i, 1);
-    this.setState({ rows: rows });
+    this.setState({ rows });
   }
 
   onChange(event) {
@@ -144,9 +144,9 @@ class Search extends Component {
 
   handleChange(i, event) {
     const { name, value } = event.target;
-    const rows = this.state.rows;
+    const { rows } = this.state;
     rows[i][name] = value;
-    this.setState({ rows: rows });
+    this.setState({ rows });
   }
 
   // Handle when enter key pressed to begin search.
@@ -159,14 +159,14 @@ class Search extends Component {
   // Handle filter checkbox changes
   filterSelected(i, event) {
     const filter = event.target.name;
-    const currentFilters = this.state.currentFilters;
+    const { currentFilters } = this.state;
     currentFilters[filter] = !this.state.currentFilters[filter];
-    this.setState({ currentFilters: currentFilters });
+    this.setState({ currentFilters });
   }
 
   // Handles prev/next button changes for Search Results
   handlePageChange(results, page) {
-    this.setState({ results: results, page: page });
+    this.setState({ results, page });
   }
 
   // Generate query string and make API call
@@ -175,7 +175,7 @@ class Search extends Component {
     this.setState({
       message: '',
       results: 'Searching ...',
-      page: 1
+      page: 1,
     });
 
     // Disable form submit
@@ -188,14 +188,14 @@ class Search extends Component {
     const bid = this.props.match.params.branchid;
     const duplicates = [];
     const params = {};
-    const rows = this.state.rows;
+    const { rows } = this.state;
     const basicQuery = ((this.state.basicQuery).trim().length > 0) ? this.state.basicQuery : null;
     const url = (basicQuery)
       ? `/api/orgs/${oid}/projects/${pid}/branches/${bid}/elements/search`
       : `/api/orgs/${oid}/projects/${pid}/branches/${bid}/elements`;
 
     // Parse (Advanced) Rows of k/v pairs into params object
-    rows.forEach(function(row) {
+    rows.forEach((row) => {
       // Convert search criteria to corresponding API format
       // eslint-disable-next-line no-undef
       const criteria = convertCase(row.criteria, 'api');
@@ -210,7 +210,7 @@ class Search extends Component {
 
     // Build query string for Advanced Search input
     let query = (Object.entries(params).length > 0)
-      ? Object.keys(params).map(key => key.concat('=', params[key])).join('&') : null;
+      ? Object.keys(params).map((key) => key.concat('=', params[key])).join('&') : null;
 
     // Cases for Search input:
     //  1 - Basic and Advanced search criteria entered
@@ -218,25 +218,23 @@ class Search extends Component {
     //  3 - Basic search criteria entered
     if ((basicQuery) && (query)) {
       query = `?q=${basicQuery}&${query}`;
-    }
-    else if (query) {
+    } else if (query) {
       query = `?${query}`;
-    }
-    else if (basicQuery) {
+    } else if (basicQuery) {
       query = `?q=${basicQuery}`;
     }
 
     // Append search to URL
     this.props.history.push({
       pathname: this.props.location.pathname,
-      search: query
+      search: query,
     });
 
     // Setup request to API endpoint with query
     this.setState({
-      query: query
+      query,
     }, () => {
-      $.ajax({
+      axios({
         method: 'GET',
         // Limit to 11 results per page
         url: `${url}${this.state.query}&limit=11&minified=true`,
@@ -244,20 +242,20 @@ class Search extends Component {
           401: () => {
             // Refresh when session expires
             window.location.reload();
+          },
+        },
+      })
+        .done((data) => {
+          this.setState({
+            results: data,
+            apiUrl: `${url}${this.state.query}&limit=11&minified=true`,
+          });
+        })
+        .fail((res) => {
+          if (res.status === 404) {
+            this.setState({ results: [], message: 'No results found.' });
           }
-        }
-      })
-      .done(data => {
-        this.setState({
-          results: data,
-          apiUrl: `${url}${this.state.query}&limit=11&minified=true`
         });
-      })
-      .fail(res => {
-        if (res.status === 404) {
-          this.setState({ results: [], message: 'No results found.' });
-        }
-      });
     });
   }
 
@@ -278,7 +276,7 @@ class Search extends Component {
 
   // Generate JSX for element filter options
   createFilters() {
-    const currentFilters = this.state.currentFilters;
+    const { currentFilters } = this.state;
     const filters = [];
     // Build component with filter input
     Object.keys(currentFilters).forEach((filter, id) => {
@@ -290,7 +288,7 @@ class Search extends Component {
                         /* eslint-disable-next-line no-undef */
                         display={convertCase(filter, 'proper')}
                         checked={currentFilters[filter]}
-                        filterSelected={this.filterSelected}/>
+                        filterSelected={this.filterSelected}/>,
       );
     });
 
@@ -312,7 +310,7 @@ class Search extends Component {
 
     // Default to ID, Name, Parent, Type results headers if no filters are selected.
     const filters = this.state.currentFilters;
-    const selectedFilters = Object.keys(filters).filter(filter => filters[filter]);
+    const selectedFilters = Object.keys(filters).filter((filter) => filters[filter]);
     const headers = (selectedFilters.length > 0)
       ? ['id'].concat(selectedFilters)
       : ['id', 'name', 'parent', 'type'];
@@ -435,7 +433,6 @@ class Search extends Component {
       </div>
     );
   }
-
 }
 
 export default Search;

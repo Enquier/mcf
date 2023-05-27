@@ -45,7 +45,7 @@ describe(M.getModuleName(module.filename), () => {
    * Before: Read in test blobs. Using function rather arrow function
    * for access to 'this' variable.
    */
-  before(async function() {
+  before(async function () {
     // If not using the artifact-local-strategy strategy, skip this test
     if (M.config.artifact.strategy !== 'local-strategy') {
       M.log.verbose('Test skipped because the local artifact strategy is not '
@@ -54,13 +54,9 @@ describe(M.getModuleName(module.filename), () => {
     }
 
     // Get test file
-    const artifactPath0 = path.join(
-      M.root, testData.artifacts[0].location, testData.artifacts[0].filename
-    );
+    const artifactPath0 = path.join(M.root, testData.artifacts[0].location, testData.artifacts[0].filename);
 
-    const artifactPath1 = path.join(
-      M.root, testData.artifacts[1].location, testData.artifacts[1].filename
-    );
+    const artifactPath1 = path.join(M.root, testData.artifacts[1].location, testData.artifacts[1].filename);
 
     // Get the test file
     artifactBlob0 = fs.readFileSync(artifactPath0);
@@ -88,7 +84,7 @@ async function postBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
 
   try {
@@ -104,12 +100,16 @@ async function postBlob() {
     // Form the blob name, location concat with filename
     const concatenName = artData.location.replace(
       // eslint-disable-next-line security/detect-non-literal-regexp
-      new RegExp(`\\${path.sep}`, 'g'), '.'
-    ) + artData.filename;
+      new RegExp(`\\${path.sep}`, 'g'), '.') + artData.filename;
 
     // Create artifact path
-    const filePath = path.join(M.root, '/storage', org.id,
-      project.id, concatenName);
+    const filePath = path.join(
+      M.root,
+      '/storage',
+      org.id,
+      project.id,
+      concatenName,
+    );
 
     // Check file was posted
     const blob = fs.readFileSync(filePath);
@@ -119,8 +119,7 @@ async function postBlob() {
 
     // Deep compare both binaries
     chai.expect(blob).to.deep.equal(artifactBlob0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -135,7 +134,7 @@ async function getBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
   try {
     // Find the artifact previously uploaded.
@@ -146,8 +145,7 @@ async function getBlob() {
 
     // Deep compare both binaries
     chai.expect(artifactBlob).to.deep.equal(artifactBlob0);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -161,7 +159,7 @@ async function listBlobs() {
   try {
     const artData = {
       project: project.id,
-      org: org.id
+      org: org.id,
     };
 
     // Get a list of blobs
@@ -170,8 +168,7 @@ async function listBlobs() {
     // Validate return data
     chai.expect(blobList[0].location).to.equal(testData.artifacts[0].location);
     chai.expect(blobList[0].filename).to.equal(testData.artifacts[0].filename);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -186,7 +183,7 @@ async function putBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
   try {
     // Replace the blob previously uploaded.
@@ -201,8 +198,7 @@ async function putBlob() {
 
     // Deep compare both binaries
     chai.expect(artifactBlob).to.deep.equal(artifactBlob1);
-  }
-  catch (error) {
+  } catch (error) {
     M.log.error(error);
     // Expect no error
     chai.expect(error).to.equal(null);
@@ -217,12 +213,10 @@ async function deleteBlob() {
     location: testData.artifacts[0].location,
     filename: testData.artifacts[0].filename,
     project: project.id,
-    org: org.id
+    org: org.id,
   };
 
   // Delete blob
   localStrategy.deleteBlob(artData);
-  chai.expect(localStrategy.getBlob.bind(
-    localStrategy, artData
-  )).to.throw('Artifact blob not found.');
+  chai.expect(localStrategy.getBlob.bind(localStrategy, artData)).to.throw('Artifact blob not found.');
 }

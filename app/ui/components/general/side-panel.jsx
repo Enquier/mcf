@@ -24,10 +24,9 @@ import React, { Component } from 'react';
 
 // Define component
 class SidePanel extends Component {
-
   render() {
     // Create the sidebar links
-    const sidepanelDisplay = React.Children.map(this.props.children, child => child);
+    const sidepanelDisplay = React.Children.map(this.props.children, (child) => child);
 
     // Render the sidebar with the links above
     return (
@@ -36,7 +35,6 @@ class SidePanel extends Component {
       </div>
     );
   }
-
 }
 
 // Export component

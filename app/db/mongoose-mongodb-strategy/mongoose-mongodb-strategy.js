@@ -33,7 +33,7 @@ const MongoStore = require('connect-mongo')(session);
 async function connect() {
   // Declare variables for mongoose connection
   const dbName = M.config.db.name;
-  const url = M.config.db.url;
+  const { url } = M.config.db;
   const dbPort = M.config.db.port;
   const dbSeedList = M.config.db.seedList;
   const dbUsername = M.config.db.username;
@@ -50,19 +50,17 @@ async function connect() {
     for (let i = 0; i < dbSeedList.length; i++) {
       if (i === 0) {
         connectURL = `${connectURL + dbSeedList[i]}`;
-      }
-      else {
+      } else {
         connectURL = `${connectURL},${dbSeedList[i]}`;
       }
     }
     connectURL = `${connectURL}/${dbName}`;
-  }
-  else {
+  } else {
     connectURL = `${connectURL + url}:${dbPort}/${dbName}`;
   }
 
   const options = {
-    auto_reconnect: true
+    auto_reconnect: true,
   };
 
   // Configure an SSL connection
@@ -82,48 +80,47 @@ async function connect() {
 
   // Database debug logs
   // Additional arguments may provide too much information
-  mongoose.set('debug', function(collectionName, methodName) {
+  mongoose.set('debug', (collectionName, methodName) => {
     M.log.debug(`DB OPERATION: ${collectionName}, ${methodName}`);
   });
 
   // Connect to database
   try {
     // Set up mongo events
-    mongoose.connection.on('error', async function(e) {
+    mongoose.connection.on('error', async (e) => {
       M.log.info(`DB: mongodb error ${e}`);
       // reconnecting
       await mongoose.connect(connectURL, options);
     });
 
-    mongoose.connection.on('connected', function(e) {
+    mongoose.connection.on('connected', (e) => {
       M.log.info('DB: mongodb is connected');
     });
 
-    mongoose.connection.on('disconnecting', function() {
+    mongoose.connection.on('disconnecting', () => {
       M.log.info('DB: mongodb is disconnecting');
     });
 
-    mongoose.connection.on('disconnected', function() {
+    mongoose.connection.on('disconnected', () => {
       M.log.info('DB: mongodb is disconnected');
     });
 
-    mongoose.connection.on('reconnected', function() {
+    mongoose.connection.on('reconnected', () => {
       M.log.info('DB: mongodb is reconnected');
     });
 
-    mongoose.connection.on('timeout', async function(e) {
+    mongoose.connection.on('timeout', async (e) => {
       M.log.info(`DB: mongodb timeout ${e}`);
       // reconnecting
       await mongoose.connect(connectURL, options);
     });
 
-    mongoose.connection.on('close', function() {
+    mongoose.connection.on('close', () => {
       M.log.info('DB: mongodb connection closed');
     });
 
     await mongoose.connect(connectURL, options);
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
 }
@@ -136,8 +133,8 @@ async function connect() {
 function disconnect() {
   return new Promise((resolve, reject) => {
     mongoose.connection.close()
-    .then(() => resolve())
-    .catch((error) => reject(error));
+      .then(() => resolve())
+      .catch((error) => reject(error));
   });
 }
 
@@ -165,7 +162,7 @@ function sanitize(data) {
   if (Array.isArray(data)) {
     return data.map((value) => this.sanitize(value));
   }
-  else if (data instanceof Object) {
+  if (data instanceof Object) {
     // Check for '$' in each key parameter of userInput
     Object.keys(data).forEach((key) => {
       // If '$' in key, remove key from userInput
@@ -184,7 +181,6 @@ function sanitize(data) {
 }
 
 class Schema extends mongoose.Schema {
-
   constructor(definition, options = {}) {
     // Set the minimize option to false, allowing for empty objects to be stored in the database
     options.minimize = false;
@@ -218,8 +214,7 @@ class Schema extends mongoose.Schema {
         if (Array.isArray(object[k])) {
           // Call recursively
           object[k].forEach((j) => changeType(j));
-        }
-        else {
+        } else {
           // If not an object, use mongoose defined type
           switch (object[k].type) {
             case 'String': object[k].type = String; break;
@@ -239,11 +234,9 @@ class Schema extends mongoose.Schema {
     // Call parent add
     return super.add(obj, prefix);
   }
-
 }
 
 class Model {
-
   /**
    * @description Class constructor. Initializes the mongoose model and stores
    * it in a variable called "model", in addition to the schema and model name.
@@ -432,8 +425,7 @@ class Model {
     // Set lean option to true
     if (!options) {
       options = { lean: true }; // eslint-disable-line no-param-reassign
-    }
-    else {
+    } else {
       options.lean = true;
     }
 
@@ -457,15 +449,13 @@ class Model {
           // If it starts with a '-', we want to remove it from the document on return
           if (k.startsWith('-')) {
             newProj[k] = -1;
-          }
-          else {
+          } else {
             newProj[k] = 1;
           }
         });
 
         projection = newProj; // eslint-disable-line no-param-reassign
-      }
-      else {
+      } else {
         // Make projection an object
         projection = {}; // eslint-disable-line no-param-reassign
       }
@@ -509,8 +499,7 @@ class Model {
     // Set lean option to true
     if (!options) {
       options = { lean: true }; // eslint-disable-line no-param-reassign
-    }
-    else {
+    } else {
       options.lean = true;
     }
 
@@ -547,8 +536,7 @@ class Model {
     // Define the rawResult option
     if (!options) {
       options = { rawResult: true }; // eslint-disable-line no-param-reassign
-    }
-    else {
+    } else {
       options.rawResult = true;
     }
 
@@ -563,8 +551,7 @@ class Model {
     // If useCollection is true, use the MongoDB function directly
     if (useCollection) {
       responseQuery = await this.model.collection.insertMany(docs);
-    }
-    else {
+    } else {
       // Insert the documents
       responseQuery = await this.model.insertMany(docs, options);
     }
@@ -651,18 +638,15 @@ class Model {
       }
     });
   }
-
 }
 
 class Store extends MongoStore {
-
   /**
    * @description Calls the parent constructor to initialize the store.
    */
   constructor() {
     super({ mongooseConnection: mongoose.connection });
   }
-
 }
 
 module.exports = {
@@ -672,5 +656,5 @@ module.exports = {
   sanitize,
   Schema,
   Model,
-  Store
+  Store,
 };

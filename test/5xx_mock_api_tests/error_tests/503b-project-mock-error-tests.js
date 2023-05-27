@@ -31,7 +31,7 @@ const APIController = M.require('controllers.api-controller');
 // Variables used across test functions
 const testUtils = M.require('lib.test-utils');
 const testData = testUtils.importTestData('test_data.json');
-const next = testUtils.next;
+const { next } = testUtils;
 let adminUser = null;
 let org;
 
@@ -51,8 +51,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       adminUser = await testUtils.createTestAdmin();
       org = await testUtils.createTestOrg(adminUser);
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -66,8 +65,7 @@ describe(M.getModuleName(module.filename), () => {
     try {
       await testUtils.removeTestOrg();
       await testUtils.removeTestAdmin();
-    }
-    catch (error) {
+    } catch (error) {
       M.log.error(error);
       // Expect no error
       chai.expect(error).to.equal(null);
@@ -115,7 +113,7 @@ function noReqUser(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(null, params, body, method);
 
@@ -153,7 +151,7 @@ function invalidOptions(endpoint) {
   const body = {};
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
     req.query = { invalid: 'invalid option' };
@@ -193,7 +191,7 @@ function conflictingIDs(endpoint) {
   const params = { projectid: 'testproject01' };
 
   // Create the customized mocha function
-  return function(done) {
+  return function (done) {
     // Create request object
     const req = testUtils.createRequest(adminUser, params, body, method);
 
@@ -225,14 +223,14 @@ function conflictingIDs(endpoint) {
  * @returns {Function} A function for mocha to use to test a specific api endpoint.
  */
 function notFound(endpoint) {
-  return function(done) {
+  return function (done) {
     // Get an unused project id
-    const id = testData.projects[3].id;
+    const { id } = testData.projects[3];
     // Parse the method
     const method = testUtils.parseMethod(endpoint);
     // Body must be an array of ids for get and delete; key-value pair for anything else
     const body = (endpoint === 'deleteProjects' || endpoint === 'getProjects')
-      ? [id] : { id: id };
+      ? [id] : { id };
     const params = { orgid: org._id };
     // Add in a params field for singular project endpoints
     if (!endpoint.includes('Projects') && endpoint.includes('Project')) {

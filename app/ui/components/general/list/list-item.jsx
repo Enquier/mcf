@@ -38,10 +38,9 @@ function ListItem(props) {
     // Create a link item
     return <Link to={props.link} onClick={props.onClick}> {listItem} </Link>;
   }
-  else {
-    // Create basic item
-    return listItem;
-  }
+
+  // Create basic item
+  return listItem;
 }
 
 // Export function

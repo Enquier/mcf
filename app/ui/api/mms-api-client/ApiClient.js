@@ -38,15 +38,16 @@ export default class ApiClient {
     return Promise.resolve(results);
   }
 
-  async get(options = {}, url = this.url) {
-    options.method = 'GET';
+  async get(options = {}, url = this.url, formatOpts = {}) {
+    const opts = options
+    opts.method = 'GET';
     return new Promise((resolve, reject) => {
-      this.makeRequest(null, options, url)
+      this.makeRequest(null, opts, url, this.type, formatOpts)
         .then((d) => {
           if (d[0] !== null) reject(d[0]);
           const results = d[1];
-          this.postProcess(results, options)
-            .then(() => resolve(results), (reason) => reject(reason));
+          this.postProcess(results, opts)
+            .then(() => resolve([null, results]), (reason) => reject(reason));
         }, (reason) => reject(reason));
     });
   }
@@ -60,7 +61,7 @@ export default class ApiClient {
           if (d[0] !== null) reject(d[0]);
           const results = d[1];
           this.postProcess(results, options)
-            .then(() => resolve(results), (reason) => reject(reason));
+            .then(() => resolve([null, results]), (reason) => reject(reason));
         }, (reason) => reject(reason));
     });
   }
@@ -171,12 +172,15 @@ export default class ApiClient {
     }
     const resp = await response;
     const fopts = formatOpts;
-    fopts.req = options;
-    const result = formatter.formatResponse(resp.data, source, fopts);
+    let result = resp.data
+    if (!fopts.skip){
+      fopts.req = options;
+      result = formatter.formatResponse(resp.data, source, fopts);
+    }
     return [null, result];
   }
 
-  static buildUrl(base) {
+  static buildUrl(base, options) {
     let url = '';
     if (uiConfig.apiServer) {
       url = uiConfig.apiServer.hostUrl;
@@ -190,41 +194,43 @@ export default class ApiClient {
     } else {
       url = '/api';
     }
-    return `${url}${base}`;
-    // if (options) {
-    //   const opts = '';
-    //
-    //   // Set minified to true by default
-    //   // if (options.minified !== false) opts += 'minified=true&';
-    //
-    //   Object.keys(options).forEach((opt) => {
-    //     // Ignore the following options
-    //     if (opt === 'orgid'
-    //       || opt === 'projectid'
-    //       || opt === 'branchid'
-    //       || opt === 'elementid'
-    //       || opt === 'artifactid'
-    //       || opt === 'webhookid'
-    //       || opt === 'ids'
-    //       || opt === 'whoami') return;
-    //     // Add the option to the query
-    //     opts += `${opt}=${options[opt]}&`;
-    //   });
-    //
-    //   if (opts.length === 0) {
-    //     // No options; return original url
-    //     return url;
-    //   }
-    //   else {
-    //     // Get rid of the trailing '&'
-    //     opts = opts.slice(0, -1);
-    //     // Return the url with options
-    //     return `${url}?${opts}`;
-    //   }
-    // }
-    // else {
-    //   return url;
-    // }
+    url = `${url}${base}`
+    if (options) {
+      let opts = '';
+    
+      // Set minified to true by default
+      // if (options.minified !== false) opts += 'minified=true&';
+    
+      Object.keys(options).forEach((opt) => {
+        // Ignore the following options
+        if (opt === 'orgid'
+          || opt === 'projectid'
+          || opt === 'branchid'
+          || opt === 'elementid'
+          || opt === 'artifactid'
+          || opt === 'webhookid'
+          || opt === 'ids'
+          || opt === 'whoami'
+          || opt === 'params'
+          || opt === 'method') return;
+        // Add the option to the query
+        opts += `${opt}=${options[opt]}&`;
+      });
+    
+      if (opts.length === 0) {
+        // No options; return original url
+        return url;
+      }
+      else {
+        // Get rid of the trailing '&'
+        opts = opts.slice(0, -1);
+        // Return the url with options
+        return `${url}?${opts}`;
+      }
+    }
+    else {
+      return url;
+    }
   }
 
   static checkError(response) {

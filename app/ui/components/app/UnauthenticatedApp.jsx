@@ -31,7 +31,7 @@ export default function UnauthenticatedApp(props) {
     <React.Fragment>
       <Routes>
         <Route path={'/login'} element={<LoginPage />}/>
-        <Route path={'/'} render={() => <Navigate to={'/login'}/>}/>
+        <Route path={'/'} element={<Navigate to='/login' replace />}/>
       </Routes>
     </React.Fragment>
   );

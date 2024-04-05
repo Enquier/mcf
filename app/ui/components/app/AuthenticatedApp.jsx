@@ -33,10 +33,19 @@ import About from '../general/About.jsx';
 import NotFound from '../shared-views/NotFound.jsx';
 import { Nav } from 'reactstrap';
 
+import uiConfig from '../../../../build/json/uiConfig.json';
+
 export default function AuthenticatedApp(props) {
+  const basePath = () => {
+    let path = '/'
+    if (typeof uiConfig.basePath !== 'undefined') {
+      path = uiConfig.basePath.replace(/\/$/, "");
+    }
+    return path;
+  };
   return (
     <Routes>
-      <Route path={'/login'} render={() => <Navigate to={'/'}/>}/>
+      <Route path={'/login'} element={<Navigate to='/' replace />}/>
       <Route path={'/orgs/:orgid/projects/:projectid'} element={<ProjectHome />} />
       <Route path={'/orgs/:orgid'} element={<OrgHome />} />
       <Route path={'/profile/:username'} element={<ProfileHome />}/>

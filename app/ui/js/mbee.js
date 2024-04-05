@@ -85,3 +85,48 @@ export const decodeHTML = (encodedString) => {
       .replace(/&#039;/g, "'");
   }
 };
+
+function mbeeWhoAmI(callback) {
+  // If user is already stored, use that.
+  if (window.sessionStorage.hasOwnProperty('mbee-user')
+    && window.sessionStorage['mbee-user'] !== null) {
+    return callback(null, JSON.parse(window.sessionStorage['mbee-user']));
+  }
+
+  // If not found, do ajax call
+  const url = '/api/users/whoami?minified=true';
+  $.ajax({
+    method: 'GET',
+    url: url,
+    statusCode: {
+      401: () => {
+        const path = window.location.pathname;
+        if (!path.startsWith('/doc') && !path.startsWith('/login')
+          && !path.startsWith('/about')) {
+          // Refresh when session expires
+          window.location.reload();
+        }
+      }
+    },
+    success: (_data) => {
+      const data = {
+        username: _data.username,
+        fname: _data.fname,
+        lname: _data.lname,
+        preferredName: _data.preferredName,
+        email: _data.email,
+        custom: _data.custom,
+        admin: _data.admin,
+        provider: _data.provider,
+        changePassword: _data.changePassword
+      };
+      if (data.username) {
+        window.sessionStorage.setItem('mbee-user', JSON.stringify(data));
+      }
+      callback(null, data);
+    },
+    error: (err) => {
+      callback(err, null);
+    }
+  });
+}

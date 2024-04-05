@@ -23,16 +23,23 @@ class UserService extends ApiClient {
   }
 
   async whoami(options = {}) {
-    const baseUrl = '/whoami';
+    const baseUrl = '/checkAuth';
 
     // Store the result of the request
-    const [err, me] = await super.get(options, baseUrl);
+    const [err, data] = await super.get(options, baseUrl, { skip: true });
 
     // Set the mbee user session storage item
-    if (me) window.sessionStorage.setItem('mbee-user', JSON.stringify(me[0]));
-    else window.sessionStorage.removeItem('mbee-user');
+    if (!err && data.username) {
+      options.user = data.username;
+      const [err2, me] = await super.get(options, '/users')
+      window.sessionStorage.setItem('mbee-user', JSON.stringify(me[0]));
+      return [err2, me];
+    } else { 
+      window.sessionStorage.removeItem('mbee-user')
+      return [err, {}];
+    }
 
-    return [err, me];
+    
   }
 
   async search(query, options = {}) {

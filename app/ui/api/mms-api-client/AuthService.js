@@ -13,6 +13,9 @@
  *
  * @description Defines the auth service.
  */
+// Other modules
+import $ from 'jquery';
+import { redirect } from 'react-router-dom';
 
 // MBEE modules
 import ApiClient from './ApiClient';
@@ -63,7 +66,7 @@ class AuthService extends ApiClient {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async logout() {
+  logout() {
     window.sessionStorage.removeItem('mbee-user');
     window.localStorage.removeItem(tokenName);
     this.authContext.setAuth(null);
@@ -71,7 +74,7 @@ class AuthService extends ApiClient {
       this.httpContext.httpClient.interceptors.request.eject(this.interceptor);
       this.interceptor = null;
     }
-    window.location.reload();
+    redirect('/login');
   }
 
   async checkAuth(callback) {
@@ -82,8 +85,9 @@ class AuthService extends ApiClient {
     }
 
     // If not found, do httpClient call
-    await super.makeRequest(null, {
+    await $.ajax({
       method: 'GET',
+      url: ApiClient.buildUrl('/checkAuth'),
       statusCode: {
         401: () => {
           const path = window.location.pathname;
@@ -95,7 +99,7 @@ class AuthService extends ApiClient {
         },
       },
       success: (_data) => {
-        const data = formatter.formatResponse({}, _data, 'user');
+        const data = _data; //formatter.formatResponse({}, _data, 'user');
         if (data.username) {
           window.sessionStorage.setItem('mbee-user', JSON.stringify(data.users[0]));
         }
@@ -104,7 +108,7 @@ class AuthService extends ApiClient {
       error: (err) => {
         callback(err, null);
       },
-    }, '/whoami');
+    });
   }
 }
 

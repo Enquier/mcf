@@ -370,9 +370,9 @@ function mcfUser(mmsUsersOb) {
   for (let i = 0; i < users.length; i += 1) {
     mcfUsers.push({
       username: users[i].username,
-      fname: (users[i].firstName) ? users[i].firstName : '',
+      fname:  (users[i].firstName) ? users[i].firstName : '',
       lname: (users[i].lastName) ? users[i].lastName : '',
-      preferredName: (users[i].preferredName) ? users[i].preferredName : users[i].firstName,
+      preferredName: (users[i].preferredName) ? users[i].preferredName : (users[i].firstName) ? users[i].firstName : '',
       email: (users[i].email) ? users[i].email : '',
       custom: (users[i].custom) ? users[i].custom : {},
       admin: users[i].admin,

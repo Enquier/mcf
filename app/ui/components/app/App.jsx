@@ -21,7 +21,7 @@
 
 // React modules
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // MBEE modules
 import Navbar from '../general/nav-bar.jsx';
@@ -32,8 +32,18 @@ import Banner from '../general/Banner.jsx';
 import { useAuth } from '../context/AuthProvider';
 import { useApiClient } from '../context/ApiClientProvider';
 
-export default function App(props) {
-  const { auth, setAuth } = useAuth();
+import uiConfig from '../../../../build/json/uiConfig.json';
+
+const router = createBrowserRouter([
+  { path: "*", Component: Root },
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+
+function Root() {
+  const { auth } = useAuth();
   const { authService, userService } = useApiClient();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({});
@@ -51,7 +61,7 @@ export default function App(props) {
           }
           setLoading(false);
         }, (response) => {
-          if (response.response.status === 401) {
+          if (response.status === 401) {
             authService.logout();
           }
         });
@@ -82,11 +92,17 @@ export default function App(props) {
     );
   }
 
+  const basePath = () => {
+    let path = '/'
+    if (typeof uiConfig.basePath !== 'undefined') {
+      path = uiConfig.basePath.replace(/\/$/, "");
+    }
+    return path;
+  };
+
   return (
-    <BrowserRouter>
       <Banner>
         { app }
       </Banner>
-    </BrowserRouter>
   );
 }

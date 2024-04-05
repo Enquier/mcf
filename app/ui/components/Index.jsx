@@ -36,18 +36,19 @@ import 'popper.js';
 
 // React modules
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // MBEE modules
 import App from './app/App.jsx';
 import { AuthProvider } from './context/AuthProvider';
 import { ApiClientProvider } from './context/ApiClientProvider';
 
-ReactDOM.render(
-  <AuthProvider>
-    <ApiClientProvider>
-      <App/>
-    </ApiClientProvider>
-  </AuthProvider>,
-  document.getElementById('main'),
-);
+const container = document.getElementById('main');
+
+const root = createRoot(container);
+
+root.render(<AuthProvider>
+  <ApiClientProvider>
+    <App/>
+  </ApiClientProvider>
+</AuthProvider>)

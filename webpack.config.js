@@ -86,14 +86,27 @@ module.exports = (env, argv) => ({
   },
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'js/index_bundle.js',
+    filename: 'js/[name].bundle.js',
     assetModuleFilename: '[name][ext]',
+    publicPath: '',
+  },
+  optimization: {
+    minimize: argv.mode === 'production',
+    moduleIds: 'named',
+    splitChunks: {
+        chunks: 'all'
+    }
   },
   devtool: 'source-map',
   devServer: {
     historyApiFallback: true,
   },
   watch: true,
+  watchOptions: {
+    aggregateTimeout: 300,
+    poll: 300,
+    ignored: ['**/node_modules/', '**/ckeditor-dev', '**/src/ve-experimental/index.ts'],
+  },
   resolve: {
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
     // Add '.jsx' and '.tsx' as a resolvable extension.
@@ -169,16 +182,16 @@ module.exports = (env, argv) => ({
       template: path.join(__dirname, 'app', 'ui', 'html', 'index_template.html'),
       filename: path.join(__dirname, 'build', 'index.html'),
     }),
-    new FaviconsWebpackPlugin({
-      logo: path.resolve(
-        __dirname,
-        'app/ui/icon/favicon.ico',
-      ),
-      prefix: '',
-      publicPath: './img',
-      outputPath: path.resolve(__dirname, 'build/img'),
-      inject: true,
-    }),
+    // new FaviconsWebpackPlugin({
+    //   logo: path.resolve(
+    //     __dirname,
+    //     'app/ui/icon/favicon.ico',
+    //   ),
+    //   prefix: '',
+    //   publicPath: './img',
+    //   outputPath: path.resolve(__dirname, 'build/img'),
+    //   inject: true,
+    // }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].min.css',
     }),
